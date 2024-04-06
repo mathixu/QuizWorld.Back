@@ -881,3 +881,4 @@ src/QuizWorld.Presentation/appsettings.json
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,windows,macos,csharp,visualstudio,rider,dotnetcore,azurefunctions,visualstudiocode,aspnetcore
 /azure-pipelines/Deploy.yml
+/src/QuizWorld.Presentation/appsettings.json
