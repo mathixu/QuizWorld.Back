@@ -16,7 +16,6 @@ public class RequestProfile : Profile
         CreateMap<SignupCommand, User>()
             .ForMember(dest => dest.EmailNormalized, opt => opt.MapFrom(src => src.Email.ToNormalizedFormat()))
             .ForMember(dest => dest.FirstNameNormalized, opt => opt.MapFrom(src => src.FirstName.ToNormalizedFormat()))
-            .ForMember(dest => dest.LastNameNormalized, opt => opt.MapFrom(src => src.LastName.ToNormalizedFormat()))
-            .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => new List<string> { AvailableRoles.Player }));
+            .ForMember(dest => dest.LastNameNormalized, opt => opt.MapFrom(src => src.LastName.ToNormalizedFormat()));
     }
 }

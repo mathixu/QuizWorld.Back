@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 
 namespace QuizWorld.Infrastructure.Services;
 
@@ -53,6 +54,7 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("role", user.Role)
         ];
     }
 }

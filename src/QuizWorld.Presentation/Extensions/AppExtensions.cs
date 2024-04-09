@@ -18,8 +18,11 @@ public static class AppExtensions
             app.UseSwaggerUI();
         }
 
+        app.UseCors("AllowAll");
+
         app.UseHttpsRedirection();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();
