@@ -21,13 +21,8 @@ public class Promotion : BaseAuditableEntity
 /// <summary>
 /// A tiny version of the Promotion entity.
 /// </summary>
-public class PromotionTiny
+public class PromotionTiny : BaseEntity
 {
-    /// <summary>
-    /// The unique identifier of the promotion.
-    /// </summary>
-    public Guid Id { get; set; }
-
     /// <summary>
     /// The name of the promotion.
     /// </summary>

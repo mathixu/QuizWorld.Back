@@ -1,4 +1,7 @@
-﻿namespace QuizWorld.Domain.Common;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System.Text.Json.Serialization;
+
+namespace QuizWorld.Domain.Common;
 
 /// <summary>
 /// Represents a base entity.
@@ -8,5 +11,17 @@ public class BaseEntity
     /// <summary>
     /// The unique identifier of the entity.
     /// </summary>
-    public Guid Id { get; set; }
+    [BsonId]
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    /// <summary> 
+    /// The unique identifier of the entity in string format.
+    /// </summary>
+    [BsonElement("_sId")]
+    [JsonIgnore]
+    public string IdString
+    {
+        get => Id.ToString();
+        set { value = Id.ToString(); }
+    }
 }
