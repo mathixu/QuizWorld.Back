@@ -12,13 +12,18 @@ namespace QuizWorld.Application.MediatR.Identity.Commands.Signup;
 /// <summary>
 /// The signup command which is used to create a new user.
 /// </summary>
-public class SignupCommandHandler(IUserRepository userRepository, IHashService hashService, IMapper mapper) : IRequestHandler<SignupCommand, QuizWorldResponse<ProfileResponse>>
+public class SignupCommandHandler(
+    IUserRepository userRepository, 
+    IHashService hashService, 
+    IMapper mapper, 
+    IIdentityService identityService) : IRequestHandler<SignupCommand, QuizWorldResponse<ProfileAndTokensResponse>>
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IHashService _hashService = hashService;
     private readonly IMapper _mapper = mapper;
+    private readonly IIdentityService _identityService = identityService;
 
-    public async Task<QuizWorldResponse<ProfileResponse>> Handle(SignupCommand request, CancellationToken cancellationToken)
+    public async Task<QuizWorldResponse<ProfileAndTokensResponse>> Handle(SignupCommand request, CancellationToken cancellationToken)
     {
         var alreadyExist = await _userRepository.GetByEmailAsync(request.Email);
 
@@ -31,8 +36,12 @@ public class SignupCommandHandler(IUserRepository userRepository, IHashService h
 
         await _userRepository.AddAsync(user);
 
-        var response = _mapper.Map<ProfileResponse>(user);
+        var response = new ProfileAndTokensResponse
+        {
+            Profile = _mapper.Map<ProfileResponse>(user),
+            Tokens = await _identityService.GenerateTokens(user)
+        };
 
-        return QuizWorldResponse<ProfileResponse>.Success(response, 201);
+        return QuizWorldResponse<ProfileAndTokensResponse>.Success(response, 201);
     }
 }

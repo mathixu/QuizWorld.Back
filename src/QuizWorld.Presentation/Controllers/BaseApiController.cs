@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace QuizWorld.Presentation.Controllers;
 
@@ -10,6 +11,7 @@ namespace QuizWorld.Presentation.Controllers;
 /// <param name="sender"></param>
 [ApiController]
 [Route("[controller]")]
+[SwaggerResponse(StatusCodes.Status400BadRequest)]
 public class BaseApiController(ISender sender) : ControllerBase
 {
     /// <summary>

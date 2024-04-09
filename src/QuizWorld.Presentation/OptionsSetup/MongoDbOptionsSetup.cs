@@ -6,7 +6,7 @@ namespace QuizWorld.Presentation.OptionsSetup;
 /// <summary>
 /// The setup for the MongoDb options.
 /// </summary>
-public class MongoDbOptionSetup(IConfiguration configuration) : IConfigureOptions<MongoDbOptions>
+public class MongoDbOptionsSetup(IConfiguration configuration) : IConfigureOptions<MongoDbOptions>
 {
     private const string SectionName = "MongoDb";
     private readonly IConfiguration _configuration = configuration;

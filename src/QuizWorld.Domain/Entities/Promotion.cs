@@ -39,6 +39,9 @@ public class PromotionTiny
     public int GraduationYear { get; set; }
 }
 
+/// <summary>
+/// Extension methods for the Promotion entity.
+/// </summary>
 public static class PromotionExtensions
 {
     /// <summary>

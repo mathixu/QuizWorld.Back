@@ -4,6 +4,9 @@ using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Common.Models.Users;
 
+/// <summary>
+/// Represents the response with the user's profile.
+/// </summary>
 public class ProfileResponse : BaseAuditableEntity
 {
     /// <summary>

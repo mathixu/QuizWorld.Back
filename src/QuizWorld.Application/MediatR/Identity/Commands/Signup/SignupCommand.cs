@@ -10,4 +10,4 @@ namespace QuizWorld.Application.MediatR.Identity.Commands.Signup;
 /// <param name="FirstName">The first name of the user. Must not exceed 255 characters.</param>
 /// <param name="LastName">The last name of the user. Must not exceed 255 characters.</param>
 /// <param name="Password">The password of the user. Must be at least 6 characters long and not exceed 255 characters.</param>
-public record SignupCommand(string Email, string FirstName, string LastName, string Password) : IQuizWorldRequest<ProfileResponse>;
+public record SignupCommand(string Email, string FirstName, string LastName, string Password) : IQuizWorldRequest<ProfileAndTokensResponse>;

@@ -48,7 +48,9 @@ public static class BuilderExtensions
 
     private static WebApplicationBuilder ConfigureOptions(this WebApplicationBuilder builder)
     {
-        builder.Services.ConfigureOptions<MongoDbOptionSetup>();
+        builder.Services.ConfigureOptions<MongoDbOptionsSetup>();
+        builder.Services.ConfigureOptions<JwtOptionsSetup>();
+        builder.Services.ConfigureOptions<RefreshTokenOptionsSetup>();
 
         return builder;
     }
