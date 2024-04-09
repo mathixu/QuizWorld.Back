@@ -7,13 +7,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D53E0E04-673
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{2946E90E-9856-430A-8FE6-A8DEA9BD8272}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizWorld.Presentation", "src\QuizWorld.Presentation\QuizWorld.Presentation.csproj", "{F793C065-7006-4DB7-976C-B3DA9D82E3F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizWorld.Presentation", "src\QuizWorld.Presentation\QuizWorld.Presentation.csproj", "{F793C065-7006-4DB7-976C-B3DA9D82E3F0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{674B171B-2603-49A2-AF1B-F36AC962591D} = {674B171B-2603-49A2-AF1B-F36AC962591D}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizWorld.Domain", "src\QuizWorld.Domain\QuizWorld.Domain.csproj", "{8E8D1C2B-9812-4FA9-8482-DAACF8C8FD51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizWorld.Domain", "src\QuizWorld.Domain\QuizWorld.Domain.csproj", "{8E8D1C2B-9812-4FA9-8482-DAACF8C8FD51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizWorld.Application", "src\QuizWorld.Application\QuizWorld.Application.csproj", "{75454762-416E-4BAC-8A3A-28AF65F683CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizWorld.Application", "src\QuizWorld.Application\QuizWorld.Application.csproj", "{75454762-416E-4BAC-8A3A-28AF65F683CA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8E8D1C2B-9812-4FA9-8482-DAACF8C8FD51} = {8E8D1C2B-9812-4FA9-8482-DAACF8C8FD51}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizWorld.Infrastructure", "src\QuizWorld.Infrastructure\QuizWorld.Infrastructure.csproj", "{674B171B-2603-49A2-AF1B-F36AC962591D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizWorld.Infrastructure", "src\QuizWorld.Infrastructure\QuizWorld.Infrastructure.csproj", "{674B171B-2603-49A2-AF1B-F36AC962591D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8E8D1C2B-9812-4FA9-8482-DAACF8C8FD51} = {8E8D1C2B-9812-4FA9-8482-DAACF8C8FD51}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizWorld.Infrastructure.Tests", "QuizWorld.Infrastructure.Tests\QuizWorld.Infrastructure.Tests.csproj", "{54E4BA98-A7B3-44F5-9775-7E0E1A391994}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +48,10 @@ Global
 		{674B171B-2603-49A2-AF1B-F36AC962591D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{674B171B-2603-49A2-AF1B-F36AC962591D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{674B171B-2603-49A2-AF1B-F36AC962591D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54E4BA98-A7B3-44F5-9775-7E0E1A391994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54E4BA98-A7B3-44F5-9775-7E0E1A391994}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54E4BA98-A7B3-44F5-9775-7E0E1A391994}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54E4BA98-A7B3-44F5-9775-7E0E1A391994}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,6 +61,7 @@ Global
 		{8E8D1C2B-9812-4FA9-8482-DAACF8C8FD51} = {D53E0E04-6732-4866-8E8A-C9FCCF56380C}
 		{75454762-416E-4BAC-8A3A-28AF65F683CA} = {D53E0E04-6732-4866-8E8A-C9FCCF56380C}
 		{674B171B-2603-49A2-AF1B-F36AC962591D} = {D53E0E04-6732-4866-8E8A-C9FCCF56380C}
+		{54E4BA98-A7B3-44F5-9775-7E0E1A391994} = {2946E90E-9856-430A-8FE6-A8DEA9BD8272}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7EE29BFE-A754-4696-93AC-65372F18BA0A}
