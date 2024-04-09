@@ -44,6 +44,11 @@ public class User : BaseAuditableEntity
     public string LastNameNormalized { get; set; } = default!;
 
     /// <summary>
+    /// Represents the full name of the user.
+    /// </summary>
+    public string FullNameNormalized { get; set; } = default!;
+
+    /// <summary>
     /// Represents the role of the user.
     /// </summary>
     public string Role { get; set; } = AvailableRoles.Player;
@@ -57,13 +62,8 @@ public class User : BaseAuditableEntity
 /// <summary>
 /// Represents a user entity with minimal information.
 /// </summary>
-public class UserTiny
+public class UserTiny : BaseEntity
 {
-    /// <summary>
-    /// Represents the id of the user.
-    /// </summary>
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Represents the email of the user.
     /// </summary>
