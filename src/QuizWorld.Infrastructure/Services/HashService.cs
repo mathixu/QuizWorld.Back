@@ -2,6 +2,9 @@
 
 namespace QuizWorld.Infrastructure.Services;
 
+/// <summary>
+/// Represents the hash service.
+/// </summary>
 public class HashService : IHashService
 {
     /// <inheritdoc />
