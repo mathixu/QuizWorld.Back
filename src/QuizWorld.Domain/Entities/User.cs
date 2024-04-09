@@ -44,9 +44,9 @@ public class User : BaseAuditableEntity
     public string LastNameNormalized { get; set; } = default!;
 
     /// <summary>
-    /// Represents the roles of the user.
+    /// Represents the role of the user.
     /// </summary>
-    public List<string> Roles { get; set; } = [AvailableRoles.Player];
+    public string Role { get; set; } = AvailableRoles.Player;
 
     /// <summary>
     /// Represents the user's promotion.

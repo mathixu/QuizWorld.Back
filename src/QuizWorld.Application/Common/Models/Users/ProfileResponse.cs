@@ -27,7 +27,7 @@ public class ProfileResponse : BaseAuditableEntity
     /// <summary>
     /// Represents the roles of the user.
     /// </summary>
-    public List<string> Roles { get; set; } = [AvailableRoles.Player];
+    public string Role { get; set; } = default!;
 
     /// <summary>
     /// Represents the user's promotion.

@@ -25,6 +25,8 @@ public static class ConfigureServices
 
         services.AddSingleton<IHashService, HashService>();
 
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+
         return services;
     }
 }
