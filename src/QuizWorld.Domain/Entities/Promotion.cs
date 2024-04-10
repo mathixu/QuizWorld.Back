@@ -1,4 +1,5 @@
 ﻿using QuizWorld.Domain.Common;
+using System.Text.Json.Serialization;
 
 namespace QuizWorld.Domain.Entities;
 
@@ -13,9 +14,10 @@ public class Promotion : BaseAuditableEntity
     public string Name { get; set; } = default!;
 
     /// <summary>
-    /// The year of graduation. (e.g. 2023)
+    /// The normalized name of the promotion.
     /// </summary>
-    public int GraduationYear { get; set; }
+    [JsonIgnore]
+    public string NameNormalized { get; set; } = default!;
 }
 
 /// <summary>
@@ -27,11 +29,6 @@ public class PromotionTiny : BaseEntity
     /// The name of the promotion.
     /// </summary>
     public string Name { get; set; } = default!;
-
-    /// <summary>
-    /// The year of graduation. (e.g. 2023)
-    /// </summary>
-    public int GraduationYear { get; set; }
 }
 
 /// <summary>
@@ -49,8 +46,7 @@ public static class PromotionExtensions
         return new PromotionTiny
         {
             Id = promotion.Id,
-            Name = promotion.Name,
-            GraduationYear = promotion.GraduationYear
+            Name = promotion.Name
         };
     }
 }

@@ -12,6 +12,7 @@ namespace QuizWorld.Presentation.Controllers;
 /// The controller for the admin operations.
 /// </summary>
 [Authorize(Roles = AvailableRoles.Admin)]
+[SwaggerResponse(StatusCodes.Status401Unauthorized)]
 public class AdminController(ISender sender) : BaseApiController(sender)
 {
 

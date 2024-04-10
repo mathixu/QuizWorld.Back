@@ -1,5 +1,6 @@
 ﻿using QuizWorld.Domain.Common;
 using QuizWorld.Domain.Enums;
+using System.Text.Json.Serialization;
 
 namespace QuizWorld.Domain.Entities;
 
@@ -16,6 +17,7 @@ public class User : BaseAuditableEntity
     /// <summary>
     /// Represents the email of the user in normalized form.
     /// </summary>
+    [JsonIgnore]
     public string EmailNormalized { get; set; } = default!;
 
     /// <summary>
@@ -31,6 +33,7 @@ public class User : BaseAuditableEntity
     /// <summary>
     /// Represents the first name of the user in normalized form.
     /// </summary>
+    [JsonIgnore]
     public string FirstNameNormalized { get; set; } = default!;
 
     /// <summary>
@@ -41,11 +44,13 @@ public class User : BaseAuditableEntity
     /// <summary>
     /// Represents the last name of the user in normalized form.
     /// </summary>
+    [JsonIgnore]
     public string LastNameNormalized { get; set; } = default!;
 
     /// <summary>
     /// Represents the full name of the user.
     /// </summary>
+    [JsonIgnore]
     public string FullNameNormalized { get; set; } = default!;
 
     /// <summary>

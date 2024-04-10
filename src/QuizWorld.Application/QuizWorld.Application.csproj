@@ -22,7 +22,6 @@
 
 	<ItemGroup>
 	  <Folder Include="MediatR\Identity\Queries\" />
-	  <Folder Include="MediatR\Users\Commands\" />
 	  <Folder Include="Services\" />
 	</ItemGroup>
 	

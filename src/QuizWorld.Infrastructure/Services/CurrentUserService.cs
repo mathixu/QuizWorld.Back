@@ -15,18 +15,18 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
     public string? UserEmail => _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value;
 
     /// <inheritdoc />
-    public int? UserId
+    public Guid? UserId
     {
         get
         {
             var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId == null || !int.TryParse(userId, out var userIdInt))
+            if (userId == null || !Guid.TryParse(userId, out var userIdGuid))
             {
                 return null;
             }
 
-            return userIdInt;
+            return userIdGuid;
         }
     }
 

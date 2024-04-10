@@ -88,6 +88,7 @@ public class UserRepository : IUserRepository
             var update = Builders<User>.Update.Set(u => u.Role, role);
 
             await _mongoUserCollection.UpdateOneAsync(filter, update);
+
             return true;
         }
         catch (Exception ex)
@@ -102,48 +103,92 @@ public class UserRepository : IUserRepository
     {
         try
         {
-            var filter = Builders<User>.Filter.Empty;
+            var filters = new List<FilterDefinition<User>>();
+            var filterBuilder = Builders<User>.Filter;
 
             if (!string.IsNullOrWhiteSpace(query.Search))
             {
-                var searchFilter = Builders<User>.Filter.Or(
-                    Builders<User>.Filter.Regex(u => u.EmailNormalized, new BsonRegularExpression(query.Search, "i")),
-                    Builders<User>.Filter.Regex(u => u.FullNameNormalized, new BsonRegularExpression(query.Search, "i")),
-                    Builders<User>.Filter.Regex(u => u.IdString, new BsonRegularExpression(query.Search, "i"))
-                );
+                var searchFilters = new List<FilterDefinition<User>>
+                {
+                    filterBuilder.Regex(u => u.EmailNormalized, new BsonRegularExpression(query.Search.ToNormalizedFormat(), "i")),
+                    filterBuilder.Regex(u => u.FullNameNormalized, new BsonRegularExpression(query.Search.ToNormalizedFormat(), "i")),
+                    filterBuilder.Regex(u => u.IdString, new BsonRegularExpression(query.Search, "i"))
+                };
 
-                filter = Builders<User>.Filter.And(filter, searchFilter);
+                filters.Add(filterBuilder.Or(searchFilters));
             }
 
             if (!string.IsNullOrWhiteSpace(query.Promotion))
             {
-                var promotionFilter = Builders<User>.Filter.Or(
-                    Builders<User>.Filter.Regex(u => u.Promotion.Name, new BsonRegularExpression(query.Promotion, "i")),
-                    Builders<User>.Filter.Regex(u => u.Promotion.IdString, new BsonRegularExpression(query.Promotion, "i"))
-                );
+                var promotionFilters = new List<FilterDefinition<User>>
+                {
+                    filterBuilder.Regex(u => u.Promotion.Name, new BsonRegularExpression(query.Promotion, "i")),
+                    filterBuilder.Regex(u => u.Promotion.IdString, new BsonRegularExpression(query.Promotion, "i"))
+                };
 
-                filter = Builders<User>.Filter.And(filter, promotionFilter);
+                filters.Add(filterBuilder.Or(promotionFilters));
             }
 
             if (!string.IsNullOrWhiteSpace(query.Role))
             {
-                filter = Builders<User>.Filter.And(filter, Builders<User>.Filter.Eq(u => u.Role, query.Role));
+                filters.Add(filterBuilder.Eq(u => u.Role, query.Role));
             }
 
-            var users = await _mongoUserCollection.Find(filter)
+            var finalFilter = filters.Count != 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
+
+            var users = await _mongoUserCollection.Find(finalFilter)
                 .SortBy(u => u.CreatedAt)
                 .Skip((query.Page - 1) * query.PageSize)
                 .Limit(query.PageSize)
                 .ToListAsync();
 
-            var totalUsers = await _mongoUserCollection.CountDocumentsAsync(filter);
+            var totalUsers = await _mongoUserCollection.CountDocumentsAsync(finalFilter);
 
-            return new PaginatedList<User>(users, (int)totalUsers, query.Page, query.PageSize);
+            return new PaginatedList<User>(users, totalUsers, query.Page, query.PageSize);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get users from the database.");
-            return new PaginatedList<User>(new List<User>(), 0, query.Page, query.PageSize);
+            return new PaginatedList<User>(Array.Empty<User>(), 0, query.Page, query.PageSize);
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<bool> AddPromotionAsync(Guid userId, PromotionTiny promotion)
+    {
+        try
+        {
+            var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+            var update = Builders<User>.Update.Set(u => u.Promotion, promotion);
+
+            var result = await _mongoUserCollection.UpdateOneAsync(filter, update);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to add promotion to user in the database.");
+            return false;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> RemovePromotionAsync(Guid promotionId)
+    {
+        try
+        {
+            var filter = Builders<User>.Filter.Eq(u => u.Promotion.Id, promotionId);
+            var update = Builders<User>.Update.Set(u => u.Promotion, null);
+
+            await _mongoUserCollection.UpdateManyAsync(filter, update);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to remove promotion from users in the database.");
+            return false;
+        }
+    }
+
 }

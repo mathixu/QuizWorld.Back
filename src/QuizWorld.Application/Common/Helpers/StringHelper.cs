@@ -14,6 +14,6 @@ public static class StringHelper
     /// <returns>The normalized string.</returns>
     public static string ToNormalizedFormat(this string text)
     {
-        return text.RemoveDiacritics().ToLowerInvariant();
+        return text.RemoveDiacritics().ToLowerInvariant().Trim();
     }
 }
