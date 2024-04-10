@@ -20,7 +20,7 @@ public class GetUsersQueryValidator : AbstractValidator<GetUsersQuery>
 
         RuleFor(x => x.Search)
             .MaximumLength(255)
-            .WithMessage("Search must be less than 50 characters.");
+            .WithMessage("Search must be less than 255 characters.");
 
         RuleFor(x => x.Promotion)
             .MaximumLength(50)

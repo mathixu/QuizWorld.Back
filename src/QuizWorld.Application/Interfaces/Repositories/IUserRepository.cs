@@ -40,4 +40,19 @@ public interface IUserRepository
     /// <param name="query">The query to use to get the users.</param>
     /// <returns>A paginated list of users.</returns>
     Task<PaginatedList<User>> GetUsersAsync(GetUsersQuery query);
+
+    /// <summary>
+    /// Add a promotion to a user.
+    /// </summary>
+    /// <param name="userId">The id of the user to add the promotion to.</param>
+    /// <param name="promotion">The promotion to add to the user.</param>
+    /// <returns>The result of the operation.</returns>
+    Task<bool> AddPromotionAsync(Guid userId, PromotionTiny promotion);
+
+    /// <summary>
+    /// Remove a promotion to all user that have it.
+    /// </summary>
+    /// <param name="promotionId">The id of the promotion to remove from all users.</param>
+    /// <returns>The result of the operation.</returns>
+    Task<bool> RemovePromotionAsync(Guid promotionId);
 }

@@ -17,6 +17,7 @@ public static class ConfigureServices
     {
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IPromotionRepository, PromotionRepository>();
 
         services.AddScoped<IIdentityService, IdentityService>();
         

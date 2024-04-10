@@ -46,7 +46,7 @@ public class IdentityController(ISender sender) : BaseApiController(sender)
     /// </summary>
     /// <param name="command">The DTO with the token to refresh the user's tokens.</param>
     [SwaggerResponse(StatusCodes.Status401Unauthorized)]
-    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(ProfileAndTokensResponse))]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(TokensResponse))]
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshCommand command)
     {

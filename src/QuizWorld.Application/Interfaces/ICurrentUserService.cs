@@ -13,7 +13,7 @@ public interface ICurrentUserService
     /// <summary>
     /// Gets the id of the current user.
     /// </summary>
-    int? UserId { get; }
+    Guid? UserId { get; }
 
     /// <summary>
     /// Gets the token of the current user.

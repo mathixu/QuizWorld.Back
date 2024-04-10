@@ -27,7 +27,7 @@ public class BaseApiController(ISender sender) : ControllerBase
     protected IActionResult HandleResult<TResponse>(QuizWorldResponse<TResponse> response)
     {
         if (response.IsSuccessful)
-            return StatusCode(response.StatusCode, response.Data);
+            return StatusCode(response.StatusCode, response.StatusCode != 204 ? response.Data : null);
 
         return StatusCode(response.StatusCode, new { message = response.ErrorMessage });
     }
