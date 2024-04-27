@@ -19,10 +19,5 @@
 	<ItemGroup>
 		<ProjectReference Include="..\QuizWorld.Domain\QuizWorld.Domain.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="MediatR\Identity\Queries\" />
-	  <Folder Include="Services\" />
-	</ItemGroup>
 	
 </Project>

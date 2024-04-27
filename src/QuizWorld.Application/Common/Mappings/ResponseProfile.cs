@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using QuizWorld.Application.Common.Models.Users;
-using QuizWorld.Domain.Entities;
 
 namespace QuizWorld.Application.Common.Mappings;
 
@@ -11,6 +9,5 @@ public class ResponseProfile : Profile
 {
     public ResponseProfile()
     {
-        CreateMap<User, ProfileResponse>();
     }
 }

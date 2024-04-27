@@ -1,5 +1,4 @@
 ﻿using QuizWorld.Domain.Common;
-using QuizWorld.Domain.Enums;
 using System.Text.Json.Serialization;
 
 namespace QuizWorld.Domain.Entities;
@@ -21,47 +20,10 @@ public class User : BaseAuditableEntity
     public string EmailNormalized { get; set; } = default!;
 
     /// <summary>
-    /// Represents the hashed password of the user.
-    /// </summary>
-    public string HashedPassword { get; set; } = default!;
-
-    /// <summary>
-    /// Represents the first name of the user.
-    /// </summary>
-    public string FirstName { get; set; } = default!;
-
-    /// <summary>
-    /// Represents the first name of the user in normalized form.
-    /// </summary>
-    [JsonIgnore]
-    public string FirstNameNormalized { get; set; } = default!;
-
-    /// <summary>
-    /// Represents the last name of the user.
-    /// </summary>
-    public string LastName { get; set; } = default!;
-
-    /// <summary>
-    /// Represents the last name of the user in normalized form.
-    /// </summary>
-    [JsonIgnore]
-    public string LastNameNormalized { get; set; } = default!;
-
-    /// <summary>
     /// Represents the full name of the user.
     /// </summary>
     [JsonIgnore]
     public string FullNameNormalized { get; set; } = default!;
-
-    /// <summary>
-    /// Represents the role of the user.
-    /// </summary>
-    public string Role { get; set; } = AvailableRoles.Player;
-
-    /// <summary>
-    /// Represents the user's promotion.
-    /// </summary>
-    public PromotionTiny Promotion { get; set; } = default!;
 }
 
 /// <summary>
