@@ -23,4 +23,8 @@
     <ProjectReference Include="..\src\QuizWorld.Infrastructure\QuizWorld.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Identity\" />
+  </ItemGroup>
+
 </Project>
