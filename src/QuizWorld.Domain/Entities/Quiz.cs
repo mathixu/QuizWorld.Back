@@ -16,8 +16,8 @@ public class Quiz : BaseAuditableEntity
     [JsonIgnore]
     public string NameNormalized { get; set; } = default!;
 
-    /// <summary>Represents SkillWeight of the quiz.</summary>
-    public Dictionary<Skill, int> SkillWeight { get; set; } = default!;
+    /// <summary>Represents SkillWeights of the quiz.</summary>
+    public List<SkillWeight> SkillWeights { get; set; } = default!;
 
     /// <summary>Represents the total number of questions in the quiz.</summary>
     public int TotalQuestions { get; set; }
@@ -48,10 +48,13 @@ public class QuizTiny : BaseEntity
     /// </summary>
     public string Name { get; set; } = default!;
 
+    /// <summary>Represents the total number of questions in the quiz.</summary>
+    public int TotalQuestions { get; set; }
+
     /// <summary>
     /// Represents the skills of the quiz.
     /// </summary>
-    public List<Skill> Skills { get; set; } = default!;
+    public List<SkillTiny> Skills { get; set; } = default!;
 }
 
 /// <summary>Extension methods for the Quiz entity.</summary>
@@ -66,7 +69,8 @@ public static class QuizExtensions
         {
             Id = quiz.Id,
             Name = quiz.Name,
-            Skills = [..quiz.SkillWeight.Keys]
+            TotalQuestions = quiz.TotalQuestions,
+            Skills = quiz.SkillWeights.Select(x => x.Skill).ToList()
         };
     }
 }

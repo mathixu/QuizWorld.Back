@@ -3,7 +3,9 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.MediatR.Common;
+using QuizWorld.Application.Services;
 using System.Reflection;
 
 namespace QuizWorld.Application;
@@ -23,6 +25,8 @@ public static class ConfigureServices
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlingBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        services.AddScoped<IQuizService, QuizService>();
 
         services.ConfigureMapper();
 

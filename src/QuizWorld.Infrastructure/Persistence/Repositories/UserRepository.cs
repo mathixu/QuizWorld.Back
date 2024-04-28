@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using QuizWorld.Application.Common.Helpers;
-using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Infrastructure.Common.Options;

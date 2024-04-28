@@ -38,8 +38,14 @@ public class ExceptionHandlingBehavior<TRequest, TResponse> : IPipelineBehavior<
             {
                 // Extract the type argument of the generic QuizWorldResponse<>
                 var responseType = type.GetGenericArguments()[0];
-
                 var failureMethod = GetFailureMethod(responseType);
+
+                if (ex is ValidationException vex)
+                {
+                    var formattedMessage = FormatValidationExceptionMessage(vex);
+                    var responseValidationException = failureMethod?.Invoke(null, new object[] { formattedMessage, GetErrorCode(ex) });
+                    return (TResponse)responseValidationException!;
+                }
 
                 // Invoke the 'Failure' method with the exception message and error code
                 var responseInstance = failureMethod?.Invoke(null, new object[] { ex.Message, GetErrorCode(ex) });
@@ -66,4 +72,11 @@ public class ExceptionHandlingBehavior<TRequest, TResponse> : IPipelineBehavior<
     /// <param name="ex">The exception.</param>
     /// <returns>The error code.</returns>
     private int GetErrorCode(Exception ex) => _errorCodes.ContainsKey(ex.GetType()) ? _errorCodes[ex.GetType()] : 500;
+
+    private static string FormatValidationExceptionMessage(ValidationException vex)
+    {
+        // Extrait et reformate les messages de validation
+        var errors = vex.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}").ToList();
+        return string.Join("\n", errors);
+    }
 }
