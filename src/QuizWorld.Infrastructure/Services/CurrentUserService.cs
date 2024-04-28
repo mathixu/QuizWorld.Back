@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using QuizWorld.Application.Interfaces;
+using QuizWorld.Domain.Entities;
 using System.Security.Claims;
 
 namespace QuizWorld.Infrastructure.Services;
@@ -38,6 +39,25 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
             var header = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"];
 
             return header?.ToString().Split(" ").Last();
+        }
+    }
+
+    /// <inheritdoc />
+    public UserTiny? User
+    {
+        get
+        {
+            var email = UserEmail;
+            var id = UserId;
+
+            if (string.IsNullOrEmpty(email) || id is null)
+                return null;
+
+            return new UserTiny
+            {
+                Id = id.Value,
+                Email = email
+            };
         }
     }
 }

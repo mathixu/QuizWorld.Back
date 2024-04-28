@@ -1,6 +1,8 @@
-﻿using MediatR;
+﻿using Amazon.Runtime;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.MediatR.Common;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace QuizWorld.Presentation.Controllers;
@@ -26,6 +28,22 @@ public class BaseApiController(ISender sender) : ControllerBase
     /// <returns>The appropriate response.</returns>
     protected IActionResult HandleResult<TResponse>(QuizWorldResponse<TResponse> response)
     {
+        if (response.IsSuccessful)
+            return StatusCode(response.StatusCode, response.StatusCode != 204 ? response.Data : null);
+
+        return StatusCode(response.StatusCode, new { message = response.ErrorMessage });
+    }
+
+    /// <summary>
+    /// Handles the command request to return the appropriate response.
+    /// </summary>
+    /// <typeparam name="TResponse">The type of the response.</typeparam>
+    /// <param name="request">The request to handle.</param>
+    /// <returns>The appropriate response.</returns>
+    protected async Task<IActionResult> HandleCommand<TResponse>(IQuizWorldRequest<TResponse> request)
+    {
+        var response = await _sender.Send(request);
+
         if (response.IsSuccessful)
             return StatusCode(response.StatusCode, response.StatusCode != 204 ? response.Data : null);
 

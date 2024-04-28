@@ -1,4 +1,6 @@
-﻿namespace QuizWorld.Application.Interfaces;
+﻿using QuizWorld.Domain.Entities;
+
+namespace QuizWorld.Application.Interfaces;
 
 /// <summary>
 /// Used to get the current user.
@@ -19,4 +21,9 @@ public interface ICurrentUserService
     /// Gets the token of the current user.
     /// </summary>
     string? UserToken { get; }
+
+    /// <summary>
+    /// Gets the user with minimal information.
+    /// </summary>
+    UserTiny? User { get; }
 }
