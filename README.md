@@ -124,7 +124,7 @@ public interface IQuizWorldRequest<TResponse> : IRequest<QuizWorldResponse<TResp
 ```
 
 ##### Command
-Une commande est une classe qui implémente `IQuizWorldRequest<Quiz>`. Cela indique que cette commande, lorsqu'elle est traitée, doit retourner une instance de `QuizWorldResponse<Quiz>`. La commande encapsule toutes les données nécessaires pour créer un quiz, agissant comme un DTO.
+Une commande est une classe qui implémente `IQuizWorldRequest<Response>`. Cela indique que cette commande, lorsqu'elle est traitée, doit retourner une instance de `QuizWorldResponse<Response>`. La commande encapsule toutes les données nécessaires au traitement, agissant comme un DTO.
 
 Voici la définition de la classe :
 ```csharp
