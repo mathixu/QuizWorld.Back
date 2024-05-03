@@ -1,9 +1,7 @@
 ﻿using MediatR;
-using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Domain.Entities;
-using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
 

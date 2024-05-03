@@ -1,5 +1,4 @@
-﻿using Amazon.Runtime;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Common;
@@ -14,7 +13,7 @@ namespace QuizWorld.Presentation.Controllers;
 [ApiController]
 [Route("[controller]")]
 [SwaggerResponse(StatusCodes.Status400BadRequest)]
-public class BaseApiController(ISender sender) : ControllerBase
+public abstract class BaseApiController(ISender sender) : ControllerBase
 {
     /// <summary>
     /// The sender used to send requests with MediatR.
@@ -43,10 +42,7 @@ public class BaseApiController(ISender sender) : ControllerBase
     protected async Task<IActionResult> HandleCommand<TResponse>(IQuizWorldRequest<TResponse> request)
     {
         var response = await _sender.Send(request);
-
-        if (response.IsSuccessful)
-            return StatusCode(response.StatusCode, response.StatusCode != 204 ? response.Data : null);
-
-        return StatusCode(response.StatusCode, new { message = response.ErrorMessage });
+        
+        return HandleResult(response);
     }
 }

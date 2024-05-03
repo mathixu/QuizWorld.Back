@@ -15,4 +15,3 @@ public class BlobStorageOptions
     /// </summary>
     public string ContainerName { get; set; } = default!;
 }
-
