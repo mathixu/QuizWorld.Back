@@ -126,7 +126,7 @@ public interface IQuizWorldRequest<TResponse> : IRequest<QuizWorldResponse<TResp
 ##### Command
 Une commande est une classe qui implémente `IQuizWorldRequest<Response>`. Cela indique que cette commande, lorsqu'elle est traitée, doit retourner une instance de `QuizWorldResponse<Response>`. La commande encapsule toutes les données nécessaires au traitement, agissant comme un DTO.
 
-Voici la définition de la classe :
+Exemple d'utilisation :
 ```csharp
 public class CreateQuizCommand : IQuizWorldRequest<Quiz> { 
     // Propriétés du DTO
@@ -136,7 +136,7 @@ public class CreateQuizCommand : IQuizWorldRequest<Quiz> {
 ##### CommandHandler
 Un command handler est le gestionnaire pour sa command correspondante et implémente `IRequestHandler<Command, QuizWorldResponse<Response>>`. Ce gestionnaire est responsable de traiter la commande, c'est-à-dire de prendre les données de la commande, les traiter, et enfin de retourner le résultat dans une `QuizWorldResponse<Response>`.
 
-La définition du handler est la suivante :
+Exemple d'un handler :
 ```csharp
 public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, QuizWorldResponse<Quiz>> {
 
