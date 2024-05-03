@@ -1,4 +1,5 @@
-﻿using QuizWorld.Application.Common.Models;
+﻿using Microsoft.AspNetCore.Http;
+using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
 using QuizWorld.Domain.Entities;
@@ -15,4 +16,10 @@ public interface IQuizService
 
     /// <summary>Searches quizzes</summary>
     Task<PaginatedList<QuizTiny>> SearchQuizzesAsync(SearchQuizzesQuery query);
+
+    /// <summary>Gets a quiz by its id</summary>
+    Task<Quiz?> GetByIdAsync(Guid id);
+
+    /// <summary>Adds an attachment to a quiz</summary>
+    Task<bool> AddAttachmentToQuiz(Guid quizId, IFormFile attachment);
 }

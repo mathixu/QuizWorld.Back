@@ -60,7 +60,7 @@ public class QuizRepository : IQuizRepository
 
             var total = await _mongoQuizCollection.CountDocumentsAsync(filter);
             var items = await _mongoQuizCollection.Find(filter)
-                .SortBy(s => s.Name)
+                .SortBy(s => s.CreatedAt)
                 .Skip((query.Page - 1) * query.PageSize)
                 .Limit(query.PageSize)
                 .ToListAsync();
@@ -71,6 +71,40 @@ public class QuizRepository : IQuizRepository
         {
             _logger.LogError(ex, "Failed to search for quizzes in the database.");
             return new PaginatedList<Quiz>(new List<Quiz>(), 0, 1, 10);
+        }
+    }
+
+    public async Task<Quiz?> GetByIdAsync(Guid id)
+    {
+        try
+        {
+            var filter = Builders<Quiz>.Filter.Eq(s => s.Id, id);
+            return await _mongoQuizCollection.Find(filter).FirstOrDefaultAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get quiz from the database.");
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdateAttachmentToQuizAsync(Guid quizId, QuizFile file)
+    {
+        try
+        {
+            var filter = Builders<Quiz>.Filter.Eq(s => s.Id, quizId);
+            var update = Builders<Quiz>.Update
+                                                            .Set(s => s.Attachment, file)
+                                                            .Set(s => s.UpdatedAt, DateTime.UtcNow);
+
+            var result = await _mongoQuizCollection.UpdateOneAsync(filter, update);
+
+            return result.ModifiedCount > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to add attachment to the quiz in the database.");
+            return false;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.MediatR.Quizzes.Commands.AddAttachmentToQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
 using QuizWorld.Domain.Entities;
@@ -19,6 +19,12 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(Quiz))]
     public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizCommand command)
         => await HandleCommand(command);
+
+    /// <summary>Attaches a file to a quiz.</summary>
+    [HttpPost("{quizId:guid}/attachment")]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Quiz))]
+    public async Task<IActionResult> AddAttachmentToQuiz([FromRoute] Guid quizId, [FromForm] IFormFileCollection attachment) // TODO: Change to IFormFile when Swagger supports it
+        => await HandleCommand(new AddAttachmentToQuizCommand(quizId, attachment.First())); 
 
     /// <summary>Search for quizzes by their name.</summary>
     [HttpGet]

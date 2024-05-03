@@ -11,4 +11,10 @@ public interface IQuizRepository
 
     /// <summary>Search for quizzes by their name.</summary>
     Task<PaginatedList<Quiz>> SearchQuizzesAsync(SearchQuizzesQuery query);
+
+    /// <summary>Get a quiz by its id.</summary>
+    Task<Quiz?> GetByIdAsync(Guid id);
+
+    /// <summary>Add an attachment to a quiz.</summary>
+    Task<bool> UpdateAttachmentToQuizAsync(Guid quizId, QuizFile file);
 }
