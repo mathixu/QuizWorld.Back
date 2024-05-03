@@ -8,10 +8,10 @@ public class MongoDbOptions
     /// <summary>
     /// Represents the connection string.
     /// </summary>
-    public string ConnectionString { get; init; } = default!;
+    public string ConnectionString { get; set; } = default!;
 
     /// <summary>
     /// Represents the database name.
     /// </summary>
-    public string DatabaseName { get; init; } = default!;
+    public string DatabaseName { get; set; } = default!;
 }

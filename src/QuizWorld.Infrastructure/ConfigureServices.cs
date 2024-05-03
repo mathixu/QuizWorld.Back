@@ -20,6 +20,9 @@ public static class ConfigureServices
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+        services.AddSingleton<IKeyVaultService, KeyVaultService>();
+        services.AddSingleton<IStorageService, BlobStorageService>();
+
         return services;
     }
 }

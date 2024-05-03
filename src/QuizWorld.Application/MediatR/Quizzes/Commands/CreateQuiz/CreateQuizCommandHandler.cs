@@ -18,6 +18,8 @@ public class CreateQuizCommandHandler(IQuizService quizService) : IRequestHandle
     {
         var quiz = await _quizService.CreateQuizAsync(request);
 
+        // TODO: Call the command to create the questions if the quiz hasn't file
+
         return QuizWorldResponse<Quiz>.Success(quiz, 201);
     }
 }

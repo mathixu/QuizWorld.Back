@@ -35,7 +35,7 @@ public class Quiz : BaseAuditableEntity
     public Status Status { get; set; }
 
     /// <summary>Represents the file with context for the quiz.</summary>
-    public QuizFile? File { get; set; } = default!;
+    public QuizFile? Attachment { get; set; } = default!;
 }
 
 /// <summary>

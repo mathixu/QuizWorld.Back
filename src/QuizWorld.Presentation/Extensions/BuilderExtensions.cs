@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using QuizWorld.Application;
 using QuizWorld.Infrastructure;
 using QuizWorld.Presentation.OptionsSetup;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
 namespace QuizWorld.Presentation.Extensions;
@@ -18,6 +20,20 @@ public static class BuilderExtensions
     /// </summary>
     public static WebApplicationBuilder Configure(this WebApplicationBuilder builder)
     {
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = "https://login.microsoftonline.com/{TenantId}";
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = "https://sts.windows.net/14bc5219-40ca-4d62-a8e4-7c97c1236349",
+                    ValidateAudience = true,
+                    ValidAudience = "api://07d62476-1f47-4a6a-a90f-4d1cbeae09fe", 
+                    ValidateLifetime = true,
+                };
+            });
+
         builder.Services.AddControllers();
 
         builder.ConfigureSwagger();
@@ -74,6 +90,7 @@ public static class BuilderExtensions
     private static WebApplicationBuilder ConfigureOptions(this WebApplicationBuilder builder)
     {
         builder.Services.ConfigureOptions<MongoDbOptionsSetup>();
+        builder.Services.ConfigureOptions<BlobStorageOptionsSetup>();
 
         return builder;
     }
@@ -94,4 +111,4 @@ public static class BuilderExtensions
 
         return builder;
     }
-    }
+}

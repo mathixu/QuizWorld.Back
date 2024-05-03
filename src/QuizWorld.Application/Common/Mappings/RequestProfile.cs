@@ -17,7 +17,8 @@ public class RequestProfile : Profile
         CreateMap<CreateQuizCommand, Quiz>()
             .ForMember(dest => dest.NameNormalized, opt => opt.MapFrom(src => src.Name.ToNormalizedFormat()))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => Status.Pending))
-            .ForMember(dest => dest.SkillWeights, opt => opt.Ignore());
+            .ForMember(dest => dest.SkillWeights, opt => opt.Ignore())
+            .ForMember(dest => dest.Attachment, opt => opt.MapFrom(src => src.HasFile ? new QuizFile { Status = QuizFileStatus.Uploading } : null));
 
         CreateMap<CreateSkillCommand, Skill>()
             .ForMember(dest => dest.NameNormalized, opt => opt.MapFrom(src => src.Name.ToNormalizedFormat()));
