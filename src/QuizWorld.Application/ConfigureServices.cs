@@ -27,6 +27,7 @@ public static class ConfigureServices
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         services.AddScoped<IQuizService, QuizService>();
+        services.AddScoped<IQuestionService, QuestionService>();
 
         services.ConfigureMapper();
 
