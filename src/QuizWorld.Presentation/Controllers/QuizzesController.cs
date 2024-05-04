@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.MediatR.Questions.Queries.GetQuestionsByQuizId;
 using QuizWorld.Application.MediatR.Quizzes.Commands.AddAttachmentToQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
@@ -31,4 +32,9 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<QuizTiny>))]
     public async Task<IActionResult> SearchQuizzes([FromQuery] SearchQuizzesQuery query)
         => await HandleCommand(query);
+
+    [HttpGet("{quizId:guid}/questions")]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<Question>))]
+    public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId, [FromQuery] int page = 1, [FromQuery] int pageSize = 25)
+        => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId, page, pageSize));
 }

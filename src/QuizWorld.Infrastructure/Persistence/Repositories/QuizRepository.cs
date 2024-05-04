@@ -60,7 +60,7 @@ public class QuizRepository : IQuizRepository
 
             var total = await _mongoQuizCollection.CountDocumentsAsync(filter);
             var items = await _mongoQuizCollection.Find(filter)
-                .SortBy(s => s.CreatedAt)
+                .SortByDescending(s => s.CreatedAt)
                 .Skip((query.Page - 1) * query.PageSize)
                 .Limit(query.PageSize)
                 .ToListAsync();

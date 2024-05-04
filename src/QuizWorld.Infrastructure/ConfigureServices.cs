@@ -17,6 +17,7 @@ public static class ConfigureServices
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IQuizRepository, QuizRepository>();
         services.AddScoped<ISkillRepository, SkillRepository>();
+        services.AddScoped<IQuestionRepository, QuestionRepository>();
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 

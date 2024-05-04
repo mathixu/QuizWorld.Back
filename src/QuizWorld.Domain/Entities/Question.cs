@@ -11,6 +11,9 @@ public class Question : BaseAuditableEntity
     /// <summary>Represents the text of the question.</summary>
     public string Text { get; set; } = default!;
 
+    /// <summary>Represents the status of the question.</summary>
+    public Status Status { get; set; } = Status.Pending;
+
     /// <summary>Represents the type of the question.</summary>
     public QuestionType Type { get; set; }
 
@@ -20,8 +23,8 @@ public class Question : BaseAuditableEntity
     /// <summary>Represents the combinaisons of answers. (if type was QuestionType.Combinaison)</summary>
     public List<List<Answer>>? Combinaisons { get; set; } = default!;
 
-    /// <summary>Represents the quiz of the question.</summary>
-    public QuizTiny Quiz { get; set; } = default!;
+    /// <summary>Represents the quizId of the question.</summary>
+    public Guid QuizId { get; set; }
 
     /// <summary>Represents the user for whom the question is customized.</summary>
     public UserTiny? QuestionFor { get; set; }
