@@ -38,7 +38,10 @@ Cette API utilise une Azure Blob Storage ainsi qu'une base de donnée CosmosDb.
 
 Vous trouverez le nom des secrets dans le fichier `.\src\QuizWorld.Application\Common\Helpers\Constants.cs`.
 
-Pour accéder aux secrets KeyVault, il faut utiliser l'interface `IConfiguration`.
+Pour accéder aux secrets KeyVault, il faut utiliser l'interface `IConfiguration`. Exemple:
+```csharp
+var connectionString = _configuration["ConnectionString"];
+```
 
 Configurez les secrets dans Azure Key Vault au format JSON suivant :
 
