@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
 using QuizWorld.Domain.Entities;
@@ -17,8 +18,9 @@ public class QuizRepository : IQuizRepository
 
     private const string QUIZ_COLLECTION = "Quiz";
     private readonly IMongoCollection<Quiz> _mongoQuizCollection;
+    private readonly ICurrentUserService _currentUserService;
 
-    public QuizRepository(IOptions<MongoDbOptions> options, ILogger<QuizRepository> logger)
+    public QuizRepository(IOptions<MongoDbOptions> options, ILogger<QuizRepository> logger, ICurrentUserService currentUserService)
     {
         _logger = logger;
 
@@ -26,6 +28,7 @@ public class QuizRepository : IQuizRepository
         var mongoDb = client.GetDatabase(options.Value.DatabaseName);
 
         _mongoQuizCollection = mongoDb.GetCollection<Quiz>(QUIZ_COLLECTION);
+        _currentUserService = currentUserService;
     }
 
     /// <inheritdoc/>
@@ -56,6 +59,11 @@ public class QuizRepository : IQuizRepository
             if (!string.IsNullOrWhiteSpace(query.Name))
             {
                 filter = Builders<Quiz>.Filter.Regex(s => s.NameNormalized, new BsonRegularExpression(query.Name.ToNormalizedFormat(), "i"));
+            }
+
+            if (!query.All)
+            {
+                filter &= Builders<Quiz>.Filter.Eq(s => s.CreatedBy.Id, _currentUserService.UserId);
             }
 
             var total = await _mongoQuizCollection.CountDocumentsAsync(filter);

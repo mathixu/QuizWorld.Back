@@ -32,8 +32,7 @@ public class QuizService(IQuizRepository quizRepository,
 
         quiz.SkillWeights = await BuildSkillWeights(command.SkillWeights);
 
-        // TODO: Add exception if user is null
-        quiz.CreatedBy = _currentUserService.User ?? new UserTiny() { Id = Guid.Empty, Email = "default@email.com"}; 
+        quiz.CreatedBy = _currentUserService.UserTiny ?? throw new UnauthorizedAccessException();
 
         await _quizRepository.AddAsync(quiz);
 
@@ -52,10 +51,7 @@ public class QuizService(IQuizRepository quizRepository,
         if (quiz.Attachment.Status == QuizFileStatus.Uploaded)
             throw new BadRequestException("This quiz already has an attachment.");
 
-        // TODO: Add exception if user is null
-        var currentUser = _currentUserService.User ?? new UserTiny() { Id = Guid.Empty, Email = "default@email.com" };
-
-        if (quiz.CreatedBy.Id != currentUser.Id)
+        if (quiz.CreatedBy.Id != _currentUserService.UserId)
             throw new ForbiddenAccessException("You are not allowed to add attachments to this quiz.");
 
         var fileUrl = await _storageService.UploadFileAsync(attachment);
