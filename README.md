@@ -194,9 +194,9 @@ public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizCommand command
 
 #### Authentification et Autorisations <a name="auth"></a>
 Pour limiter l'accès à un endpoint, il faut utiliser l'attribut `Authorize`. Son paramètre `Roles = ` permet de définir les autorisations pour celui ci.
-  - `[Authorize(Roles = Constants.MIN_STUDENT_ROLE)]`: L'endpoint est accéssible pour tous les utilisateurs authentifiés
-  - `[Authorize(Roles = Constants.MIN_TEACHER_ROLE)]`: L'endpoint est accéssible pour tous les enseignants et les administrateurs
-  - `[Authorize(Roles = Constants.MIN_ADMIN_ROLE)]`: L'endpoint est accéssible uniquement aux administrateurs
+  - `[Authorize(Roles = Constants.MIN_STUDENT_ROLE)]`: L'endpoint est accessible pour tous les utilisateurs authentifiés
+  - `[Authorize(Roles = Constants.MIN_TEACHER_ROLE)]`: L'endpoint est accessible pour tous les enseignants et les administrateurs
+  - `[Authorize(Roles = Constants.MIN_ADMIN_ROLE)]`: L'endpoint est accessible uniquement aux administrateurs
    
 Par défaut, tous les endpoints sont en `[Authorize(Roles = Constants.MIN_STUDENT_ROLE)]`.
 
