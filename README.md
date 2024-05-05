@@ -201,9 +201,9 @@ Pour limiter l'accès à un endpoint, il faut utiliser l'attribut `Authorize`. S
 Par défaut, tous les endpoints sont en `[Authorize(Roles = Constants.MIN_STUDENT_ROLE)]`.
 
 
-En utilisant `ICurrentUserService`, il est possible de récupérer les informations sur l'utilisateur ayant effectuer la requêtes. 
+En utilisant `ICurrentUserService`, il est possible de récupérer les informations (Id, Email, etc) sur l'utilisateur ayant effectuer la requêtes. 
 
-Exemple en récupérant les quiz créer par l'utilisateurs:
+Exemple en récupérant les quiz créer par l'utilisateur:
 ```csharp
 var userId = _currentUserService.UserId;
 
