@@ -1,40 +1,45 @@
-﻿using QuizWorld.Domain.Common;
-using System.Text.Json.Serialization;
-
-namespace QuizWorld.Domain.Entities;
+﻿namespace QuizWorld.Domain.Entities;
 
 /// <summary>
 /// Represents a user entity.
 /// </summary>
-public class User : BaseAuditableEntity
+public class User
 {
+    /// <summary>
+    /// Represents the id of the user. (from microsoft)
+    /// </summary>
+    public Guid Id { get; set; }
+
     /// <summary>
     /// Represents the email of the user.
     /// </summary>
     public string Email { get; set; } = default!;
 
     /// <summary>
-    /// Represents the email of the user in normalized form.
-    /// </summary>
-    [JsonIgnore]
-    public string EmailNormalized { get; set; } = default!;
-
-    /// <summary>
     /// Represents the full name of the user.
     /// </summary>
-    [JsonIgnore]
-    public string FullNameNormalized { get; set; } = default!;
+    public string FullName { get; set; } = default!;
+
+    /// <summary>
+    /// Represents the roles of the user.
+    /// </summary>
+    public string[] Roles { get; set; } = default!;
 }
 
 /// <summary>
 /// Represents a user entity with minimal information.
 /// </summary>
-public class UserTiny : BaseEntity
+public class UserTiny
 {
     /// <summary>
-    /// Represents the email of the user.
+    /// Represents the id of the user. (from microsoft)
     /// </summary>
-    public string Email { get; set; } = default!;
+    public Guid Id { get; set; }
+
+    /// <summary>
+    /// Represents the full name of the user.
+    /// </summary>
+    public string FullName { get; set; } = default!;
 }
 
 /// <summary>
@@ -52,7 +57,7 @@ public static class UserExtensions
         return new UserTiny
         {
             Id = user.Id,
-            Email = user.Email
+            FullName = user.FullName
         };
     }
 }

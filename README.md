@@ -10,6 +10,7 @@
    - [FluentValidation](#fluentvalidation)
    - [MediatR](#mediatr)
    - [Contrôleurs](#controllers)
+   - [Authentification](#auth)
 7. [Conclusion](#conclusion)
 
 ---
@@ -37,6 +38,8 @@ Cette API utilise une Azure Blob Storage ainsi qu'une base de donnée CosmosDb.
 
 Vous trouverez le nom des secrets dans le fichier `.\src\QuizWorld.Application\Common\Helpers\Constants.cs`.
 
+Pour accéder aux secrets KeyVault, il faut utiliser l'interface `IConfiguration`.
+
 Configurez les secrets dans Azure Key Vault au format JSON suivant :
 
 - **Blob Storage** :
@@ -54,6 +57,13 @@ Configurez les secrets dans Azure Key Vault au format JSON suivant :
     "DatabaseName": "nom_de_la_base"
   }
   ```
+
+- **Microsoft Entra**:
+   .NET permet de cast les secrets KeyVault directement comme un objet JSON en remplaçant les séparateurs `--` par `:`. Nous avons donc les quatres Secrets suivants utiles à la configuration de l'authentification:
+  - `AzureAd--TenantId`
+  - `AzureAd--Instance`
+  - `AzureAd--ClientId`
+  - `AzureAd--Scopes--ReadWrite`
 
 #### Authentification Azure Key Vault
 - **En local**: Utilisez Azure CLI pour vous authentifier avec `az login`. Ensuite, le `DefaultAzureCredential` gérera l'authentification automatiquement.
@@ -178,6 +188,25 @@ Exemple de mise en œuvre dans les contrôleurs :
 public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizCommand command)
     => await HandleCommand(command);
 ```
+
+#### Authentification et Autorisations <a name="auth"></a>
+Pour limiter l'accès à un endpoint, il faut utiliser l'attribut `Authorize`. Son paramètre `Roles = ` permet de définir les autorisations pour celui ci.
+  - `[Authorize(Roles = Constants.MIN_STUDENT_ROLE)]`: L'endpoint est accéssible pour tous les utilisateurs authentifiés
+  - `[Authorize(Roles = Constants.MIN_TEACHER_ROLE)]`: L'endpoint est accéssible pour tous les enseignants et les administrateurs
+  - `[Authorize(Roles = Constants.MIN_ADMIN_ROLE)]`: L'endpoint est accéssible uniquement aux administrateurs
+   
+Par défaut, tous les endpoints sont en `[Authorize(Roles = Constants.MIN_STUDENT_ROLE)]`.
+
+
+En utilisant `ICurrentUserService`, il est possible de récupérer les informations sur l'utilisateur ayant effectuer la requêtes. 
+
+Exemple en récupérant les quiz créer par l'utilisateurs:
+```csharp
+var userId = _currentUserService.UserId;
+
+var quizzes = await _quizRepository.GetQuizzesByOwnerId(userId);
+```
+
 
 ### 7. Conclusion <a name="conclusion"></a>
 Cette documentation fournit les lignes directrices pour configurer, démarrer et utiliser l'API QuizWorld. Assurez-vous de suivre les étapes de configuration pour éviter les problèmes lors du déploiement et du développement.

@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Questions.Queries.GetQuestionsByQuizId;
 using QuizWorld.Application.MediatR.Quizzes.Commands.AddAttachmentToQuiz;
@@ -13,6 +15,7 @@ namespace QuizWorld.Presentation.Controllers;
 /// <summary>
 /// Represents a controller for quizzes.
 /// </summary>
+[Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
 public class QuizzesController(ISender sender) : BaseApiController(sender)
 {
     /// <summary>Creates a new quiz.</summary>
@@ -33,8 +36,9 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     public async Task<IActionResult> SearchQuizzes([FromQuery] SearchQuizzesQuery query)
         => await HandleCommand(query);
 
+    /// <summary>Gets the questions of a quiz.</summary>
     [HttpGet("{quizId:guid}/questions")]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<Question>))]
-    public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId, [FromQuery] int page = 1, [FromQuery] int pageSize = 25)
-        => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId, page, pageSize));
+    public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId, [FromQuery] PaginationQuery query)
+        => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId, query.Page, query.PageSize));
 }

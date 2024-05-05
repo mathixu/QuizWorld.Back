@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+﻿using Azure.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using QuizWorld.Application;
 using QuizWorld.Infrastructure;
 using QuizWorld.Presentation.OptionsSetup;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
+using System.Text.Json.Serialization;
+using Constants = QuizWorld.Application.Common.Helpers.Constants;
 
 namespace QuizWorld.Presentation.Extensions;
 
@@ -20,21 +22,10 @@ public static class BuilderExtensions
     /// </summary>
     public static WebApplicationBuilder Configure(this WebApplicationBuilder builder)
     {
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.Authority = "https://login.microsoftonline.com/{TenantId}";
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = "https://sts.windows.net/14bc5219-40ca-4d62-a8e4-7c97c1236349",
-                    ValidateAudience = true,
-                    ValidAudience = "api://07d62476-1f47-4a6a-a90f-4d1cbeae09fe", 
-                    ValidateLifetime = true,
-                };
-            });
-
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        });
 
         builder.ConfigureSwagger();
         builder.ConfigureOptions();
@@ -43,8 +34,26 @@ public static class BuilderExtensions
 
         builder.Services.AddHttpContextAccessor();
 
+        builder.Configuration.AddAzureKeyVault(new Uri(Environment.GetEnvironmentVariable(Constants.ENV_VARIABLE_KEY_KEY_VAULT_URL)), new DefaultAzureCredential());
+
         builder.Services.AddApplicationServices(builder.Configuration);
         builder.Services.AddInfrastructureServices(builder.Configuration);
+
+        builder.ConfigureAuthentication();
+
+        return builder;
+    }
+
+    private static WebApplicationBuilder ConfigureAuthentication(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddMicrosoftIdentityWebApi(options =>
+            {
+                builder.Configuration.Bind("AzureAd", options);
+
+                options.Events = new JwtBearerEvents();
+
+            }, options => { builder.Configuration.Bind("AzureAd", options); });
 
         return builder;
     }

@@ -14,14 +14,12 @@ public static class ConfigureServices
     /// </summary>
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IQuizRepository, QuizRepository>();
         services.AddScoped<ISkillRepository, SkillRepository>();
         services.AddScoped<IQuestionRepository, QuestionRepository>();
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-        services.AddSingleton<IKeyVaultService, KeyVaultService>();
         services.AddSingleton<IStorageService, BlobStorageService>();
 
         return services;

@@ -1,5 +1,8 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
+using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Common;
 using Swashbuckle.AspNetCore.Annotations;
@@ -9,10 +12,11 @@ namespace QuizWorld.Presentation.Controllers;
 /// <summary>
 /// Represents the base API controller used by all controllers.
 /// </summary>
-/// <param name="sender"></param>
 [ApiController]
 [Route("[controller]")]
 [SwaggerResponse(StatusCodes.Status400BadRequest)]
+[RequiredScopeOrAppPermission(RequiredScopesConfigurationKey = Constants.KEY_VAULT_SECRET_AZURE_AD_SCOPES)] // useless ?
+[Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
 public abstract class BaseApiController(ISender sender) : ControllerBase
 {
     /// <summary>

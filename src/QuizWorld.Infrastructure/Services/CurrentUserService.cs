@@ -2,6 +2,7 @@
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Domain.Entities;
 using System.Security.Claims;
+using Microsoft.Identity.Web;
 
 namespace QuizWorld.Infrastructure.Services;
 
@@ -13,21 +14,22 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     /// <inheritdoc />
-    public string? UserEmail => _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value;
+    public string? UserEmail => _httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(x => x.Type == "preferred_username")?.Value;
 
     /// <inheritdoc />
     public Guid? UserId
     {
         get
         {
-            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var id = _httpContextAccessor.HttpContext?.User?.GetObjectId();
 
-            if (userId == null || !Guid.TryParse(userId, out var userIdGuid))
-            {
+            if (string.IsNullOrEmpty(id))
                 return null;
-            }
 
-            return userIdGuid;
+            if (!Guid.TryParse(id, out var userId))
+                return null;
+
+            return userId;
         }
     }
 
@@ -43,20 +45,41 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
     }
 
     /// <inheritdoc />
-    public UserTiny? User
+    public string? UserFullName => _httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(x => x.Type == "name")?.Value;
+
+    /// <inheritdoc />
+    public string[]? UserRoles => _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role).Select(x => x.Value).ToArray();
+
+    /// <inheritdoc />
+    public User? User
     {
         get
         {
-            var email = UserEmail;
-            var id = UserId;
+            if (!UserId.HasValue || string.IsNullOrEmpty(UserEmail) || string.IsNullOrEmpty(UserFullName) || UserRoles == null)
+                return null;
 
-            if (string.IsNullOrEmpty(email) || id is null)
+            return new User
+            {
+                Id = UserId.Value,
+                Email = UserEmail,
+                FullName = UserFullName,
+                Roles = UserRoles
+            };
+        }
+    }
+
+    /// <inheritdoc />
+    public UserTiny? UserTiny
+    {
+        get
+        {
+            if (!UserId.HasValue || string.IsNullOrEmpty(UserFullName))
                 return null;
 
             return new UserTiny
             {
-                Id = id.Value,
-                Email = email
+                Id = UserId.Value,
+                FullName = UserFullName
             };
         }
     }
