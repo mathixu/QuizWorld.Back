@@ -11,8 +11,9 @@
    - [MediatR](#mediatr)
    - [Contrôleurs](#controllers)
    - [Authentification](#auth)
-7. [Conclusion](#conclusion)
-
+7. [Système de Quiz](#quiz)
+8. [Conclusion](#conclusion)
+   
 ---
 
 ### 1. Introduction <a name="introduction"></a>
@@ -210,6 +211,47 @@ var userId = _currentUserService.UserId;
 var quizzes = await _quizRepository.GetQuizzesByOwnerId(userId);
 ```
 
+### 7. Système de Quiz <a name="quiz"></a>
 
-### 7. Conclusion <a name="conclusion"></a>
+##### 1. Création de la session par l'enseignant
+- L'**enseignant crée une session** via l'API REST et obtient un **code à partager** avec ses étudiants.
+
+##### 2. Connexion WebSocket de l'enseignant
+- L'**enseignant se connecte au WebSocket**, authentifié grâce à l'**access token** envoyé dans l'header de la requête.
+
+##### 3. Transmission et vérification du code de session
+- L'enseignant **transmet le code de la session** au WebSocket, qui vérifie si la session a bien été créée et appartient à cet enseignant.
+
+##### 4. Connexion des étudiants au WebSocket
+- Les **étudiants réalisent le handshake** avec le WebSocket.
+
+##### 5. Envoi du code de session par les étudiants
+- Après la connexion, les étudiants envoient le **code d'accès** au WebSocket qui déclenche les actions suivantes :
+  - **Ajout à la liste des utilisateurs en ligne** : cela se fait seulement s'ils sont autorisés à accéder à la session, sinon ils sont déconnectés.
+  - **Envoi de la liste mise à jour des utilisateurs** connectés à cette session de jeu par le WebSocket. Cette liste inclut également des informations de base sur la session.
+
+##### 6. Gestion des déconnexions
+- Si un étudiant se déconnecte, la liste des utilisateurs connectés est **mise à jour et envoyée** à tous les participants via WebSocket.
+
+##### 7. Accès aux informations de la session
+- Les étudiants utilisent l'**API REST pour obtenir les informations** de la session, incluant les détails des quiz et compétences concernées.
+
+##### 8. Démarrage de la session par l'enseignant
+- L'enseignant peut **démarrer la session via le WebSocket**, ce qui envoie un signal à tous les étudiants avec les informations du premier quiz lancé (identifiant du quiz).
+
+##### 9. Récupération des questions par les étudiants
+- Les étudiants réalisent une **requête API REST pour récupérer leurs questions personnalisées**.
+
+##### 10. Réponses aux questions
+- Les étudiants **répondent aux questions**. Chaque réponse est envoyée à l'API REST qui renvoie si la réponse est juste. Parallèlement, **le serveur WebSocket envoie chaque réponse à l'enseignant**.
+
+##### 11. Passage au quiz suivant
+- À la fin d'un quiz, l'étudiant effectue une **requête API REST** pour obtenir ses questions pour le quiz suivant.
+
+##### 12. Fin de tous les quiz
+- Lorsque tous les étudiants ont fini tous les quiz, un **signal par WebSocket est envoyé à tous** les participants pour annoncer la fin de la session.
+
+
+
+### 8. Conclusion <a name="conclusion"></a>
 Cette documentation fournit les lignes directrices pour configurer, démarrer et utiliser l'API QuizWorld. Assurez-vous de suivre les étapes de configuration pour éviter les problèmes lors du déploiement et du développement.
