@@ -3,16 +3,16 @@
 2. [Configuration](#configuration)
    - [Variables d'environnement](#environment)
    - [Secrets](#secrets)
-4. [Architecture de l'API](#architecture)
-5. [Démarrage de l'API](#startup)
-6. [Utilisation des Technologies](#technologies)
+3. [Architecture de l'API](#architecture)
+4. [Démarrage de l'API](#startup)
+5. [Utilisation des Technologies](#technologies)
    - [AutoMapper](#automapper)
    - [FluentValidation](#fluentvalidation)
    - [MediatR](#mediatr)
    - [Contrôleurs](#controllers)
    - [Authentification](#auth)
-7. [Système de Quiz](#quiz)
-8. [Conclusion](#conclusion)
+6. [Système de Quiz](#quiz)
+7. [Conclusion](#conclusion)
    
 ---
 
@@ -211,7 +211,7 @@ var userId = _currentUserService.UserId;
 var quizzes = await _quizRepository.GetQuizzesByOwnerId(userId);
 ```
 
-### 7. Système de Quiz <a name="quiz"></a>
+### 6. Système de Quiz <a name="quiz"></a>
 
 ##### 1. Création de la session par l'enseignant
 - L'**enseignant crée une session** via l'API REST et obtient un **code à partager** avec ses étudiants.
@@ -253,5 +253,5 @@ var quizzes = await _quizRepository.GetQuizzesByOwnerId(userId);
 
 
 
-### 8. Conclusion <a name="conclusion"></a>
+### 7. Conclusion <a name="conclusion"></a>
 Cette documentation fournit les lignes directrices pour configurer, démarrer et utiliser l'API QuizWorld. Assurez-vous de suivre les étapes de configuration pour éviter les problèmes lors du déploiement et du développement.
