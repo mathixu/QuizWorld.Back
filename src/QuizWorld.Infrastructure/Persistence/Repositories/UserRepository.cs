@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces.Repositories;
+using QuizWorld.Application.MediatR.Users.Queries.SearchUsers;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Infrastructure.Common.Options;
 
@@ -74,6 +77,53 @@ public class UserRepository : IUserRepository
         {
             _logger.LogError(ex, "Failed to update user in the database.");
             return false;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<User>> GetUsersByIdsAsync(List<Guid> userIds)
+    {
+        try
+        {
+            var filter = Builders<User>.Filter.In(u => u.Id, userIds);
+            return await _mongoUserCollection.Find(filter).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get users from the database.");
+            return [];
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<PaginatedList<User>> SearchUsersAsync(SearchUsersQuery query)
+    {
+        try
+        {
+            var filter = Builders<User>.Filter.Empty;
+
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                filter = Builders<User>.Filter.Or(
+                        Builders<User>.Filter.Regex(u => u.FullName, new BsonRegularExpression(query.Search, "i")),
+                        Builders<User>.Filter.Regex(u => u.Email, new BsonRegularExpression(query.Search, "i"))
+                    );
+            }
+
+            var total = await _mongoUserCollection.CountDocumentsAsync(filter);
+
+            var items = await _mongoUserCollection.Find(filter)
+                .SortBy(u => u.FullName)
+                .Skip((query.Page - 1) * query.PageSize)
+                .Limit(query.PageSize)
+                .ToListAsync();
+
+            return new PaginatedList<User>(items, total, query.Page, query.PageSize);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to search for users in the database.");
+            return new PaginatedList<User>(new List<User>(), 0, 1, 10);
         }
     }
 }

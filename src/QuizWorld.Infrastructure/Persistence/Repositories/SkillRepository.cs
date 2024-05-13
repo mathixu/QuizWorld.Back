@@ -60,6 +60,7 @@ public class SkillRepository : ISkillRepository
         }
     }
 
+    // TODO: Add name as Index
     /// <inheritdoc/>
     public async Task<Skill?> GetSkillByName(string name)
     {
@@ -76,6 +77,7 @@ public class SkillRepository : ISkillRepository
         }
     }
 
+    /// <inheritdoc/>
     public async Task<PaginatedList<Skill>> SearchSkillsAsync(SearchSkillsQuery query)
     {
         try

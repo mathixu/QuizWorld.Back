@@ -43,6 +43,7 @@ public class QuestionRepository : IQuestionRepository
         }
     }
 
+    // TODO: Add quizId as Index
     /// <inheritdoc/>
     public async Task<PaginatedList<Question>> GetQuestionsByQuizIdAsync(Guid quizId, int page, int pageSize)
     {

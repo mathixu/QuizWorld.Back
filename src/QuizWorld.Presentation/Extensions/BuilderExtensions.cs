@@ -22,6 +22,8 @@ public static class BuilderExtensions
     /// </summary>
     public static WebApplicationBuilder Configure(this WebApplicationBuilder builder)
     {
+        builder.Services.AddSignalR();
+
         builder.Services.AddControllers().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
@@ -112,9 +114,11 @@ public static class BuilderExtensions
                 "AllowAll",
                 builder =>
                 {
-                    builder.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
+                    builder.WithOrigins("http://localhost:4200")  // Autoriser le domaine local d'Angular
+                           .AllowAnyMethod()
+                           .AllowAnyHeader()
+                           .AllowCredentials();
+
                 });
         });
 

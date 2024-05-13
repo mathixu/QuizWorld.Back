@@ -22,4 +22,7 @@ public interface IQuizService
 
     /// <summary>Adds an attachment to a quiz</summary>
     Task<bool> AddAttachmentToQuiz(Guid quizId, IFormFile attachment);
+
+    /// <summary>Gets quizzes by their ids</summary>
+    Task<List<Quiz>> GetQuizzesByIds(List<Guid> ids);
 }
