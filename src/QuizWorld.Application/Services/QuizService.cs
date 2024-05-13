@@ -34,11 +34,6 @@ public class QuizService(IQuizRepository quizRepository,
 
         quiz.SkillWeights = await BuildSkillWeights(command.SkillWeights);
 
-        if (command.PersonalizedQuestions)
-        {
-            quiz.Users = await BuildUsers(command.UserIds!);
-        }
-
         quiz.CreatedBy = _currentUserService.UserTiny ?? throw new UnauthorizedAccessException();
 
         await _quizRepository.AddAsync(quiz);

@@ -1,27 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
-using QuizWorld.Application.Interfaces;
-using QuizWorld.Domain.Entities;
-using QuizWorld.Infrastructure.Services;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.SignalR;
 
 namespace QuizWorld.Presentation.WebSockets;
 
-public class QuizSessionHub(ICurrentUserService currentUserService) : Hub
+public class QuizSessionHub : Hub
 {
-    private readonly ICurrentUserService _currentUserService = currentUserService;
-
-    public Dictionary<string, User> ConnectedUsers { get; } = new();
-
-    [Authorize]
     public override async Task OnConnectedAsync()
     {
-        var user = _currentUserService.User;
+        var header = Context.GetHttpContext();
 
-        if (user is not null)
-        {
-            ConnectedUsers.Add(Context.ConnectionId, user);
-        }
+        var accessToken = header.Request.Headers["Authorization"];
 
         await base.OnConnectedAsync();
     }

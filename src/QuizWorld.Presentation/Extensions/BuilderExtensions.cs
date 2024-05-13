@@ -54,7 +54,6 @@ public static class BuilderExtensions
                 builder.Configuration.Bind("AzureAd", options);
 
                 options.Events = new JwtBearerEvents();
-
             }, options => { builder.Configuration.Bind("AzureAd", options); });
 
         return builder;

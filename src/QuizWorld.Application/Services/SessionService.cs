@@ -48,34 +48,10 @@ public class SessionService(IQuizService quizService,
 
         var sessionStatusResponse = new SessionStatusResponse
         {
-            Status = session.Status,
-            IsAuthorized = await DetermineIfUserIsAuthorize(session, currentUserId)
+            Status = session.Status
         };
 
         return sessionStatusResponse;
-    }
-
-    /// <summary> 
-    /// Determines if the user is authorized to access the session. (session not started and user is in the quiz's users list )
-    /// </summary>
-    private async Task<bool> DetermineIfUserIsAuthorize(Session session, Guid userId)
-    {
-        if (session.CreatedBy.Id == userId) 
-            return true;
-        
-        var quizWithPersonalizedQuestions = session.Quizzes.FirstOrDefault(q => q.PersonalizedQuestions);
-
-        if (quizWithPersonalizedQuestions is null)
-            return true;
-
-        var quiz = await _quizService.GetByIdAsync(quizWithPersonalizedQuestions.Id);
-
-        if (quiz is null || quiz.Users is null)
-        {
-            throw new InvalidOperationException("Quiz with personalized questions must have users.");
-        }
-
-        return quiz.Users.Any(u => u.Id == userId);
     }
 
     private async Task<List<QuizTiny>> BuildQuizzes(List<Guid> quizIds)
@@ -85,17 +61,6 @@ public class SessionService(IQuizService quizService,
         if (quizzes.Count != quizIds.Count)
         {
             throw new BadRequestException("One or more quizzes were not found.");
-        }
-
-        var personalizedQuizzes = quizzes.Where(q => q.PersonalizedQuestions && q.Users is not null);
-
-        if (personalizedQuizzes.Count() > 1)
-        {
-            var first = personalizedQuizzes.First();
-            if (personalizedQuizzes.Any(q => !q.Users!.OrderBy(x => x.FullName).Select(u => u.Id).SequenceEqual(first.Users!.OrderBy(x => x.FullName).Select(u => u.Id))))
-            {
-                throw new BadRequestException("All quizzes with personalized questions must have the same users.");
-            }
         }
 
         return quizzes.Select(x => x.ToTiny()).ToList();

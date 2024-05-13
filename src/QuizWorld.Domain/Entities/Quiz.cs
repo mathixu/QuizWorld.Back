@@ -38,9 +38,6 @@ public class Quiz : BaseAuditableEntity
 
     /// <summary>If the quiz has personalized questions for each user.</summary>
     public bool PersonalizedQuestions { get; set; }
-
-    /// <summary>Represents the users that have access to the quiz. (if PersonalizedQuestions is true)</summary>
-    public List<UserTiny>? Users { get; set; } = default!;
 }
 
 /// <summary>
