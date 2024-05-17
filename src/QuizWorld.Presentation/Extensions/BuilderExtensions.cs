@@ -112,9 +112,13 @@ public static class BuilderExtensions
                 "AllowAll",
                 builder =>
                 {
-                    builder.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
+                    builder.WithOrigins("http://localhost:4200")  // Autoriser le domaine local d'Angular
+                            .WithOrigins("https://kind-hill-036ca5803.5.azurestaticapps.net")
+                            .WithOrigins("https://purple-sky-034637e03.5.azurestaticapps.net")
+                           .AllowAnyMethod()
+                           .AllowAnyHeader()
+                           .AllowCredentials();
+
                 });
         });
 
