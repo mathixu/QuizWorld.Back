@@ -67,6 +67,23 @@ public class QuestionRepository : IQuestionRepository
     }
 
     /// <inheritdoc/>
+    public async Task<List<Question>> GetQuestionsByQuizIdAsync(Guid quizId)
+    {
+        try
+        {
+            var filter = Builders<Question>.Filter.Eq(q => q.QuizId, quizId);
+            var questions = await _mongoQuestionCollection.Find(filter).ToListAsync();
+
+            return questions;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get questions from the database.");
+            return [];
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<Question?> GetByIdAsync(Guid id)
     {
         try

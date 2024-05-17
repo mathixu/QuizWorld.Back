@@ -30,6 +30,8 @@ public static class ConfigureServices
         services.AddScoped<IQuestionService, QuestionService>();
         services.AddScoped<ISessionService, SessionService>();
 
+        services.AddSingleton<ICurrentSessionService, CurrentSessionService>();
+
         services.ConfigureMapper();
 
         return services;

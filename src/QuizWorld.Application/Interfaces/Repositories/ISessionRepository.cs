@@ -9,4 +9,7 @@ public interface ISessionRepository
 
     /// <summary>Get a session by its code.</summary>
     Task<Session?> GetByCodeAsync(string code);
+
+    /// <summary>Get a session by its id.</summary>
+    Task<Session?> GetByIdAsync(Guid sessionId);
 }

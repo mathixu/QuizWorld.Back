@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
+using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
 using QuizWorld.Domain.Entities;
 

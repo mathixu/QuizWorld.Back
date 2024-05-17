@@ -57,4 +57,19 @@ public class SessionRepository : ISessionRepository
             return null;
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<Session?> GetByIdAsync(Guid sessionId)
+    {
+        try
+        {
+            var session = await _mongoSessionCollection.Find(s => s.Id == sessionId).FirstOrDefaultAsync();
+            return session;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get session by id from the database.");
+            return null;
+        }
+    }
 }

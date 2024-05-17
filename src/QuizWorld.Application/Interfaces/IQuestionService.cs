@@ -11,4 +11,19 @@ public interface IQuestionService
     /// Creates the questions for the quiz.
     /// </summary>
     Task CreateQuestionsAsync(Quiz quiz);
+
+    /// <summary>
+    /// Gets the custom questions for a User.
+    /// </summary>
+    Task<List<QuestionTiny>> GetCustomQuestions(Guid quizId, Guid userId);
+
+    /// <summary>
+    /// Answers a question.
+    /// </summary>
+    Task<bool> AnswerQuestionAsync(Guid questionId, List<Guid> AnswerIds);
+
+    /// <summary>
+    /// Gets a question by its id.
+    /// </summary>
+    Task<Question?> GetQuestionById(Guid questionId);
 }

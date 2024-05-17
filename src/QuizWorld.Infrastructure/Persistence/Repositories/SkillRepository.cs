@@ -56,7 +56,7 @@ public class SkillRepository : ISkillRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get skills by ids from the database.");
-            return new List<Skill>();
+            return [];
         }
     }
 

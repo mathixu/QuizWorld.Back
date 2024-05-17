@@ -23,7 +23,7 @@ public class BaseEntity
     public string IdString
     {
         get => Id.ToString();
-        set { value = Id.ToString(); }
+        set { _ = Id.ToString(); }
     }
 
     /// <summary>

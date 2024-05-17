@@ -21,7 +21,7 @@ public static class AppExtensions
 
         app.UseCors("AllowAll");
 
-        app.MapHub<QuizSessionHub>("/quiz-session");
+        app.MapHub<QuizSessionHub>("/quiz-session").RequireAuthorization();
 
         app.UseHttpsRedirection();
 

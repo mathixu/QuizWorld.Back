@@ -134,7 +134,7 @@ public class QuizRepository : IQuizRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get quizzes from the database.");
-            return new List<Quiz>();
+            return [];
         }
     }
 }

@@ -17,7 +17,8 @@ public class QuizService(IQuizRepository quizRepository,
     ICurrentUserService currentUserService, 
     IMapper mapper,
     IStorageService storageService,
-    IUserRepository userRepository
+    IUserRepository userRepository,
+    ICurrentSessionService currentSessionService
     ) : IQuizService
 {
     private readonly IQuizRepository _quizRepository = quizRepository;
@@ -26,6 +27,7 @@ public class QuizService(IQuizRepository quizRepository,
     private readonly ICurrentUserService _currentUserService = currentUserService;
     private readonly IStorageService _storageService = storageService;
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly ICurrentSessionService _currentSessionService = currentSessionService;
 
     /// <inheritdoc/>
     public async Task<Quiz> CreateQuizAsync(CreateQuizCommand command)
@@ -138,6 +140,4 @@ public class QuizService(IQuizRepository quizRepository,
             UploadedAt = DateTime.UtcNow,
         };
     }
-
-
 }
