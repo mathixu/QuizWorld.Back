@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using QuizWorld.Application.Interfaces;
 
 namespace QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
 

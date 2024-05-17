@@ -83,4 +83,30 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
             };
         }
     }
+
+    public User? ExtractUser(ClaimsPrincipal claimsPrincipal)
+    {
+        var id = claimsPrincipal.GetObjectId();
+
+        if (string.IsNullOrEmpty(id))
+            return null;
+
+        if (!Guid.TryParse(id, out var userId))
+            return null;
+
+        var email = claimsPrincipal.FindFirst("preferred_username")?.Value;
+        var fullName = claimsPrincipal.FindFirst("name")?.Value;
+        var roles = claimsPrincipal.FindAll(ClaimTypes.Role).Select(x => x.Value).ToArray();
+
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(fullName) || roles == null)
+            return null;
+
+        return new User
+        {
+            Id = userId,
+            Email = email,
+            FullName = fullName,
+            Roles = roles
+        };
+    }
 }

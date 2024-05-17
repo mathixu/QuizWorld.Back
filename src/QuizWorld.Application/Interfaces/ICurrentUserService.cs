@@ -1,4 +1,5 @@
 ﻿using QuizWorld.Domain.Entities;
+using System.Security.Claims;
 
 namespace QuizWorld.Application.Interfaces;
 
@@ -41,4 +42,9 @@ public interface ICurrentUserService
     /// Gets the user information with minimal information.
     /// </summary>
     UserTiny? UserTiny { get; }
+
+    /// <summary>Extracts the user from the claims principal.</summary>
+    /// <param name="claimsPrincipal">The claims principal.</param>
+    /// <returns>The user.</returns>
+    User? ExtractUser(ClaimsPrincipal claimsPrincipal);
 }

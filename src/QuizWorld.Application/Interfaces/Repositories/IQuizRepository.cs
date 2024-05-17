@@ -17,4 +17,7 @@ public interface IQuizRepository
 
     /// <summary>Add an attachment to a quiz.</summary>
     Task<bool> UpdateAttachmentToQuizAsync(Guid quizId, QuizFile file);
+
+    /// <summary>Gets quizzes by their ids</summary>
+    Task<List<Quiz>> GetQuizzesByIds(List<Guid> ids);
 }

@@ -66,6 +66,11 @@ public class QuizRepository : IQuizRepository
                 filter &= Builders<Quiz>.Filter.Eq(s => s.CreatedBy.Id, _currentUserService.UserId);
             }
 
+            if (query.Status.HasValue)
+            {
+                filter &= Builders<Quiz>.Filter.Eq(s => s.Status, query.Status.Value);
+            }
+
             var total = await _mongoQuizCollection.CountDocumentsAsync(filter);
             var items = await _mongoQuizCollection.Find(filter)
                 .SortByDescending(s => s.CreatedAt)
@@ -82,6 +87,7 @@ public class QuizRepository : IQuizRepository
         }
     }
 
+    /// <inheritdoc/>
     public async Task<Quiz?> GetByIdAsync(Guid id)
     {
         try
@@ -96,6 +102,7 @@ public class QuizRepository : IQuizRepository
         }
     }
 
+    /// <inheritdoc/>
     public async Task<bool> UpdateAttachmentToQuizAsync(Guid quizId, QuizFile file)
     {
         try
@@ -113,6 +120,21 @@ public class QuizRepository : IQuizRepository
         {
             _logger.LogError(ex, "Failed to add attachment to the quiz in the database.");
             return false;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<Quiz>> GetQuizzesByIds(List<Guid> ids)
+    {
+        try
+        {
+            var filter = Builders<Quiz>.Filter.In(s => s.Id, ids);
+            return await _mongoQuizCollection.Find(filter).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get quizzes from the database.");
+            return [];
         }
     }
 }

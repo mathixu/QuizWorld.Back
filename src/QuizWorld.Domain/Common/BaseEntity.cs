@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System.Text.Json.Serialization;
 
 namespace QuizWorld.Domain.Common;
@@ -22,6 +23,13 @@ public class BaseEntity
     public string IdString
     {
         get => Id.ToString();
-        set { value = Id.ToString(); }
+        set { _ = Id.ToString(); }
     }
+
+    /// <summary>
+    /// Catch all property for storing additional data.
+    /// </summary>
+    [JsonIgnore]
+    [BsonExtraElements]
+    public BsonDocument CatchAll { get; set; }
 }

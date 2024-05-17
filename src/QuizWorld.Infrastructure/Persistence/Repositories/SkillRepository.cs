@@ -56,10 +56,11 @@ public class SkillRepository : ISkillRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get skills by ids from the database.");
-            return new List<Skill>();
+            return [];
         }
     }
 
+    // TODO: Add name as Index
     /// <inheritdoc/>
     public async Task<Skill?> GetSkillByName(string name)
     {
@@ -76,6 +77,7 @@ public class SkillRepository : ISkillRepository
         }
     }
 
+    /// <inheritdoc/>
     public async Task<PaginatedList<Skill>> SearchSkillsAsync(SearchSkillsQuery query)
     {
         try
