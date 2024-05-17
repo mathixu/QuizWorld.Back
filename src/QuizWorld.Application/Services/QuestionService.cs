@@ -1,13 +1,16 @@
-﻿using QuizWorld.Application.Interfaces;
+﻿using QuizWorld.Application.Common.Exceptions;
+using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Services;
 
-public class QuestionService(IQuestionRepository questionRepository) : IQuestionService
+public class QuestionService(IQuestionRepository questionRepository, IQuizService quizService, IUserSessionRepository userSessionRepository) : IQuestionService
 {
     private readonly IQuestionRepository _questionRepository = questionRepository;
+    private readonly IQuizService _quizService = quizService;
+    private readonly IUserSessionRepository _userSessionRepository = userSessionRepository;
 
     // Fake implementation
     /// <inheritdoc/>
@@ -40,5 +43,36 @@ public class QuestionService(IQuestionRepository questionRepository) : IQuestion
         }
 
         await _questionRepository.AddRangeAsync(questions);
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<QuestionTiny>> GetCustomQuestions(Guid quizId, Guid userId)
+    {
+        var quiz = await _quizService.GetByIdAsync(quizId) 
+            ?? throw new NotFoundException(nameof(Quiz), quizId);
+
+        var questions = await _questionRepository.GetQuestionsByQuizIdAsync(quizId);
+
+        if (quiz.PersonalizedQuestions)
+        {
+            // TODO: Add algorithm to get custom questions adapted to the user
+        }
+
+        return questions.Take(quiz.TotalQuestions).Select(q => q.ToTiny()).ToList();
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> AnswerQuestionAsync(Guid questionId, List<Guid> AnswerIds)
+    {
+        var question = await _questionRepository.GetByIdAsync(questionId)
+            ?? throw new NotFoundException(nameof(Question), questionId);
+
+        return question.CheckAnswer(AnswerIds);
+    }
+
+    /// <inheritdoc/>
+    public async Task<Question?> GetQuestionById(Guid questionId)
+    {
+        return await _questionRepository.GetByIdAsync(questionId);
     }
 }

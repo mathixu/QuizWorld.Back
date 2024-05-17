@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
 using QuizWorld.Application.MediatR.Questions.Queries.GetQuestionsByQuizId;
 using QuizWorld.Application.MediatR.Quizzes.Commands.AddAttachmentToQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
+using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
 using QuizWorld.Domain.Entities;
 using Swashbuckle.AspNetCore.Annotations;
@@ -41,4 +43,21 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<Question>))]
     public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId, [FromQuery] PaginationQuery query)
         => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId, query.Page, query.PageSize));
+
+    /// <summary>Starts a quiz.</summary>
+    [HttpPost("{quizId:guid}/start")]
+    [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
+    public async Task<IActionResult> StartQuiz([FromRoute] Guid quizId)
+        => await HandleCommand(new StartQuizCommand(quizId));
+
+    /// <summary>Answers a question.</summary>
+    [HttpPost("{quizId:guid}/questions/{questionId:guid}/answer")]
+    [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
+    public async Task<IActionResult> AnswerQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] AnswerQuestionCommand command)
+    {
+        command.QuizId = quizId;
+        command.QuestionId = questionId;
+
+        return await HandleCommand(command);
+    }
 }

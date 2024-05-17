@@ -1,15 +1,12 @@
-﻿namespace QuizWorld.Domain.Entities;
+﻿using QuizWorld.Domain.Common;
+
+namespace QuizWorld.Domain.Entities;
 
 /// <summary>
 /// Represents a user entity.
 /// </summary>
-public class User
-{
-    /// <summary>
-    /// Represents the id of the user. (from microsoft)
-    /// </summary>
-    public Guid Id { get; set; }
-
+public class User : BaseEntity
+{ 
     /// <summary>
     /// Represents the email of the user.
     /// </summary>
@@ -29,13 +26,8 @@ public class User
 /// <summary>
 /// Represents a user entity with minimal information.
 /// </summary>
-public class UserTiny
+public class UserTiny : BaseEntity
 {
-    /// <summary>
-    /// Represents the id of the user. (from microsoft)
-    /// </summary>
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Represents the full name of the user.
     /// </summary>

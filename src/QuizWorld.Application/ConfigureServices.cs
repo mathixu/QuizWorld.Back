@@ -28,6 +28,9 @@ public static class ConfigureServices
 
         services.AddScoped<IQuizService, QuizService>();
         services.AddScoped<IQuestionService, QuestionService>();
+        services.AddScoped<ISessionService, SessionService>();
+
+        services.AddSingleton<ICurrentSessionService, CurrentSessionService>();
 
         services.ConfigureMapper();
 

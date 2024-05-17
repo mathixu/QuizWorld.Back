@@ -22,9 +22,6 @@ public class Quiz : BaseAuditableEntity
     /// <summary>Represents the total number of questions in the quiz.</summary>
     public int TotalQuestions { get; set; }
 
-    /// <summary>If the quiz has personalized questions for each user.</summary>
-    public bool PersonalizedQuestions { get; set; }
-
     /// <summary>If we should display if the answer has multiple choices.</summary>
     public bool DisplayMultipleChoice { get; set; }
 
@@ -34,8 +31,13 @@ public class Quiz : BaseAuditableEntity
     /// <summary>Represents the status of the quiz.</summary>
     public Status Status { get; set; }
 
+
     /// <summary>Represents the file with context for the quiz.</summary>
     public QuizFile? Attachment { get; set; } = default!;
+
+
+    /// <summary>If the quiz has personalized questions for each user.</summary>
+    public bool PersonalizedQuestions { get; set; }
 }
 
 /// <summary>
@@ -55,6 +57,11 @@ public class QuizTiny : BaseEntity
     /// Represents the skills of the quiz.
     /// </summary>
     public List<SkillTiny> Skills { get; set; } = default!;
+
+    /// <summary>
+    /// Represents the file with context for the quiz.
+    /// </summary>
+    public bool PersonalizedQuestions { get; set; }
 }
 
 /// <summary>Extension methods for the Quiz entity.</summary>
@@ -70,7 +77,8 @@ public static class QuizExtensions
             Id = quiz.Id,
             Name = quiz.Name,
             TotalQuestions = quiz.TotalQuestions,
-            Skills = quiz.SkillWeights.Select(x => x.Skill).ToList()
+            Skills = quiz.SkillWeights.Select(x => x.Skill).ToList(),
+            PersonalizedQuestions = quiz.PersonalizedQuestions
         };
     }
 }
