@@ -13,5 +13,9 @@ public class SearchQuizzesQueryValidator : AbstractValidator<SearchQuizzesQuery>
         RuleFor(x => x.PageSize)
             .GreaterThan(0)
             .WithMessage("The page size must be greater than 0.");
+
+        RuleFor(x => x.Status)
+            .IsInEnum()
+            .WithMessage("The status is not valid.");
     }
 }

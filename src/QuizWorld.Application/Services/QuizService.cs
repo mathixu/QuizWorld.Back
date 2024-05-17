@@ -16,7 +16,9 @@ public class QuizService(IQuizRepository quizRepository,
     ISkillRepository skillRepository, 
     ICurrentUserService currentUserService, 
     IMapper mapper,
-    IStorageService storageService
+    IStorageService storageService,
+    IUserRepository userRepository,
+    ICurrentSessionService currentSessionService
     ) : IQuizService
 {
     private readonly IQuizRepository _quizRepository = quizRepository;
@@ -24,6 +26,8 @@ public class QuizService(IQuizRepository quizRepository,
     private readonly IMapper _mapper = mapper;
     private readonly ICurrentUserService _currentUserService = currentUserService;
     private readonly IStorageService _storageService = storageService;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly ICurrentSessionService _currentSessionService = currentSessionService;
 
     /// <inheritdoc/>
     public async Task<Quiz> CreateQuizAsync(CreateQuizCommand command)
@@ -94,6 +98,12 @@ public class QuizService(IQuizRepository quizRepository,
         return await _quizRepository.GetByIdAsync(id);
     }
 
+    /// <inheritdoc/>
+    public async Task<List<Quiz>> GetQuizzesByIds(List<Guid> ids)
+    {
+        return await _quizRepository.GetQuizzesByIds(ids);
+    }
+
     private async Task<List<SkillWeight>> BuildSkillWeights(Dictionary<Guid, int> skillWeights)
     { 
         var skills = await _skillRepository.GetSkillsByIdsAsync(skillWeights.Select(x => x.Key));
@@ -106,6 +116,18 @@ public class QuizService(IQuizRepository quizRepository,
         return skillWeights.Select(x => new SkillWeight
             { Skill = skills.First(s => s.Id == x.Key).ToTiny(), Weight = x.Value })
             .ToList();  
+    }
+
+    private async Task<List<UserTiny>> BuildUsers(List<Guid> userIds)
+    {
+        var users = await _userRepository.GetUsersByIdsAsync(userIds);
+
+        if (users.Count != userIds.Count)
+        {
+            throw new BadRequestException("One or more users were not found.");
+        }
+
+        return users.Select(x => x.ToTiny()).ToList();
     }
 
     private static QuizFile BuildAttachment(IFormFile attachment)

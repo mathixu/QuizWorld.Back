@@ -9,16 +9,10 @@ namespace QuizWorld.Infrastructure.Services;
 /// <summary>
 /// Represents a service for Azure Blob Storage operations.
 /// </summary>
-public class BlobStorageService : IStorageService
+public class BlobStorageService(IOptions<BlobStorageOptions> options) : IStorageService
 {
-    private readonly BlobServiceClient _blobServiceClient;
-    private readonly string _containerName;
-
-    public BlobStorageService(IOptions<BlobStorageOptions> options)
-    {
-        _blobServiceClient = new BlobServiceClient(options.Value.ConnectionString);
-        _containerName = options.Value.ContainerName;
-    }
+    private readonly BlobServiceClient _blobServiceClient = new(options.Value.ConnectionString);
+    private readonly string _containerName = options.Value.ContainerName;
 
     /// <inheritdoc />
     public async Task<string> UploadFileAsync(IFormFile file)

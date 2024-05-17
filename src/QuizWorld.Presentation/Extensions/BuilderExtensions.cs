@@ -6,6 +6,7 @@ using QuizWorld.Application;
 using QuizWorld.Infrastructure;
 using QuizWorld.Presentation.OptionsSetup;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Constants = QuizWorld.Application.Common.Helpers.Constants;
 
@@ -22,6 +23,8 @@ public static class BuilderExtensions
     /// </summary>
     public static WebApplicationBuilder Configure(this WebApplicationBuilder builder)
     {
+        builder.Services.AddSignalR();
+
         builder.Services.AddControllers().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
@@ -51,8 +54,19 @@ public static class BuilderExtensions
             {
                 builder.Configuration.Bind("AzureAd", options);
 
-                options.Events = new JwtBearerEvents();
-
+                options.Events = new JwtBearerEvents()
+                {
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine("Token validated");
+                        return Task.CompletedTask;
+                    },
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine("Authentication failed");
+                        return Task.CompletedTask;
+                    },
+                };
             }, options => { builder.Configuration.Bind("AzureAd", options); });
 
         return builder;
