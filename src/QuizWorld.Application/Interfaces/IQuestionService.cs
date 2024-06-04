@@ -20,10 +20,15 @@ public interface IQuestionService
     /// <summary>
     /// Answers a question.
     /// </summary>
-    Task<bool> AnswerQuestionAsync(Guid questionId, List<Guid> AnswerIds);
+    Task<bool> AnswerQuestionAsync(Guid questionId, List<Guid> answerIds);
 
     /// <summary>
     /// Gets a question by its id.
     /// </summary>
     Task<Question?> GetQuestionById(Guid questionId);
+
+    /// <summary>
+    /// Edit a question.
+    /// </summary>
+    Task<QuestionTiny> UpdateQuestion(Guid quizId, Guid questionId, string questionName, List<Guid>? answerIds = null);
 }

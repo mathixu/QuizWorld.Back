@@ -62,17 +62,36 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
     }
 
     /// <inheritdoc/>
-    public async Task<bool> AnswerQuestionAsync(Guid questionId, List<Guid> AnswerIds)
+    public async Task<bool> AnswerQuestionAsync(Guid questionId, List<Guid> answerIds)
     {
         var question = await _questionRepository.GetByIdAsync(questionId)
             ?? throw new NotFoundException(nameof(Question), questionId);
 
-        return question.CheckAnswer(AnswerIds);
+        return question.CheckAnswer(answerIds);
     }
 
     /// <inheritdoc/>
     public async Task<Question?> GetQuestionById(Guid questionId)
     {
         return await _questionRepository.GetByIdAsync(questionId);
+    }
+
+    /// <inheritdoc/>
+    public async Task<QuestionTiny> UpdateQuestion(Guid quizId, Guid questionId, QuestionTiny newQuestion)
+    {
+        var question = await GetQuestionById(questionId) 
+            ?? throw new NotFoundException(nameof(QuestionTiny), questionId);
+
+        var questionTiny = new QuestionTiny();
+
+        if (question.QuizId == quizId)
+        {
+            if (newQuestion != null)
+            {
+                questionTiny = await _questionRepository.UpdateQuestion(question.ToTiny(), newQuestion);
+            }
+        }
+
+        return questionTiny;
     }
 }

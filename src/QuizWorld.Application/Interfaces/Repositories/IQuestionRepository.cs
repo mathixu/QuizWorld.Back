@@ -19,4 +19,12 @@ public interface IQuestionRepository
 
     /// <summary>Get all questions by quiz id.</summary>
     Task<List<Question>> GetQuestionsByQuizIdAsync(Guid quizId);
+
+    /// <summary>
+    /// Update a question/answer.
+    /// </summary>
+    /// <param name="question">the question.</param>
+    /// <param name="newQuestion">the new question.</param>
+    /// <returns>the updated question.</returns>
+    Task<QuestionTiny> UpdateQuestion(QuestionTiny question, QuestionTiny? newQuestion);
 }
