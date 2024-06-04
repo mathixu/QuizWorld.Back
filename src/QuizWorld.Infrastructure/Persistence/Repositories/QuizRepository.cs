@@ -8,6 +8,7 @@ using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 using QuizWorld.Infrastructure.Common.Options;
 
 namespace QuizWorld.Infrastructure.Persistence.Repositories;
@@ -135,6 +136,27 @@ public class QuizRepository : IQuizRepository
         {
             _logger.LogError(ex, "Failed to get quizzes from the database.");
             return [];
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> UpdateStatusAsync(Guid quizId, QuizStatus status)
+    {
+        try
+        {
+            var filter = Builders<Quiz>.Filter.Eq(s => s.Id, quizId);
+            var update = Builders<Quiz>.Update
+                                                            .Set(s => s.Status, status)
+                                                            .Set(s => s.UpdatedAt, DateTime.UtcNow);
+
+            var result = await _mongoQuizCollection.UpdateOneAsync(filter, update);
+
+            return result.ModifiedCount > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update the status of the quiz in the database.");
+            return false;
         }
     }
 }

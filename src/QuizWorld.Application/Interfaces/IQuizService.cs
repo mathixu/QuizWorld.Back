@@ -4,6 +4,7 @@ using QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Interfaces;
 
@@ -26,4 +27,9 @@ public interface IQuizService
 
     /// <summary>Gets quizzes by their ids</summary>
     Task<List<Quiz>> GetQuizzesByIds(List<Guid> ids);
+
+    /// <summary>Changes the status of a quiz.</summary>
+    /// <param name="quizId">The quiz id.</param>
+    /// <param name="status">The new status.</param>
+    Task<bool> UpdateQuizStatus(Guid quizId, QuizStatus status);
 }

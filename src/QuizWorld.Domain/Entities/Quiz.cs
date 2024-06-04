@@ -29,12 +29,10 @@ public class Quiz : BaseAuditableEntity
     public UserTiny CreatedBy { get; set; } = default!;
 
     /// <summary>Represents the status of the quiz.</summary>
-    public Status Status { get; set; }
-
+    public QuizStatus Status { get; set; }
 
     /// <summary>Represents the file with context for the quiz.</summary>
     public QuizFile? Attachment { get; set; } = default!;
-
 
     /// <summary>If the quiz has personalized questions for each user.</summary>
     public bool PersonalizedQuestions { get; set; }
