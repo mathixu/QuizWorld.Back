@@ -1,6 +1,7 @@
 ﻿using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Interfaces.Repositories;
 
@@ -20,4 +21,7 @@ public interface IQuizRepository
 
     /// <summary>Gets quizzes by their ids</summary>
     Task<List<Quiz>> GetQuizzesByIds(List<Guid> ids);
+
+    /// <summary>Update the status of a quiz.</summary>
+    Task<bool> UpdateStatusAsync(Guid quizId, QuizStatus status);
 }

@@ -1,7 +1,9 @@
 ﻿using MediatR;
+using QuizWorld.Application.Common.Exceptions;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
 
@@ -17,10 +19,22 @@ public class CreateQuizCommandHandler(IQuizService quizService, IQuestionService
     {
         var quiz = await _quizService.CreateQuizAsync(request);
 
-        // TODO: Call the command to create the questions if the quiz hasn't file
-        if (!request.HasFile && !request.PersonalizedQuestions)
+        if (!request.HasFile)
         {
-            await _questionService.CreateQuestionsAsync(quiz);
+            try
+            {
+                await _questionService.CreateQuestionsAsync(quiz);
+
+                await _quizService.UpdateQuizStatus(quiz.Id, QuizStatus.Pending);
+
+                quiz.Status = QuizStatus.Pending;
+            } 
+            catch(QuestionGenerationException)
+            {
+                await _quizService.UpdateQuizStatus(quiz.Id, QuizStatus.Inactive);
+
+                quiz.Status = QuizStatus.Inactive;
+            }
         }
 
         return QuizWorldResponse<Quiz>.Success(quiz, 201);
