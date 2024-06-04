@@ -2,6 +2,7 @@
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Services;
 
@@ -67,5 +68,21 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
         var minimumQuestions = quizTotalQuestion * weight / 100 * 2;
 
         return minimumQuestions < 1 ? 1 : minimumQuestions;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Question> ValidateQuestion(Guid quizId, Guid questionId, bool isValid)
+    {
+        var question = await _questionRepository.GetByIdAsync(questionId)
+            ?? throw new NotFoundException(nameof(Question), questionId);
+
+        if (question.QuizId != quizId)
+            throw new NotFoundException(nameof(Question), questionId);
+
+        question.Status = isValid ? Status.Valid : Status.Invalid;
+
+        await _questionRepository.UpdateStatus(question.Id, question.Status);
+
+        return question;
     }
 }
