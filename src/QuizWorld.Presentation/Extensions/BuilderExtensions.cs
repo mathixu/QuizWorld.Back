@@ -6,7 +6,6 @@ using QuizWorld.Application;
 using QuizWorld.Infrastructure;
 using QuizWorld.Presentation.OptionsSetup;
 using System.Reflection;
-using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Constants = QuizWorld.Application.Common.Helpers.Constants;
 
@@ -114,6 +113,7 @@ public static class BuilderExtensions
     {
         builder.Services.ConfigureOptions<MongoDbOptionsSetup>();
         builder.Services.ConfigureOptions<BlobStorageOptionsSetup>();
+        builder.Services.ConfigureOptions<LLMOptionsSetup>();
 
         return builder;
     }

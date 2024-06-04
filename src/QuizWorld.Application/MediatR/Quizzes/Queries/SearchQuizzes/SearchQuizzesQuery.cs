@@ -18,7 +18,7 @@ public class SearchQuizzesQuery : PaginationQuery, IQuizWorldRequest<PaginatedLi
     public bool All { get; set; } = false;
 
     /// <summary>
-    /// Represents the status of the quiz. (Pending = 0, Valid = 1, Invalid = 2)
+    /// Represents the status of the quiz. (Unknow = 0, Draft = 1, Pending = 2, Active = 3, Inactive = 4)
     /// </summary>
-    public Status? Status { get; set; } 
+    public QuizStatus? Status { get; set; } 
 }

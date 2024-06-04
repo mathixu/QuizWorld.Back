@@ -2,44 +2,30 @@
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Domain.Entities;
-using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Services;
 
-public class QuestionService(IQuestionRepository questionRepository, IQuizService quizService, IUserSessionRepository userSessionRepository) : IQuestionService
+public class QuestionService(IQuestionRepository questionRepository, IQuizService quizService, IUserSessionRepository userSessionRepository, IQuestionGenerator questionGenerator) : IQuestionService
 {
     private readonly IQuestionRepository _questionRepository = questionRepository;
     private readonly IQuizService _quizService = quizService;
     private readonly IUserSessionRepository _userSessionRepository = userSessionRepository;
+    private readonly IQuestionGenerator _questionGenerator = questionGenerator;
 
-    // Fake implementation
     /// <inheritdoc/>
     public async Task CreateQuestionsAsync(Quiz quiz)
     {
-        var questions = new List<Question>();
+        List<Question> questions = [];
 
-        for(int i = 0; i < quiz.TotalQuestions; i++)
+        foreach(var skillWeight in quiz.SkillWeights)
         {
-            var question = new Question
-            {
-                Text = $"How much is {i} + {i * 2}?",
-                Type = QuestionType.SimpleChoice,
-                Answers = [
-                    new Answer { Text = $"{i + i * 2}", IsCorrect = true },
-                    new Answer { Text = $"{i + i * 2 + 1}", IsCorrect = false },
-                    new Answer { Text = $"{i + i * 2 + 2}", IsCorrect = false },
-                    new Answer { Text = $"{i + i * 2 + 3}", IsCorrect = false },
-                    new Answer { Text = $"{i + i * 2 + 4}", IsCorrect = false },
-                ],
-                QuizId = quiz.Id,
-            };
+            var skill = skillWeight.Skill;
 
-            for(int j = 0; j < i%3; j++)
-            {
-                question.Answers.Add(new Answer { Text = $"{i + i * 2 + j + 5}", IsCorrect = false });
-            }
-
-            questions.Add(question);
+            var skillTotalQuestions = GetSkillTotalQuestions(quiz.TotalQuestions, skillWeight.Weight);
+            
+            var questionsGenerated = await _questionGenerator.GenerateQuestionsBySkills(quiz.Id, skill, skillTotalQuestions, quiz.Attachment);
+            
+            questions.AddRange(questionsGenerated);
         }
 
         await _questionRepository.AddRangeAsync(questions);

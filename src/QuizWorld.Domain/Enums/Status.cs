@@ -1,7 +1,7 @@
 ﻿namespace QuizWorld.Domain.Enums;
 
 /// <summary>
-/// Represents the status of an entity.
+/// Represents the status of an entity. (Pending = 0, Valid = 1, Invalid = 2)
 /// </summary>
 public enum Status
 {

@@ -104,6 +104,17 @@ public class QuizService(IQuizRepository quizRepository,
         return await _quizRepository.GetQuizzesByIds(ids);
     }
 
+    /// <inheritdoc/>
+    public async Task<bool> UpdateQuizStatus(Guid quizId, QuizStatus status)
+    {
+        var quiz = await _quizRepository.GetByIdAsync(quizId)
+            ?? throw new NotFoundException(nameof(Quiz), quizId);
+
+        await _quizRepository.UpdateStatusAsync(quizId, status);
+
+        return true;
+    }
+
     private async Task<List<SkillWeight>> BuildSkillWeights(Dictionary<Guid, int> skillWeights)
     { 
         var skills = await _skillRepository.GetSkillsByIdsAsync(skillWeights.Select(x => x.Key));
@@ -116,18 +127,6 @@ public class QuizService(IQuizRepository quizRepository,
         return skillWeights.Select(x => new SkillWeight
             { Skill = skills.First(s => s.Id == x.Key).ToTiny(), Weight = x.Value })
             .ToList();  
-    }
-
-    private async Task<List<UserTiny>> BuildUsers(List<Guid> userIds)
-    {
-        var users = await _userRepository.GetUsersByIdsAsync(userIds);
-
-        if (users.Count != userIds.Count)
-        {
-            throw new BadRequestException("One or more users were not found.");
-        }
-
-        return users.Select(x => x.ToTiny()).ToList();
     }
 
     private static QuizFile BuildAttachment(IFormFile attachment)
