@@ -8,7 +8,6 @@ public interface ILLMService
     /// <summary>Generate content based on the content type and input.</summary>
     /// <param name="contentType">The type of content to generate.</param>
     /// <param name="input">The input to generate content from.</param>
-    /// <param name="temperature">The temperature to use when generating content. (Default is 1)</param>
     /// <param name="fileUrl">The file URL to generate content from.</param>
     /// <returns>The generated content.</returns>
     Task<string> GenerateContent(GenerateContentType contentType, string input, string? fileUrl = null);

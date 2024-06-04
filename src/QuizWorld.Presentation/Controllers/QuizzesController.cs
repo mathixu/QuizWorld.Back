@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
+using QuizWorld.Application.MediatR.Questions.Commands.ValidateQuestion;
 using QuizWorld.Application.MediatR.Questions.Queries.GetQuestionsByQuizId;
 using QuizWorld.Application.MediatR.Quizzes.Commands.AddAttachmentToQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
@@ -54,6 +55,15 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     [HttpPost("{quizId:guid}/questions/{questionId:guid}/answer")]
     [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
     public async Task<IActionResult> AnswerQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] AnswerQuestionCommand command)
+    {
+        command.QuizId = quizId;
+        command.QuestionId = questionId;
+
+        return await HandleCommand(command);
+    }
+
+    [HttpPut("{quizId:guid}/questions/{questionId:guid}/validation")]
+    public async Task<IActionResult> ValidateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] ValidateQuestionCommand command)
     {
         command.QuizId = quizId;
         command.QuestionId = questionId;

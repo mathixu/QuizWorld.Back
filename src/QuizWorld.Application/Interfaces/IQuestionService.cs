@@ -26,4 +26,11 @@ public interface IQuestionService
     /// Gets a question by its id.
     /// </summary>
     Task<Question?> GetQuestionById(Guid questionId);
+
+    /// <summary>Validates a question.</summary>
+    /// <param name="quizId">The quiz id.</param>
+    /// <param name="questionId">The question id.</param>
+    /// <param name="isValid">The validation status.</param>
+    /// <returns>The validated question.</returns>
+    Task<Question> ValidateQuestion(Guid quizId, Guid questionId, bool isValid);
 }

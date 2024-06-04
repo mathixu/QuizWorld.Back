@@ -105,48 +105,4 @@ public class QuestionGenerator(
 
         return JsonSerializer.Serialize(payload);
     }
-
-    public async Task<List<Question>> GenerateQuestionsBySkills(Guid quizId, SkillTiny skill, int totalQuestions, float temperature)
-    {
-        int maxAttempts = _options.MaxGenerationAttempts;
-        int attempt = 0;
-        string contentGenerated = string.Empty;
-
-        while (attempt < maxAttempts)
-        {
-            try
-            {
-                var input = BuildInput(skill.Name, totalQuestions);
-
-                contentGenerated = await _LLMService.GenerateContent(GenerateContentType.QuestionsBySkills, input);
-
-                var generatedQuestions = DeserializeQuestions(contentGenerated);
-
-                await SaveAsync(skill.Id, quizId, input, contentGenerated, GenerateContentType.QuestionsBySkills, generatedQuestions is null, attempt);
-
-                return generatedQuestions?.ToQuestions(quizId, skill).ToList() ?? [];
-            }
-            catch (Exception ex)
-            {
-                attempt++;
-
-                await Task.Delay(15000);
-
-                if (attempt >= maxAttempts)
-                {
-                    var objectResponse = new
-                    {
-                        Message = "Error generating questions",
-                        Ex = ex.Message,
-                        ContentGenerated = contentGenerated,
-                        Attempt = attempt
-                    };
-
-                    throw new QuestionGenerationException(JsonSerializer.Serialize(objectResponse));
-                }
-            }
-        }
-
-        throw new QuestionGenerationException("Error generating questions");
-    }
 }

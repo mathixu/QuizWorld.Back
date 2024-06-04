@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 using QuizWorld.Infrastructure.Common.Options;
 
 namespace QuizWorld.Infrastructure.Persistence.Repositories;
@@ -117,6 +118,25 @@ public class QuestionRepository : IQuestionRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to add questions to the database.");
+            return false;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> UpdateStatus(Guid questionId, Status status)
+    {
+        try
+        {
+            var filter = Builders<Question>.Filter.Eq(q => q.Id, questionId);
+            var update = Builders<Question>.Update.Set(q => q.Status, status)
+                                                                        .Set(q => q.UpdatedAt, DateTime.UtcNow);
+
+            await _mongoQuestionCollection.UpdateOneAsync(filter, update);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update question status in the database.");
             return false;
         }
     }
