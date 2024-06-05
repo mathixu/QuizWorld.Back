@@ -72,8 +72,9 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
         return await HandleCommand(command);
     }
 
+    /// <summary>Edit a question or answer.</summary>
     [HttpPut("{quizId:guid}/questions/{questionId:guid}")]
-    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(QuestionTiny))]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Question))]
     public async Task<IActionResult> UpdateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] UpdateQuestionCommand command)
     {
         command.QuizId = quizId;

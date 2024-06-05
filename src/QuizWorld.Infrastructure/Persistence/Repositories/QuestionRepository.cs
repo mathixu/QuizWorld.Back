@@ -99,6 +99,8 @@ public class QuestionRepository : IQuestionRepository
         }
     }
 
+    /// <inheritdoc/>
+
     public async Task<bool> UpdateQuestionAsync(Guid questionId, Question question)
     {
         try
@@ -108,13 +110,7 @@ public class QuestionRepository : IQuestionRepository
 
             var result = await _mongoQuestionCollection.ReplaceOneAsync(filter, question);
 
-            if (result.ModifiedCount == 0)
-            {
-                _logger.LogWarning("No questions were updated with the provided id: {QuestionId}", questionId);
-                return false;
-            }
-
-            return true;
+            return result.ModifiedCount > 0;
         }
         catch (Exception ex)
         {

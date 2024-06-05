@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using QuizWorld.Domain.Common;
-using System.Text.Json.Serialization;
+﻿using QuizWorld.Domain.Common;
 
 namespace QuizWorld.Domain.Entities;
 

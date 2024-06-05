@@ -75,23 +75,24 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
     }
 
     /// <inheritdoc/>
-    public async Task<bool> UpdateQuestion(UpdateQuestionCommand request)
+    public async Task<Question> UpdateQuestion(UpdateQuestionCommand request)
     {
         var question = await GetQuestionById(request.QuestionId)
             ?? throw new NotFoundException(nameof(Question), request.QuestionId);
 
         var result = false;
 
-        if (question.QuizId == request.QuizId)
+        if (question.QuizId != request.QuizId)
         {
-            var newQuestion = request.Question.ToQuestion(question.QuizId, question.SkillId);
-            newQuestion.Id = question.Id;
-            newQuestion.CreatedAt = question.CreatedAt;
-            
-            result = await _questionRepository.UpdateQuestionAsync(request.QuestionId, newQuestion);
+            throw new BadRequestException("The quizId of the question does not match with the quizId.");
         }
+        var newQuestion = request.Question.ToQuestion(question.QuizId, question.SkillId);
+        newQuestion.Id = question.Id;
+        newQuestion.CreatedAt = question.CreatedAt;
 
-        return result;
+        result = await _questionRepository.UpdateQuestionAsync(request.QuestionId, newQuestion);
+
+        return newQuestion;
     }
 
     /// <inheritdoc/>

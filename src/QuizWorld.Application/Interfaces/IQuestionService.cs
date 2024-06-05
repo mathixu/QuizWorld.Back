@@ -31,7 +31,7 @@ public interface IQuestionService
     /// <summary>
     /// Edit a question.
     /// </summary>
-    Task<bool> UpdateQuestion(UpdateQuestionCommand question);
+    Task<Question> UpdateQuestion(UpdateQuestionCommand question);
 
     /// <summary>Validates a question.</summary>
     /// <param name="quizId">The quiz id.</param>
