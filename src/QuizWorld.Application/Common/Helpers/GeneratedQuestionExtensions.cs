@@ -1,17 +1,17 @@
 ﻿using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
-using QuizWorld.Infrastructure.Common.Models;
+using QuizWorld.Application.Common.Models;
 
-namespace QuizWorld.Infrastructure.Common.Helpers;
+namespace QuizWorld.Application.Common.Helpers;
 
 public static class GeneratedQuestionExtensions
 {
     public static IEnumerable<Question> ToQuestions(this IEnumerable<GeneratedQuestion> generatedQuestions, Guid quizId, SkillTiny skill)
     {
-        return generatedQuestions.Select(x => x.ToQuestion(quizId, skill));
+        return generatedQuestions.Select(x => x.ToQuestion(quizId, skill.Id));
     }
 
-    public static Question ToQuestion(this GeneratedQuestion generatedQuestion, Guid quizId, SkillTiny skill)
+    public static Question ToQuestion(this GeneratedQuestion generatedQuestion, Guid quizId, Guid skillId)
     {
         var answersCombinaisonsMapping = generatedQuestion.Answers.Where(a => a.Id is not null).ToDictionary(a => a.Id.GetValueOrDefault(), a => new Answer
         {
@@ -25,7 +25,7 @@ public static class GeneratedQuestionExtensions
             IsCorrect = a.IsCorrect
         });
 
-        var combinaisons = generatedQuestion.Combinaison?.Select(c => c.Select(id => answersCombinaisonsMapping[id].Id).ToList()).ToList();
+        var combinaisons = generatedQuestion.Combinaisons?.Select(c => c.Select(id => answersCombinaisonsMapping[id].Id).ToList()).ToList();
 
         var answersAndCombinaisons = answers.Concat(answersCombinaisonsMapping.Values).ToList();
 
@@ -37,7 +37,7 @@ public static class GeneratedQuestionExtensions
             Combinaisons = combinaisons,
             Status = Status.Pending,
             QuizId = quizId,
-            SkillId = skill.Id
+            SkillId = skillId
         };
     }
 

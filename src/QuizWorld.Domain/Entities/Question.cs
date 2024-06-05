@@ -89,7 +89,7 @@ public static class QuestionExtensions
     /// <summary>
     /// Check if the answer is correct.
     /// </summary>
-    public static bool CheckAnswer(this Question question, List<Guid> AnswerIds)
+    public static bool CheckAnswer(this Question question, List<Guid> answerIds)
     {
         if (question.Type == QuestionType.SimpleChoice || question.Type == QuestionType.MultipleChoice)
         {
@@ -98,20 +98,20 @@ public static class QuestionExtensions
             if (correctAnswers == null || correctAnswers.Count == 0)
                 return false;
 
-            if (correctAnswers.Count != AnswerIds.Count)
+            if (correctAnswers.Count != answerIds.Count)
                 return false;
 
-            return correctAnswers.All(a => AnswerIds.Contains(a));
+            return correctAnswers.All(a => answerIds.Contains(a));
         }
         else if (question.Type == QuestionType.Combinaison)
         {
             if (question.Combinaisons == null || question.Combinaisons.Count == 0)
                 return false;
 
-            if (question.Combinaisons.Count != AnswerIds?.Count)
+            if (question.Combinaisons.Count != answerIds?.Count)
                 return false;
 
-            var userAnswersIdSet = new HashSet<Guid>(AnswerIds);
+            var userAnswersIdSet = new HashSet<Guid>(answerIds);
 
             foreach (var correctCombinaison in question.Combinaisons)
             {

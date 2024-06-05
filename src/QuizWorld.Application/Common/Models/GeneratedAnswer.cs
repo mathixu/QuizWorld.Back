@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace QuizWorld.Infrastructure.Common.Models;
+namespace QuizWorld.Application.Common.Models;
+
 public class GeneratedAnswer
 {
     [JsonPropertyName("text")]

@@ -100,6 +100,28 @@ public class QuestionRepository : IQuestionRepository
     }
 
     /// <inheritdoc/>
+
+    public async Task<bool> UpdateQuestionAsync(Guid questionId, Question question)
+    {
+        try
+        {
+            var filter = Builders<Question>.Filter.Eq(q => q.Id, questionId);
+            question.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _mongoQuestionCollection.ReplaceOneAsync(filter, question);
+
+            return result.ModifiedCount > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update the question in the database.");
+            return false;
+        }
+    }
+
+
+
+    /// <inheritdoc/>
     public async Task<bool> UpdateStatus(Guid questionId, Status status)
     {
         try

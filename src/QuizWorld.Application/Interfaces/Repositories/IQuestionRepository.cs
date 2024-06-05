@@ -22,4 +22,12 @@ public interface IQuestionRepository
     /// <param name="questionId">The id of the question to update.</param>
     /// <param name="status">The new status of the question.</param>
     Task<bool> UpdateStatus(Guid questionId, Status status);
+
+    /// <summary>
+    /// Update a question/answer.
+    /// </summary>
+    /// <param name="questionId">the id of the question.</param>
+    /// <param name="question">the question to update.</param>
+    /// <returns>true if updated, else false.</returns>
+    Task<bool> UpdateQuestionAsync(Guid questionId, Question question);
 }

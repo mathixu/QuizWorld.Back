@@ -23,5 +23,6 @@ public class RequestProfile : Profile
 
         CreateMap<CreateSkillCommand, Skill>()
             .ForMember(dest => dest.NameNormalized, opt => opt.MapFrom(src => src.Name.ToNormalizedFormat()));
+
     }
 }
