@@ -23,8 +23,8 @@ public interface IQuestionRepository
     /// <summary>
     /// Update a question/answer.
     /// </summary>
-    /// <param name="question">the question.</param>
-    /// <param name="newQuestion">the new question.</param>
-    /// <returns>the updated question.</returns>
-    Task<QuestionTiny> UpdateQuestion(QuestionTiny question, QuestionTiny? newQuestion);
+    /// <param name="questionId">the id of the question.</param>
+    /// <param name="question">the question to update.</param>
+    /// <returns>true if updated, else false.</returns>
+    Task<bool> UpdateQuestionAsync(Guid questionId, Question question);
 }

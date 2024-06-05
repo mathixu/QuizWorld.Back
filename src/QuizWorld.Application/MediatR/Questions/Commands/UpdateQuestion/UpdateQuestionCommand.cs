@@ -1,10 +1,13 @@
-﻿using QuizWorld.Application.MediatR.Common;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.MediatR.Common;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 using System.Text.Json.Serialization;
 
 namespace QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion
 {
-    public class UpdateQuestionCommand : IQuizWorldRequest<QuestionTiny>
+    public class UpdateQuestionCommand : IQuizWorldRequest<bool>
     {
         [JsonIgnore]
         public Guid QuizId { get; set; } = default!;
@@ -12,8 +15,7 @@ namespace QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion
         [JsonIgnore]
         public Guid QuestionId { get; set; } = default!;
 
-        public string QuestionName { get; set; } = default!;
+        public GeneratedQuestion Question { get; set; } = default!;
 
-        public List<Guid> AnswerIds { get; set; } = [];
     }
 }

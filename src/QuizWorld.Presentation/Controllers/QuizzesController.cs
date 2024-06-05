@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
+using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
 using QuizWorld.Application.MediatR.Questions.Queries.GetQuestionsByQuizId;
 using QuizWorld.Application.MediatR.Quizzes.Commands.AddAttachmentToQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
@@ -58,6 +59,15 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
         command.QuizId = quizId;
         command.QuestionId = questionId;
 
+        return await HandleCommand(command);
+    }
+
+    [HttpPut("{quizId:guid}/questions/{questionId:guid}")]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(QuestionTiny))]
+    public async Task<IActionResult> UpdateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] UpdateQuestionCommand command)
+    {
+        command.QuizId = quizId;
+        command.QuestionId = questionId;
         return await HandleCommand(command);
     }
 }

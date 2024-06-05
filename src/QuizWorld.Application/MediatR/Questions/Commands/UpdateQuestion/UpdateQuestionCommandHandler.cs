@@ -10,19 +10,14 @@ using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion
 {
-    public class UpdateQuestionCommandHandler(ISessionService sessionService, IQuestionService questionService) : IRequestHandler<UpdateQuestionCommand, QuizWorldResponse<QuestionTiny>>
+    public class UpdateQuestionCommandHandler(IQuestionService questionService) : IRequestHandler<UpdateQuestionCommand, QuizWorldResponse<bool>>
     {
-        private readonly ISessionService _sessionService = sessionService;
         private readonly IQuestionService _questionService = questionService;
 
-        public async Task<QuizWorldResponse<QuestionTiny>> Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
+        public async Task<QuizWorldResponse<bool>> Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
         {
-            var currentUserSession = _sessionService.GetCurrentUserSession();
-
-            if (currentUserSession.Status != UserSessionStatus.Connected)
-                return QuizWorldResponse<QuestionTiny>.Failure("You are not connected to a session.");
-
-            return QuizWorldResponse<QuestionTiny>.Success(QuestionTiny);
+            await _questionService.UpdateQuestion(request);
+            return QuizWorldResponse<bool>.Success(true);
         }
     }
 }

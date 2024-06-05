@@ -121,36 +121,27 @@ public class QuestionRepository : IQuestionRepository
         }
     }
 
-    public async Task<QuestionTiny?> UpdateQuestion(QuestionTiny question, QuestionTiny newQuestion)
+    public async Task<bool> UpdateQuestionAsync(Guid questionId, Question question)
     {
         try
         {
-            var filter = Builders<Question>.Filter.Eq(q => q.Id, question.Id);
+            var filter = Builders<Question>.Filter.Eq(q => q.Id, questionId);
+            question.UpdatedAt = DateTime.UtcNow;
 
-            var update = Builders<Question>.Update
-                .Set(q => q.Text, newQuestion.Text)
-                .Set(q => q.Answers, newQuestion.Answers)
-                .Set(q => q.UpdatedAt, DateTime.UtcNow);
-
-            var result = await _mongoQuestionCollection.UpdateOneAsync(filter, update);
+            var result = await _mongoQuestionCollection.ReplaceOneAsync(filter, question);
 
             if (result.ModifiedCount == 0)
             {
-                _logger.LogWarning("No questions were updated with the provided id: {QuestionId}", question.Id);
-                return null;
+                _logger.LogWarning("No questions were updated with the provided id: {QuestionId}", questionId);
+                return false;
             }
 
-            var updatedQuestion = await _mongoQuestionCollection.Find(filter).FirstOrDefaultAsync();
-            return new QuestionTiny
-            {
-                Id = updatedQuestion.Id,
-                Text = updatedQuestion.Text,
-            };
+            return true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to update the question in the database.");
-            return null;
+            return false;
         }
     }
 

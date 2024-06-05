@@ -1,4 +1,5 @@
-﻿using QuizWorld.Domain.Entities;
+﻿using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
+using QuizWorld.Domain.Entities;
 
 namespace QuizWorld.Application.Interfaces;
 
@@ -30,5 +31,5 @@ public interface IQuestionService
     /// <summary>
     /// Edit a question.
     /// </summary>
-    Task<QuestionTiny> UpdateQuestion(Guid quizId, Guid questionId, string questionName, List<Guid>? answerIds = null);
+    Task<bool> UpdateQuestion(UpdateQuestionCommand question);
 }

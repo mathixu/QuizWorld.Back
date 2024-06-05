@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using QuizWorld.Application.Common.Helpers;
+using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
 using QuizWorld.Application.MediatR.Quizzes.Commands.CreateQuiz;
 using QuizWorld.Application.MediatR.Skills.Commands.CreateSkill;
 using QuizWorld.Domain.Entities;
@@ -23,5 +24,6 @@ public class RequestProfile : Profile
 
         CreateMap<CreateSkillCommand, Skill>()
             .ForMember(dest => dest.NameNormalized, opt => opt.MapFrom(src => src.Name.ToNormalizedFormat()));
+
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace QuizWorld.Infrastructure.Common.Models;
+namespace QuizWorld.Application.Common.Models;
 
 public class GeneratedQuestion
 {
@@ -14,5 +14,5 @@ public class GeneratedQuestion
     public string Type { get; set; }
 
     [JsonPropertyName("combinaison")]
-    public List<List<int>>? Combinaison { get; set; }
+    public List<List<int>>? Combinaisons { get; set; }
 }

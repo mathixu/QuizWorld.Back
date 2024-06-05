@@ -3,11 +3,11 @@ using QuizWorld.Application.Common.Exceptions;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Domain.Entities;
-using QuizWorld.Infrastructure.Common.Helpers;
 using QuizWorld.Infrastructure.Common.Models;
 using QuizWorld.Infrastructure.Common.Options;
 using QuizWorld.Infrastructure.Interfaces;
 using System.Text.Json;
+using QuizWorld.Application.Common.Models;
 
 namespace QuizWorld.Infrastructure.Services;
 
