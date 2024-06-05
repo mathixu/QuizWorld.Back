@@ -44,29 +44,6 @@ public class QuestionRepository : IQuestionRepository
         }
     }
 
-    // TODO: Add quizId as Index
-    /// <inheritdoc/>
-    public async Task<PaginatedList<Question>> GetQuestionsByQuizIdAsync(Guid quizId, int page, int pageSize)
-    {
-        try
-        {
-            var filter = Builders<Question>.Filter.Eq(q => q.QuizId, quizId);
-            var questions = await _mongoQuestionCollection.Find(filter)
-                .Skip((page - 1) * pageSize)
-                .Limit(pageSize)
-                .ToListAsync();
-
-            var count = await _mongoQuestionCollection.CountDocumentsAsync(filter);
-
-            return new PaginatedList<Question>(questions, count, page, pageSize);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get questions from the database.");
-            return new PaginatedList<Question>(new List<Question>(), 0, 1, 10);
-        }
-    }
-
     /// <inheritdoc/>
     public async Task<List<Question>> GetQuestionsByQuizIdAsync(Guid quizId)
     {
