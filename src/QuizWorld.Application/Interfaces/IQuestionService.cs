@@ -32,4 +32,11 @@ public interface IQuestionService
     /// Edit a question.
     /// </summary>
     Task<bool> UpdateQuestion(UpdateQuestionCommand question);
+
+    /// <summary>Validates a question.</summary>
+    /// <param name="quizId">The quiz id.</param>
+    /// <param name="questionId">The question id.</param>
+    /// <param name="isValid">The validation status.</param>
+    /// <returns>The validated question.</returns>
+    Task<Question> ValidateQuestion(Guid quizId, Guid questionId, bool isValid);
 }

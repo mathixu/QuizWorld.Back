@@ -93,4 +93,20 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
 
         return result;
     }
+
+    /// <inheritdoc/>
+    public async Task<Question> ValidateQuestion(Guid quizId, Guid questionId, bool isValid)
+    {
+        var question = await _questionRepository.GetByIdAsync(questionId)
+            ?? throw new NotFoundException(nameof(Question), questionId);
+
+        if (question.QuizId != quizId)
+            throw new NotFoundException(nameof(Question), questionId);
+
+        question.Status = isValid ? Status.Valid : Status.Invalid;
+
+        await _questionRepository.UpdateStatus(question.Id, question.Status);
+
+        return question;
+    }
 }

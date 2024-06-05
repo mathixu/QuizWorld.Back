@@ -14,5 +14,4 @@ public interface IQuestionGenerator
     /// <param name="file">The quiz file.</param>
     /// <returns>A list of questions.</returns>
     Task<List<Question>> GenerateQuestionsBySkills(Guid quizId, SkillTiny skill, int totalQuestions, QuizFile? file = null);
-    Task<List<Question>> GenerateQuestionsBySkills(Guid quizId, SkillTiny skill, int totalQuestions, float temperature);
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
+using QuizWorld.Application.MediatR.Questions.Commands.ValidateQuestion;
 using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
 using QuizWorld.Application.MediatR.Questions.Queries.GetQuestionsByQuizId;
 using QuizWorld.Application.MediatR.Quizzes.Commands.AddAttachmentToQuiz;
@@ -41,9 +42,9 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
 
     /// <summary>Gets the questions of a quiz.</summary>
     [HttpGet("{quizId:guid}/questions")]
-    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<Question>))]
-    public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId, [FromQuery] PaginationQuery query)
-        => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId, query.Page, query.PageSize));
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(List<Question>))]
+    public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId)
+        => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId));
 
     /// <summary>Starts a quiz.</summary>
     [HttpPost("{quizId:guid}/start")]
@@ -55,6 +56,15 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     [HttpPost("{quizId:guid}/questions/{questionId:guid}/answer")]
     [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
     public async Task<IActionResult> AnswerQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] AnswerQuestionCommand command)
+    {
+        command.QuizId = quizId;
+        command.QuestionId = questionId;
+
+        return await HandleCommand(command);
+    }
+
+    [HttpPut("{quizId:guid}/questions/{questionId:guid}/validation")]
+    public async Task<IActionResult> ValidateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] ValidateQuestionCommand command)
     {
         command.QuizId = quizId;
         command.QuestionId = questionId;

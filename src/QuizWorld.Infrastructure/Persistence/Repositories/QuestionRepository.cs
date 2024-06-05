@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 using QuizWorld.Infrastructure.Common.Options;
 
 namespace QuizWorld.Infrastructure.Persistence.Repositories;
@@ -40,29 +41,6 @@ public class QuestionRepository : IQuestionRepository
         {
             _logger.LogError(ex, "Failed to add question to the database.");
             return false;
-        }
-    }
-
-    // TODO: Add quizId as Index
-    /// <inheritdoc/>
-    public async Task<PaginatedList<Question>> GetQuestionsByQuizIdAsync(Guid quizId, int page, int pageSize)
-    {
-        try
-        {
-            var filter = Builders<Question>.Filter.Eq(q => q.QuizId, quizId);
-            var questions = await _mongoQuestionCollection.Find(filter)
-                .Skip((page - 1) * pageSize)
-                .Limit(pageSize)
-                .ToListAsync();
-            
-            var count = await _mongoQuestionCollection.CountDocumentsAsync(filter);
-
-            return new PaginatedList<Question>(questions, count, page, pageSize);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get questions from the database.");
-            return new PaginatedList<Question>(new List<Question>(), 0, 1, 10);
         }
     }
 
@@ -146,4 +124,23 @@ public class QuestionRepository : IQuestionRepository
     }
 
 
+
+    /// <inheritdoc/>
+    public async Task<bool> UpdateStatus(Guid questionId, Status status)
+    {
+        try
+        {
+            var filter = Builders<Question>.Filter.Eq(q => q.Id, questionId);
+            var update = Builders<Question>.Update.Set(q => q.Status, status)
+                                                                        .Set(q => q.UpdatedAt, DateTime.UtcNow);
+
+            await _mongoQuestionCollection.UpdateOneAsync(filter, update);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update question status in the database.");
+            return false;
+        }
+    }
 }

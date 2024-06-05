@@ -31,7 +31,7 @@ public class ToolsController(ISender sender, IQuestionGenerator questionGenerato
                 Name = command.Skill
             };
 
-            var questions = await _questionGenerator.GenerateQuestionsBySkills(Guid.Empty, skillTiny, command.TotalQuestions, 1);
+            var questions = await _questionGenerator.GenerateQuestionsBySkills(Guid.Empty, skillTiny, command.TotalQuestions);
 
             return Ok(questions);
         }
