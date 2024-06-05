@@ -96,17 +96,19 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
     }
 
     /// <inheritdoc/>
-    public async Task<Question> ValidateQuestion(Guid quizId, Guid questionId, bool isValid)
+    public async Task<Question> UpdateQuestionStatus(Guid quizId, Guid questionId, Status status)
     {
-        var question = await _questionRepository.GetByIdAsync(questionId)
+        var question = await GetQuestionById(questionId)
             ?? throw new NotFoundException(nameof(Question), questionId);
 
         if (question.QuizId != quizId)
-            throw new NotFoundException(nameof(Question), questionId);
+        {
+            throw new BadRequestException("The quizId of the question does not match with the quizId.");
+        }
 
-        question.Status = isValid ? Status.Valid : Status.Invalid;
+        question.Status = status;
 
-        await _questionRepository.UpdateStatus(question.Id, question.Status);
+        await _questionRepository.UpdateStatus(question.Id, status);
 
         return question;
     }

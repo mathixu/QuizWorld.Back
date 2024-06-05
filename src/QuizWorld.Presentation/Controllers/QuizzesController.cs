@@ -63,8 +63,8 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
         return await HandleCommand(command);
     }
 
-    [HttpPut("{quizId:guid}/questions/{questionId:guid}/validation")]
-    public async Task<IActionResult> ValidateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] ValidateQuestionCommand command)
+    [HttpPut("{quizId:guid}/questions/{questionId:guid}/status")]
+    public async Task<IActionResult> ChangeQuestionStatus([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] UpdateQuestionStatusCommand command)
     {
         command.QuizId = quizId;
         command.QuestionId = questionId;
