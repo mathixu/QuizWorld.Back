@@ -1,5 +1,6 @@
 ﻿using QuizWorld.Application.MediatR.Common;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 using System.Text.Json.Serialization;
 
 namespace QuizWorld.Application.MediatR.Questions.Commands.ValidateQuestion;
@@ -7,7 +8,7 @@ namespace QuizWorld.Application.MediatR.Questions.Commands.ValidateQuestion;
 /// <summary>
 /// Represents the validate question command.
 /// </summary>
-public class ValidateQuestionCommand : IQuizWorldRequest<Question>
+public class UpdateQuestionStatusCommand : IQuizWorldRequest<Question>
 {
     /// <summary>
     /// The quiz of the question.
@@ -22,7 +23,7 @@ public class ValidateQuestionCommand : IQuizWorldRequest<Question>
     public Guid QuestionId { get; set; }
 
     /// <summary>
-    /// If the question is valid.
+    /// The status of the question.
     /// </summary>
-    public bool IsValid { get; set; }
+    public Status Status { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Interfaces;
 
@@ -33,10 +34,8 @@ public interface IQuestionService
     /// </summary>
     Task<Question> UpdateQuestion(UpdateQuestionCommand question);
 
-    /// <summary>Validates a question.</summary>
-    /// <param name="quizId">The quiz id.</param>
-    /// <param name="questionId">The question id.</param>
-    /// <param name="isValid">The validation status.</param>
-    /// <returns>The validated question.</returns>
-    Task<Question> ValidateQuestion(Guid quizId, Guid questionId, bool isValid);
+    /// <summary>
+    /// Updates the status of a question.
+    /// </summary>
+    Task<Question> UpdateQuestionStatus(Guid quizId, Guid questionId, Status status);
 }
