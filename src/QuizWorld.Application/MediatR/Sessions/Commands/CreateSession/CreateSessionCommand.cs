@@ -6,7 +6,7 @@ namespace QuizWorld.Application.MediatR.Sessions.Commands.CreateSession;
 public class CreateSessionCommand : IQuizWorldRequest<Session>
 {
     /// <summary>
-    /// Represents the quizzes of the session.
+    /// Represents the quiz id of the session.
     /// </summary>
     public Guid QuizId { get; set; } = default!;
 }

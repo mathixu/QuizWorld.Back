@@ -13,6 +13,7 @@ using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
 using QuizWorld.Domain.Entities;
 using Swashbuckle.AspNetCore.Annotations;
+using QuizWorld.Application.MediatR.Quizzes.Commands.ValidateQuiz;
 
 namespace QuizWorld.Presentation.Controllers;
 
@@ -81,4 +82,10 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
         command.QuestionId = questionId;
         return await HandleCommand(command);
     }
+
+    /// <summary>Validate a quiz.</summary>
+    [HttpPost("Validate")]
+    [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(Quiz))]
+    public async Task<IActionResult> ValidateQuiz([FromBody] ValidateQuizCommand command)
+        => await HandleCommand(command);
 }
