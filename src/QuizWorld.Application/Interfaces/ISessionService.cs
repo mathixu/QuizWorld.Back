@@ -8,9 +8,9 @@ namespace QuizWorld.Application.Interfaces;
 public interface ISessionService
 {
     /// <summary>Creates a session with the given quiz ids.</summary>
-    /// <param name="quizIds">Represents the ids of the quizzes.</param>
+    /// <param name="quizId">Represents the id of the quizz.</param>
     /// <returns>Returns the created session.</returns>
-    Task<Session> CreateSession(List<Guid> quizIds);
+    Task<Session> CreateSession(Guid quizId);
 
     /// <summary>Gets the status of a session.</summary>
     /// <param name="code">The code of the session.</param>

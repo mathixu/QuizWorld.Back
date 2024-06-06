@@ -24,16 +24,16 @@ public class SessionService(IQuizService quizService,
     private readonly IQuestionService _questionService = questionService;
 
     /// <inheritdoc />
-    public async Task<Session> CreateSession(List<Guid> quizIds)
+    public async Task<Session> CreateSession(Guid quizId)
     {
         var currentUser = _currentUserService.UserTiny 
             ?? throw new UnauthorizedAccessException();
 
-        var quizzes = await BuildQuizzes(quizIds);
+        var quizz = await BuildQuizzes(quizId);
 
         var session = new Session
         {
-            Quizzes = quizzes,
+            Quizz = quizz,
             Code = GenerateCode(),
             CreatedBy = currentUser,
             Status = SessionStatus.Awaiting
@@ -104,7 +104,7 @@ public class SessionService(IQuizService quizService,
         if (session.Status != SessionStatus.Started)
             throw new BadRequestException("The session is not started yet.");
 
-        if (!session.Quizzes.Any(x => x.Id == quizId))
+        if (session.Quizz.Id != quizId)
             throw new BadRequestException("This quiz is not part of the session.");
 
         var currentUser = _currentUserService.User
@@ -133,16 +133,11 @@ public class SessionService(IQuizService quizService,
         return userSession;
     }
 
-    private async Task<List<QuizTiny>> BuildQuizzes(List<Guid> quizIds)
+    private async Task<QuizTiny> BuildQuizzes(Guid quizId)
     {
-        var quizzes = await _quizService.GetQuizzesByIds(quizIds);
+        var quizz = await _quizService.GetByIdAsync(quizId);
 
-        if (quizzes.Count != quizIds.Count)
-        {
-            throw new BadRequestException("One or more quizzes were not found.");
-        }
-
-        return quizzes.Select(x => x.ToTiny()).ToList();
+        return quizz == null ? throw new BadRequestException("One or more quizzes were not found.") : quizz.ToTiny();
     }
 
     private static string GenerateCode()

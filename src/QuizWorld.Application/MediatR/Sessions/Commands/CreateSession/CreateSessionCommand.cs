@@ -8,5 +8,5 @@ public class CreateSessionCommand : IQuizWorldRequest<Session>
     /// <summary>
     /// Represents the quizzes of the session.
     /// </summary>
-    public List<Guid> QuizIds { get; set; } = default!;
+    public Guid QuizId { get; set; } = default!;
 }
