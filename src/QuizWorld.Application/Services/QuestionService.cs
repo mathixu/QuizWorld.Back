@@ -80,8 +80,6 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
         var question = await GetQuestionById(request.QuestionId)
             ?? throw new NotFoundException(nameof(Question), request.QuestionId);
 
-        var result = false;
-
         if (question.QuizId != request.QuizId)
         {
             throw new BadRequestException("The quizId of the question does not match with the quizId.");
@@ -90,7 +88,7 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
         newQuestion.Id = question.Id;
         newQuestion.CreatedAt = question.CreatedAt;
 
-        result = await _questionRepository.UpdateQuestionAsync(request.QuestionId, newQuestion);
+        await _questionRepository.UpdateQuestionAsync(request.QuestionId, newQuestion);
 
         return newQuestion;
     }
