@@ -84,7 +84,7 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     }
 
     /// <summary>Validate a quiz.</summary>
-    [HttpPost("Validate")]
+    [HttpPost("validate")]
     [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(Quiz))]
     public async Task<IActionResult> ValidateQuiz([FromBody] ValidateQuizCommand command)
         => await HandleCommand(command);
