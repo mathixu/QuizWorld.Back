@@ -33,7 +33,7 @@ public class SessionService(IQuizService quizService,
 
         var session = new Session
         {
-            Quizz = quizz,
+            Quiz = quizz,
             Code = GenerateCode(),
             CreatedBy = currentUser,
             Status = SessionStatus.Awaiting
@@ -104,7 +104,7 @@ public class SessionService(IQuizService quizService,
         if (session.Status != SessionStatus.Started)
             throw new BadRequestException("The session is not started yet.");
 
-        if (session.Quizz.Id != quizId)
+        if (session.Quiz.Id != quizId)
             throw new BadRequestException("This quiz is not part of the session.");
 
         var currentUser = _currentUserService.User

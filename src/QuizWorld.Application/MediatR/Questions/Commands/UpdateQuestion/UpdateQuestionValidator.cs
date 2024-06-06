@@ -44,6 +44,10 @@ namespace QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion
                     RuleFor(x => x.Question.Combinaisons)
                         .Must((command, combinations) =>
                         {
+                            if (combinations is null) 
+                                if (command.Question.Type != "combinaison") return true;
+                                else return false;
+
                             var answerIds = command.Question.Answers.Select(a => a.Id).ToList();
                             return combinations.All(combination => combination.All(id => answerIds.Contains(id)));
                         })

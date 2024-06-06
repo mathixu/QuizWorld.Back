@@ -43,9 +43,9 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
 
     /// <summary>Gets the questions of a quiz.</summary>
     [HttpGet("{quizId:guid}/questions")]
-    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(List<Question>))]
-    public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId)
-        => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId));
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<Question>))]
+    public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId, [FromQuery] PaginationQuery query)
+        => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId, query.Page, query.PageSize));
 
     /// <summary>Starts a quiz.</summary>
     [HttpPost("{quizId:guid}/start")]

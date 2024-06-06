@@ -9,7 +9,7 @@ namespace QuizWorld.Domain.Entities;
 public class Session : BaseAuditableEntity
 {
     /// <summary>Represents the quizzes of the session.</summary>
-    public QuizTiny Quizz { get; set; } = default!;
+    public QuizTiny Quiz { get; set; } = default!;
 
     /// <summary>Represents the code of the session.</summary>
     public string Code { get; set; } = default!;
