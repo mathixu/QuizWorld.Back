@@ -14,6 +14,7 @@ using QuizWorld.Application.MediatR.Quizzes.Queries.SearchQuizzes;
 using QuizWorld.Domain.Entities;
 using Swashbuckle.AspNetCore.Annotations;
 using QuizWorld.Application.MediatR.Quizzes.Queries.GetQuizById;
+using QuizWorld.Application.MediatR.Quizzes.Commands.ValidateQuiz;
 
 namespace QuizWorld.Presentation.Controllers;
 
@@ -43,9 +44,9 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
 
     /// <summary>Gets the questions of a quiz.</summary>
     [HttpGet("{quizId:guid}/questions")]
-    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(List<Question>))]
-    public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId)
-        => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId));
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<Question>))]
+    public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId, [FromQuery] PaginationQuery query)
+        => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId, query.Page, query.PageSize));
 
     /// <summary>Starts a quiz.</summary>
     [HttpPost("{quizId:guid}/start")]
@@ -82,6 +83,12 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
         command.QuestionId = questionId;
         return await HandleCommand(command);
     }
+
+    /// <summary>Validate a quiz.</summary>
+    [HttpPost("Validate")]
+    [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(Quiz))]
+    public async Task<IActionResult> ValidateQuiz([FromBody] ValidateQuizCommand command)
+        => await HandleCommand(command);
 
     [HttpGet("{quizId:guid}")]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Quiz))]

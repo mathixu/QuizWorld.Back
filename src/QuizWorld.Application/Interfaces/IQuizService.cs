@@ -32,4 +32,7 @@ public interface IQuizService
     /// <param name="quizId">The quiz id.</param>
     /// <param name="status">The new status.</param>
     Task<bool> UpdateQuizStatus(Guid quizId, QuizStatus status);
+
+
+    Task<Quiz> ValidateQuizAsync(Guid quizId);
 }
