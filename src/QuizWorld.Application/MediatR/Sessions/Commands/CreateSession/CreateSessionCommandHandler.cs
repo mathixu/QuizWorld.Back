@@ -11,7 +11,7 @@ public class CreateSessionCommandHandler(ISessionService sessionService) : IRequ
 
     public async Task<QuizWorldResponse<Session>> Handle(CreateSessionCommand request, CancellationToken cancellationToken)
     {
-        var session = await _sessionService.CreateSession(request.QuizIds);
+        var session = await _sessionService.CreateSession(request.QuizId);
 
         return QuizWorldResponse<Session>.Success(session, 201);
     }
