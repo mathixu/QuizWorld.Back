@@ -32,4 +32,10 @@ public interface IQuestionRepository
     /// <param name="question">the question to update.</param>
     /// <returns>true if updated, else false.</returns>
     Task<bool> UpdateQuestionAsync(Guid questionId, Question question);
+
+    /// <summary>
+    /// Delete all questions from the quiz that are invalid.
+    /// </summary>
+    /// <param name="quizId"></param>
+    Task DeleteInvalidQuestionsByQuizIdAsync(Guid quizId);
 }

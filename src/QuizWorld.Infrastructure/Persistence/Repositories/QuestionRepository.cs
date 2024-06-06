@@ -158,4 +158,27 @@ public class QuestionRepository : IQuestionRepository
             return [];
         }
     }
+
+    public async Task DeleteInvalidQuestionsByQuizIdAsync(Guid quizId)
+    {
+        try
+        {
+            var filter = Builders<Question>.Filter.And(
+                Builders<Question>.Filter.Eq(q => q.QuizId, quizId),
+                Builders<Question>.Filter.Ne(q => q.Status, Status.Valid)
+            );
+
+            var result = await _mongoQuestionCollection.DeleteManyAsync(filter);
+
+            if (result.DeletedCount > 0)
+            {
+                _logger.LogInformation($"Successfully deleted {result.DeletedCount} invalid questions.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete invalid questions from the database.");
+            throw;
+        }
+    }
 }
