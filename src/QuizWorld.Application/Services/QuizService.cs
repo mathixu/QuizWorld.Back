@@ -158,7 +158,7 @@ public class QuizService(IQuizRepository quizRepository,
         }
         else
         {
-            throw new BadRequestException("the number of validated questions must be at least equal to the number of quiz questions.");
+            throw new BadRequestException("Le nombre de questions validées doit être au moins égal au nombre de questions du quiz.");
         }
 
         return quiz;
