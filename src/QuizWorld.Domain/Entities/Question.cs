@@ -26,8 +26,8 @@ public class Question : BaseAuditableEntity
     /// <summary>Represents the quizId of the question.</summary>
     public Guid QuizId { get; set; }
 
-    /// <summary>Represents the skill Id of the question.</summary>
-    public Guid SkillId { get; set; }
+    /// <summary>Represents the skill of the question.</summary>
+    public SkillTiny Skill { get; set; } = default!;
 }
 
 public class QuestionTiny : BaseEntity
@@ -72,7 +72,7 @@ public static class QuestionExtensions
             Answers = question.Answers?.Select(a => a.ToTiny()).ToList(),
             Combinaisons = question.Combinaisons,
             QuizId = question.QuizId,
-            SkillId = question.SkillId
+            SkillId = question.Skill.Id
         };
     }
 
