@@ -14,5 +14,4 @@ public class GetQuestionsByQuizIdQueryValidator : AbstractValidator<GetQuestions
             .GreaterThan(0)
             .WithMessage("The page size must be greater than 0.");
     }
-
 }

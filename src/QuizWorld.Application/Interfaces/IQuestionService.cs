@@ -1,4 +1,6 @@
-﻿using QuizWorld.Domain.Entities;
+﻿using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
+using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Interfaces;
 
@@ -20,10 +22,20 @@ public interface IQuestionService
     /// <summary>
     /// Answers a question.
     /// </summary>
-    Task<bool> AnswerQuestionAsync(Guid questionId, List<Guid> AnswerIds);
+    Task<bool> AnswerQuestionAsync(Guid questionId, List<Guid> answerIds);
 
     /// <summary>
     /// Gets a question by its id.
     /// </summary>
     Task<Question?> GetQuestionById(Guid questionId);
+
+    /// <summary>
+    /// Edit a question.
+    /// </summary>
+    Task<Question> UpdateQuestion(UpdateQuestionCommand question);
+
+    /// <summary>
+    /// Updates the status of a question.
+    /// </summary>
+    Task<Question> UpdateQuestionStatus(Guid quizId, Guid questionId, Status status);
 }

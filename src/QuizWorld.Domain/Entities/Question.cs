@@ -18,13 +18,16 @@ public class Question : BaseAuditableEntity
     public QuestionType Type { get; set; }
 
     /// <summary>Represents the answers of the question.</summary>
-    public List<Answer>? Answers { get; set; } = default!;
+    public List<Answer> Answers { get; set; } = default!;
 
     /// <summary>Represents the combinaisons of answers. (if type was QuestionType.Combinaison)</summary>
-    public List<List<Answer>>? Combinaisons { get; set; } = default!;
+    public List<List<Guid>>? Combinaisons { get; set; } = default!;
 
     /// <summary>Represents the quizId of the question.</summary>
     public Guid QuizId { get; set; }
+
+    /// <summary>Represents the skill Id of the question.</summary>
+    public Guid SkillId { get; set; }
 }
 
 public class QuestionTiny : BaseEntity
@@ -39,10 +42,13 @@ public class QuestionTiny : BaseEntity
     public List<AnswerTiny>? Answers { get; set; } = default!;
 
     /// <summary>Represents the combinaisons of answers. (if type was QuestionType.Combinaison)</summary>
-    public List<List<AnswerTiny>>? Combinaisons { get; set; } = default!;
+    public List<List<Guid>>? Combinaisons { get; set; } = default!;
 
     /// <summary>Represents the quizId of the question.</summary>
     public Guid QuizId { get; set; }
+
+    /// <summary>Represents the skillId of the question.</summary>
+    public Guid SkillId { get; set; }
 }
 
 public class QuestionMinimal : BaseEntity
@@ -64,8 +70,9 @@ public static class QuestionExtensions
             Text = question.Text,
             Type = question.Type,
             Answers = question.Answers?.Select(a => a.ToTiny()).ToList(),
-            Combinaisons = question.Combinaisons?.Select(c => c.Select(a => a.ToTiny()).ToList()).ToList(),
-            QuizId = question.QuizId
+            Combinaisons = question.Combinaisons,
+            QuizId = question.QuizId,
+            SkillId = question.SkillId
         };
     }
 
@@ -82,7 +89,7 @@ public static class QuestionExtensions
     /// <summary>
     /// Check if the answer is correct.
     /// </summary>
-    public static bool CheckAnswer(this Question question, List<Guid> AnswerIds)
+    public static bool CheckAnswer(this Question question, List<Guid> answerIds)
     {
         if (question.Type == QuestionType.SimpleChoice || question.Type == QuestionType.MultipleChoice)
         {
@@ -91,24 +98,24 @@ public static class QuestionExtensions
             if (correctAnswers == null || correctAnswers.Count == 0)
                 return false;
 
-            if (correctAnswers.Count != AnswerIds.Count)
+            if (correctAnswers.Count != answerIds.Count)
                 return false;
 
-            return correctAnswers.All(a => AnswerIds.Contains(a));
+            return correctAnswers.All(a => answerIds.Contains(a));
         }
         else if (question.Type == QuestionType.Combinaison)
         {
             if (question.Combinaisons == null || question.Combinaisons.Count == 0)
                 return false;
 
-            if (question.Combinaisons.Count != AnswerIds?.Count)
+            if (question.Combinaisons.Count != answerIds?.Count)
                 return false;
 
-            var userAnswersIdSet = new HashSet<Guid>(AnswerIds);
+            var userAnswersIdSet = new HashSet<Guid>(answerIds);
 
             foreach (var correctCombinaison in question.Combinaisons)
             {
-                var correctCombinaisonSet = new HashSet<Guid>(correctCombinaison.Select(x => x.Id));
+                var correctCombinaisonSet = new HashSet<Guid>(correctCombinaison.Select(x => x));
 
                 if (userAnswersIdSet.SetEquals(correctCombinaisonSet))
                     return true;
@@ -136,7 +143,8 @@ public static class QuestionExtensions
 
             foreach (var combinaison in question.Combinaisons ?? [])
             {
-                answers.AddRange(combinaison.Where(a => answerIds.Contains(a.Id)).Select(a => a.ToTiny()));
+                // TODO
+                //answers.AddRange(combinaison.Where(a => answerIds.Contains(a));
             }
 
             return answers;
@@ -156,7 +164,7 @@ public static class QuestionExtensions
         }
         else if (question.Type == QuestionType.Combinaison)
         {
-            return question.Combinaisons?.Any(c => c.Any(a => a.Id == answerId)) ?? false;
+            return question.Combinaisons?.Any(c => c.Any(a => a == answerId)) ?? false;
         }
 
         return false;

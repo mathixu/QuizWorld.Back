@@ -1,45 +1,36 @@
-﻿using QuizWorld.Application.Common.Exceptions;
+﻿using AutoMapper;
+using QuizWorld.Application.Common.Exceptions;
+using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
+using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Services;
 
-public class QuestionService(IQuestionRepository questionRepository, IQuizService quizService, IUserSessionRepository userSessionRepository) : IQuestionService
+public class QuestionService(IQuestionRepository questionRepository, IQuizService quizService, IUserSessionRepository userSessionRepository, IMapper mapper, IQuestionGenerator questionGenerator) : IQuestionService
 {
     private readonly IQuestionRepository _questionRepository = questionRepository;
     private readonly IQuizService _quizService = quizService;
     private readonly IUserSessionRepository _userSessionRepository = userSessionRepository;
+    private readonly IQuestionGenerator _questionGenerator = questionGenerator;
+    private readonly IMapper _mapper = mapper;
 
-    // Fake implementation
     /// <inheritdoc/>
     public async Task CreateQuestionsAsync(Quiz quiz)
     {
-        var questions = new List<Question>();
+        List<Question> questions = [];
 
-        for(int i = 0; i < quiz.TotalQuestions; i++)
+        foreach (var skillWeight in quiz.SkillWeights)
         {
-            var question = new Question
-            {
-                Text = $"How much is {i} + {i * 2}?",
-                Type = QuestionType.SimpleChoice,
-                Answers = [
-                    new Answer { Text = $"{i + i * 2}", IsCorrect = true },
-                    new Answer { Text = $"{i + i * 2 + 1}", IsCorrect = false },
-                    new Answer { Text = $"{i + i * 2 + 2}", IsCorrect = false },
-                    new Answer { Text = $"{i + i * 2 + 3}", IsCorrect = false },
-                    new Answer { Text = $"{i + i * 2 + 4}", IsCorrect = false },
-                ],
-                QuizId = quiz.Id,
-            };
+            var skill = skillWeight.Skill;
 
-            for(int j = 0; j < i%3; j++)
-            {
-                question.Answers.Add(new Answer { Text = $"{i + i * 2 + j + 5}", IsCorrect = false });
-            }
+            var skillTotalQuestions = GetSkillTotalQuestions(quiz.TotalQuestions, skillWeight.Weight);
 
-            questions.Add(question);
+            var questionsGenerated = await _questionGenerator.GenerateQuestionsBySkills(quiz.Id, skill, skillTotalQuestions, quiz.Attachment);
+
+            questions.AddRange(questionsGenerated);
         }
 
         await _questionRepository.AddRangeAsync(questions);
@@ -48,7 +39,7 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
     /// <inheritdoc/>
     public async Task<List<QuestionTiny>> GetCustomQuestions(Guid quizId, Guid userId)
     {
-        var quiz = await _quizService.GetByIdAsync(quizId) 
+        var quiz = await _quizService.GetByIdAsync(quizId)
             ?? throw new NotFoundException(nameof(Quiz), quizId);
 
         var questions = await _questionRepository.GetQuestionsByQuizIdAsync(quizId);
@@ -62,17 +53,61 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
     }
 
     /// <inheritdoc/>
-    public async Task<bool> AnswerQuestionAsync(Guid questionId, List<Guid> AnswerIds)
+    public async Task<bool> AnswerQuestionAsync(Guid questionId, List<Guid> answerIds)
     {
         var question = await _questionRepository.GetByIdAsync(questionId)
             ?? throw new NotFoundException(nameof(Question), questionId);
 
-        return question.CheckAnswer(AnswerIds);
+        return question.CheckAnswer(answerIds);
     }
 
     /// <inheritdoc/>
     public async Task<Question?> GetQuestionById(Guid questionId)
     {
         return await _questionRepository.GetByIdAsync(questionId);
+    }
+
+    private static int GetSkillTotalQuestions(int quizTotalQuestion, int weight)
+    {
+        var minimumQuestions = quizTotalQuestion * weight / 100 * 2;
+
+        return minimumQuestions < 1 ? 1 : minimumQuestions;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Question> UpdateQuestion(UpdateQuestionCommand request)
+    {
+        var question = await GetQuestionById(request.QuestionId)
+            ?? throw new NotFoundException(nameof(Question), request.QuestionId);
+
+        if (question.QuizId != request.QuizId)
+        {
+            throw new BadRequestException("The quizId of the question does not match with the quizId.");
+        }
+        var newQuestion = request.Question.ToQuestion(question.QuizId, question.SkillId);
+        newQuestion.Id = question.Id;
+        newQuestion.CreatedAt = question.CreatedAt;
+
+        await _questionRepository.UpdateQuestionAsync(request.QuestionId, newQuestion);
+
+        return newQuestion;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Question> UpdateQuestionStatus(Guid quizId, Guid questionId, Status status)
+    {
+        var question = await GetQuestionById(questionId)
+            ?? throw new NotFoundException(nameof(Question), questionId);
+
+        if (question.QuizId != quizId)
+        {
+            throw new BadRequestException("The quizId of the question does not match with the quizId.");
+        }
+
+        question.Status = status;
+
+        await _questionRepository.UpdateStatus(question.Id, status);
+
+        return question;
     }
 }

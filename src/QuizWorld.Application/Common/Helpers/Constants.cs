@@ -16,6 +16,8 @@ public static class Constants
     /// <summary>Represents the key for the MongoDb settings in the Key Vault.</summary>
     public const string KEY_VAULT_SECRET_MONGO_DB_SETTINGS = "MongoDbSettings";
 
+    /// <summary>Represents the key for the LLM settings in the Key Vault.</summary>
+    public const string KEY_VAULT_SECRET_LLM_SETTINGS = "LLMSettings";
 
 
     /// <summary>Represents the key for the AzureAd settings in the Key Vault.</summary>

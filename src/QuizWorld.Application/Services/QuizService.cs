@@ -12,13 +12,14 @@ using QuizWorld.Domain.Enums;
 namespace QuizWorld.Application.Services;
 
 /// <summary>Represents a service for quiz operations.</summary>
-public class QuizService(IQuizRepository quizRepository, 
-    ISkillRepository skillRepository, 
-    ICurrentUserService currentUserService, 
+public class QuizService(IQuizRepository quizRepository,
+    ISkillRepository skillRepository,
+    ICurrentUserService currentUserService,
     IMapper mapper,
     IStorageService storageService,
     IUserRepository userRepository,
-    ICurrentSessionService currentSessionService
+    ICurrentSessionService currentSessionService,
+    IQuestionRepository questionRepository
     ) : IQuizService
 {
     private readonly IQuizRepository _quizRepository = quizRepository;
@@ -28,6 +29,7 @@ public class QuizService(IQuizRepository quizRepository,
     private readonly IStorageService _storageService = storageService;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly ICurrentSessionService _currentSessionService = currentSessionService;
+    private readonly IQuestionRepository _questionRepository = questionRepository;
 
     /// <inheritdoc/>
     public async Task<Quiz> CreateQuizAsync(CreateQuizCommand command)
@@ -46,7 +48,7 @@ public class QuizService(IQuizRepository quizRepository,
     /// <inheritdoc/>
     public async Task<bool> AddAttachmentToQuiz(Guid quizId, IFormFile attachment)
     {
-        var quiz = await _quizRepository.GetByIdAsync(quizId) 
+        var quiz = await _quizRepository.GetByIdAsync(quizId)
             ?? throw new NotFoundException(nameof(Quiz), quizId);
 
         if (quiz.Attachment is null)
@@ -81,7 +83,7 @@ public class QuizService(IQuizRepository quizRepository,
 
         return true;
     }
-    
+
     /// <inheritdoc/>
     public async Task<PaginatedList<QuizTiny>> SearchQuizzesAsync(SearchQuizzesQuery query)
     {
@@ -91,7 +93,7 @@ public class QuizService(IQuizRepository quizRepository,
 
         return quizzesTiny;
     }
-    
+
     /// <inheritdoc/>
     public async Task<Quiz?> GetByIdAsync(Guid id)
     {
@@ -104,8 +106,19 @@ public class QuizService(IQuizRepository quizRepository,
         return await _quizRepository.GetQuizzesByIds(ids);
     }
 
+    /// <inheritdoc/>
+    public async Task<bool> UpdateQuizStatus(Guid quizId, QuizStatus status)
+    {
+        var quiz = await _quizRepository.GetByIdAsync(quizId)
+            ?? throw new NotFoundException(nameof(Quiz), quizId);
+
+        await _quizRepository.UpdateStatusAsync(quizId, status);
+
+        return true;
+    }
+
     private async Task<List<SkillWeight>> BuildSkillWeights(Dictionary<Guid, int> skillWeights)
-    { 
+    {
         var skills = await _skillRepository.GetSkillsByIdsAsync(skillWeights.Select(x => x.Key));
 
         if (skills.Count != skillWeights.Count)
@@ -114,20 +127,8 @@ public class QuizService(IQuizRepository quizRepository,
         }
 
         return skillWeights.Select(x => new SkillWeight
-            { Skill = skills.First(s => s.Id == x.Key).ToTiny(), Weight = x.Value })
-            .ToList();  
-    }
-
-    private async Task<List<UserTiny>> BuildUsers(List<Guid> userIds)
-    {
-        var users = await _userRepository.GetUsersByIdsAsync(userIds);
-
-        if (users.Count != userIds.Count)
-        {
-            throw new BadRequestException("One or more users were not found.");
-        }
-
-        return users.Select(x => x.ToTiny()).ToList();
+        { Skill = skills.First(s => s.Id == x.Key).ToTiny(), Weight = x.Value })
+            .ToList();
     }
 
     private static QuizFile BuildAttachment(IFormFile attachment)
@@ -139,5 +140,27 @@ public class QuizService(IQuizRepository quizRepository,
             FileName = attachment.FileName,
             UploadedAt = DateTime.UtcNow,
         };
+    }
+
+    public async Task<Quiz> ValidateQuizAsync(Guid quizId)
+    {
+        var quiz = await GetByIdAsync(quizId)
+            ?? throw new NotFoundException(nameof(Quiz), quizId);
+
+        var questions = await _questionRepository.GetQuestionsByQuizIdAsync(quizId);
+
+        if (quiz.TotalQuestions <= questions.Where(x => x.Status == Status.Valid).Count())
+        {
+            quiz.Status = QuizStatus.Active;
+            await _quizRepository.UpdateStatusAsync(quiz.Id, QuizStatus.Active);
+
+            await _questionRepository.DeleteInvalidQuestionsByQuizIdAsync(quizId);
+        }
+        else
+        {
+            throw new BadRequestException("Le nombre de questions validées doit être au moins égal au nombre de questions du quiz.");
+        }
+
+        return quiz;
     }
 }

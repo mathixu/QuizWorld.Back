@@ -1,4 +1,5 @@
 ﻿using Diacritics.Extensions;
+using System.Text.RegularExpressions;
 
 namespace QuizWorld.Application.Common.Helpers;
 
@@ -15,5 +16,13 @@ public static class StringHelper
     public static string ToNormalizedFormat(this string text)
     {
         return text.RemoveDiacritics().ToLowerInvariant().Trim();
+    }
+
+    /// <summary>Formats the string from LLM.</summary>
+    /// <param name="text">The text.</param>
+    /// <returns>The formatted string.</returns>
+    public static string FormatFromLLM(this string text)
+    {
+        return Regex.Unescape(text).Replace("```json", "").Replace("```", "");
     }
 }

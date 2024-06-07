@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 using QuizWorld.Infrastructure.Common.Options;
 
 namespace QuizWorld.Infrastructure.Persistence.Repositories;
@@ -43,7 +44,6 @@ public class QuestionRepository : IQuestionRepository
         }
     }
 
-    // TODO: Add quizId as Index
     /// <inheritdoc/>
     public async Task<PaginatedList<Question>> GetQuestionsByQuizIdAsync(Guid quizId, int page, int pageSize)
     {
@@ -55,31 +55,14 @@ public class QuestionRepository : IQuestionRepository
                 .Limit(pageSize)
                 .ToListAsync();
 
-            var count = await _mongoQuestionCollection.CountDocumentsAsync(filter);
+            var total = await _mongoQuestionCollection.CountDocumentsAsync(filter);
 
-            return new PaginatedList<Question>(questions, count, page, pageSize);
+            return new PaginatedList<Question>(questions, total, page, pageSize);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get questions from the database.");
-            return new PaginatedList<Question>(new List<Question>(), 0, 1, 10);
-        }
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<Question>> GetQuestionsByQuizIdAsync(Guid quizId)
-    {
-        try
-        {
-            var filter = Builders<Question>.Filter.Eq(q => q.QuizId, quizId);
-            var questions = await _mongoQuestionCollection.Find(filter).ToListAsync();
-
-            return questions;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get questions from the database.");
-            return [];
+            return new PaginatedList<Question>(new List<Question>(), 0, page, pageSize);
         }
     }
 
@@ -118,6 +101,84 @@ public class QuestionRepository : IQuestionRepository
         {
             _logger.LogError(ex, "Failed to add questions to the database.");
             return false;
+        }
+    }
+
+    /// <inheritdoc/>
+
+    public async Task<bool> UpdateQuestionAsync(Guid questionId, Question question)
+    {
+        try
+        {
+            var filter = Builders<Question>.Filter.Eq(q => q.Id, questionId);
+            question.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _mongoQuestionCollection.ReplaceOneAsync(filter, question);
+
+            return result.ModifiedCount > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update the question in the database.");
+            return false;
+        }
+    }
+
+
+
+    /// <inheritdoc/>
+    public async Task<bool> UpdateStatus(Guid questionId, Status status)
+    {
+        try
+        {
+            var filter = Builders<Question>.Filter.Eq(q => q.Id, questionId);
+            var update = Builders<Question>.Update.Set(q => q.Status, status)
+                                                                        .Set(q => q.UpdatedAt, DateTime.UtcNow);
+
+            await _mongoQuestionCollection.UpdateOneAsync(filter, update);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update question status in the database.");
+            return false;
+        }
+    }
+
+    public async Task<List<Question>> GetQuestionsByQuizIdAsync(Guid quizId)
+    {
+        try
+        {
+            var filter = Builders<Question>.Filter.Eq(q => q.QuizId, quizId);
+            return await _mongoQuestionCollection.Find(filter).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get questions from the database.");
+            return [];
+        }
+    }
+
+    public async Task DeleteInvalidQuestionsByQuizIdAsync(Guid quizId)
+    {
+        try
+        {
+            var filter = Builders<Question>.Filter.And(
+                Builders<Question>.Filter.Eq(q => q.QuizId, quizId),
+                Builders<Question>.Filter.Ne(q => q.Status, Status.Valid)
+            );
+
+            var result = await _mongoQuestionCollection.DeleteManyAsync(filter);
+
+            if (result.DeletedCount > 0)
+            {
+                _logger.LogInformation($"Successfully deleted {result.DeletedCount} invalid questions.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete invalid questions from the database.");
+            throw;
         }
     }
 }
