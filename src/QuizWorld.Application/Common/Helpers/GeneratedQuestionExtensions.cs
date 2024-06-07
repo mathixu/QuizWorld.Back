@@ -8,10 +8,10 @@ public static class GeneratedQuestionExtensions
 {
     public static IEnumerable<Question> ToQuestions(this IEnumerable<GeneratedQuestion> generatedQuestions, Guid quizId, SkillTiny skill)
     {
-        return generatedQuestions.Select(x => x.ToQuestion(quizId, skill.Id));
+        return generatedQuestions.Select(x => x.ToQuestion(quizId, skill));
     }
 
-    public static Question ToQuestion(this GeneratedQuestion generatedQuestion, Guid quizId, Guid skillId)
+    public static Question ToQuestion(this GeneratedQuestion generatedQuestion, Guid quizId, SkillTiny skill)
     {
         var answersCombinaisonsMapping = generatedQuestion.Answers.Where(a => a.Id is not null).ToDictionary(a => a.Id.GetValueOrDefault(), a => new Answer
         {
@@ -37,7 +37,7 @@ public static class GeneratedQuestionExtensions
             Combinaisons = combinaisons,
             Status = Status.Pending,
             QuizId = quizId,
-            SkillId = skillId
+            Skill = skill
         };
     }
 

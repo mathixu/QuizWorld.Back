@@ -84,7 +84,7 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
         {
             throw new BadRequestException("The quizId of the question does not match with the quizId.");
         }
-        var newQuestion = request.Question.ToQuestion(question.QuizId, question.SkillId);
+        var newQuestion = request.Question.ToQuestion(question.QuizId, question.Skill);
         newQuestion.Id = question.Id;
         newQuestion.CreatedAt = question.CreatedAt;
 
