@@ -31,10 +31,17 @@ public class SessionService(IQuizService quizService,
 
         var quizz = await BuildQuizzes(quizId);
 
+        string code;
+        do
+        {
+            code = GenerateCode();
+        }
+        while (await _sessionRepository.GetByCodeAsync(code) != null);
+
         var session = new Session
         {
             Quiz = quizz,
-            Code = GenerateCode(),
+            Code = code,
             CreatedBy = currentUser,
             Status = SessionStatus.Awaiting
         };
@@ -88,6 +95,19 @@ public class SessionService(IQuizService quizService,
         }
 
         await _userSessionRepository.UpdateAsync(userSession);
+    }
+
+    /// <inheritdoc />
+    public async Task<Session> UpdateSessionStatus(string code, SessionStatus status)
+    {
+        var session = await _sessionRepository.GetByCodeAsync(code)
+            ?? throw new NotFoundException(nameof(Session), code);
+
+        await _sessionRepository.UpdateStatusAsync(session.Id, status);
+
+        session.Status = status;
+
+        return session;
     }
 
     /// <inheritdoc/>

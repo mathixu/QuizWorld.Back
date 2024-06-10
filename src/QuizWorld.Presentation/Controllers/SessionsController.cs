@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.MediatR.Sessions.Commands.CreateSession;
+using QuizWorld.Application.MediatR.Sessions.Commands.UpdateSessionStatus;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionStatus;
 using QuizWorld.Domain.Entities;
 using Swashbuckle.AspNetCore.Annotations;
@@ -22,4 +23,16 @@ public class SessionsController(ISender sender) : BaseApiController(sender)
     [HttpGet("status")]
     public async Task<IActionResult> GetSessionStatus([FromQuery] string code)
         => await HandleCommand(new GetSessionStatusQuery(code));
+
+    /// <summary>
+    /// Updates the status of a session.
+    /// </summary>
+    [HttpPost("{code}/status")]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
+    public async Task<IActionResult> UpdateSessionStatus([FromRoute] string code, [FromBody] UpdateSessionStatusCommand command)
+    {
+        command.Code = code;
+
+        return await HandleCommand(command);
+    }
 }

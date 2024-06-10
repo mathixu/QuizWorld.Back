@@ -33,4 +33,9 @@ public interface ISessionService
 
     /// <summary>Gets the current user session.</summary>
     UserSession GetCurrentUserSession();
+
+    /// <summary>
+    /// Updates the status of a session.
+    /// </summary>
+    Task<Session> UpdateSessionStatus(string code, SessionStatus status);
 }

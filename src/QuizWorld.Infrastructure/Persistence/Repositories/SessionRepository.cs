@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 using QuizWorld.Infrastructure.Common.Options;
 
 namespace QuizWorld.Infrastructure.Persistence.Repositories;
@@ -70,6 +71,26 @@ public class SessionRepository : ISessionRepository
         {
             _logger.LogError(ex, "Failed to get session by id from the database.");
             return null;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> UpdateStatusAsync(Guid sessionId, SessionStatus status)
+    {
+        try
+        {
+            var filter = Builders<Session>.Filter.Eq(s => s.Id, sessionId);
+            var update = Builders<Session>.Update.Set(s => s.Status, status)
+                .Set(s => s.UpdatedAt, DateTime.UtcNow);
+
+            await _mongoSessionCollection.UpdateOneAsync(filter, update);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update session status in the database.");
+            return false;
         }
     }
 }
