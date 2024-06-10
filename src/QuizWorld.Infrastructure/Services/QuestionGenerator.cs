@@ -31,7 +31,7 @@ public class QuestionGenerator(
         {
             try
             {
-                var input = BuildInput(skill.Name, totalQuestions);
+                var input = BuildInput(skill.Name, totalQuestions, skill.Description);
 
                 contentGenerated = await _LLMService.GenerateContent(GenerateContentType.QuestionsBySkills, input, file?.FileName);
 
@@ -95,12 +95,13 @@ public class QuestionGenerator(
         }
     }
 
-    private static string BuildInput(string name, int totalQuestions)
+    private static string BuildInput(string name, int totalQuestions, string description)
     {
         var payload = new
         {
             skill = name,
             number = totalQuestions,
+            description
         };
 
         return JsonSerializer.Serialize(payload);

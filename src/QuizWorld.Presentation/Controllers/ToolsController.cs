@@ -28,7 +28,8 @@ public class ToolsController(ISender sender, IQuestionGenerator questionGenerato
         {
             var skillTiny = new SkillTiny
             {
-                Name = command.Skill
+                Name = command.Title,
+                Description = command.Description
             };
 
             var questions = await _questionGenerator.GenerateQuestionsBySkills(Guid.Empty, skillTiny, command.TotalQuestions);
@@ -44,6 +45,7 @@ public class ToolsController(ISender sender, IQuestionGenerator questionGenerato
 
 public class GenerateQuestionCommand 
 {
-    public string Skill { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
     public int TotalQuestions { get; set; }
 }
