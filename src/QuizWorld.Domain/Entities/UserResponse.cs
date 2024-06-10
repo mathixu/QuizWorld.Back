@@ -31,4 +31,9 @@ public class UserResponse : BaseAuditableEntity
     /// Represents the success rate of the question.
     /// </summary>
     public double SuccessRate { get; set; }
+
+    /// <summary>
+    /// Represents whether the last response is correct.
+    /// </summary>
+    public bool LastResponseIsCorrect { get; set; }
 }
