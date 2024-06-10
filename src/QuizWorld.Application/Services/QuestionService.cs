@@ -152,6 +152,7 @@ public class QuestionService(IQuestionRepository questionRepository,
         {
             userResponse.SuccessRate = (userResponse.SuccessRate * userResponse.Attempts + (isCorrect ? 1 : 0)) / (userResponse.Attempts + 1);
             userResponse.Attempts++;
+            userResponse.LastResponseIsCorrect = isCorrect;
 
             await _userResponseRepository.UpdateAsync(userResponse.Id, userResponse);
 
@@ -165,7 +166,8 @@ public class QuestionService(IQuestionRepository questionRepository,
             SkillId = question.Skill.Id,
             Question = question.ToMinimal(),
             Attempts = 1,
-            SuccessRate = isCorrect ? 1 : 0
+            SuccessRate = isCorrect ? 1 : 0,
+            LastResponseIsCorrect = isCorrect,
         };
 
         await _userResponseRepository.AddAsync(response);
