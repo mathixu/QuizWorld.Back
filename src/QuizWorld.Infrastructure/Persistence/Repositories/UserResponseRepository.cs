@@ -43,34 +43,38 @@ public class UserResponseRepository : IUserResponseRepository
     }
 
     /// <inheritdoc/>
-    public async Task<UserResponse?> GetUserResponseByUserSessionId(Guid userSessionId)
+    public async Task<UserResponse?> GetUserResponse(Guid userId, Guid quizId, Guid questionId)
     {
         try
         {
-            var userResponse = await _mongoUserResponseCollection.Find(ur => ur.UserSessionId == userSessionId).FirstOrDefaultAsync();
-            return userResponse;
+            var filter = Builders<UserResponse>.Filter.Eq(x => x.User.Id, userId) &
+                         Builders<UserResponse>.Filter.Eq(x => x.QuizId, quizId) &
+                         Builders<UserResponse>.Filter.Eq(x => x.Question.Id, questionId);
+
+            return await _mongoUserResponseCollection.Find(filter).FirstOrDefaultAsync();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to get user response by user session id from the database.");
+            _logger.LogError(ex, "Failed to get user response from the database.");
             return null;
         }
     }
 
     /// <inheritdoc/>
-    public async Task<bool> AddResponseAsync(Guid userSessionId, Responses response)
+    public async Task<bool> UpdateAsync(Guid userResponseId, UserResponse userResponse)
     {
         try
         {
-            var filter = Builders<UserResponse>.Filter.Eq(ur => ur.UserSessionId, userSessionId);
-            var update = Builders<UserResponse>.Update.Push(ur => ur.Responses, response);
+            userResponse.UpdatedAt = DateTime.UtcNow;
 
-            await _mongoUserResponseCollection.UpdateOneAsync(filter, update);
+            var filter = Builders<UserResponse>.Filter.Eq(x => x.Id, userResponseId);
+
+            await _mongoUserResponseCollection.ReplaceOneAsync(filter, userResponse);
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to add response to user response in the database.");
+            _logger.LogError(ex, "Failed to update user response in the database.");
             return false;
         }
     }

@@ -3,7 +3,7 @@ using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Domain.Entities;
 
-namespace QuizWorld.Application.MediatR.Questions.Commands.ValidateQuestion;
+namespace QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestionStatus;
 
 public class UpdateQuestionStatusCommandHandler(IQuestionService questionService) : IRequestHandler<UpdateQuestionStatusCommand, QuizWorldResponse<Question>>
 {

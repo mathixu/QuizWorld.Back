@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
-using QuizWorld.Application.MediatR.Questions.Commands.ValidateQuestion;
+using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestionStatus;
 using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
 using QuizWorld.Application.MediatR.Questions.Queries.GetQuestionsByQuizId;
 using QuizWorld.Application.MediatR.Quizzes.Commands.AddAttachmentToQuiz;
