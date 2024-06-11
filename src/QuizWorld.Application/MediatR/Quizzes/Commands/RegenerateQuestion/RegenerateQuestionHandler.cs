@@ -20,7 +20,7 @@ namespace QuizWorld.Application.MediatR.Quizzes.Commands.RegenerateQuestion
             }
             catch (QuestionGenerationException)
             {
-                return QuizWorldResponse<Question>.Failure("An unexpected error occurred during the generation of the question.", 500);
+                return QuizWorldResponse<Question>.Failure("Erreur lors de la regénération de la question.", 400);
             }
         }
     }

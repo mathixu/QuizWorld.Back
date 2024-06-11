@@ -11,7 +11,6 @@ using QuizWorld.Domain.Enums;
 namespace QuizWorld.Application.Services;
 
 public class QuestionService(IQuestionRepository questionRepository,
-    ISkillRepository skillRepository,
     IQuizService quizService, 
     IQuestionStatsRepository questionStatsRepository, 
     IUserSessionRepository userSessionRepository, 
@@ -27,7 +26,6 @@ public class QuestionService(IQuestionRepository questionRepository,
     private readonly IMapper _mapper = mapper;
     private readonly IQuestionStatsRepository _questionStatsRepository = questionStatsRepository;
     private readonly IUserResponseRepository _userResponseRepository = userResponseRepository;
-    private readonly ISkillRepository _skillRepository = skillRepository;
 
     /// <inheritdoc/>
     public async Task CreateQuestionsAsync(Quiz quiz)
@@ -57,7 +55,7 @@ public class QuestionService(IQuestionRepository questionRepository,
         var quiz = await _quizService.GetByIdAsync(quizId) 
             ?? throw new NotFoundException("Quiz not found");
 
-        if (!(question.QuizId == quiz.Id))
+        if (question.QuizId != quiz.Id)
         {
             throw new BadRequestException("The quizId doesn't match with the questionId.");
         }

@@ -25,9 +25,6 @@ namespace QuizWorld.Application.MediatR.Quizzes.Commands.RegenerateQuestion
         /// <summary>
         /// The requirement for the question.
         /// </summary>
-        public string Requirement { get; set; } = default!;
-
-        /// <summary>If the quiz has a file.</summary>
-        public bool HasFile { get; set; }
+        public string? Requirement { get; set; } = default!;
     }
 }

@@ -91,8 +91,6 @@ public class QuestionGenerator(
             {
                 attempt++;
 
-                await Task.Delay(15000);
-
                 if (attempt >= maxAttempts)
                 {
                     var objectResponse = new
@@ -106,6 +104,8 @@ public class QuestionGenerator(
                     throw new QuestionGenerationException(JsonSerializer.Serialize(objectResponse));
                 }
             }
+
+            await Task.Delay(15000);
         }
 
         throw new QuestionGenerationException("Error regenerating question");
