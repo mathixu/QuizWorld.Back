@@ -62,17 +62,21 @@ public class QuestionService(IQuestionRepository questionRepository,
         var userSession = await _userSessionRepository.GetByIdAsync(currentUserSession.Id)
             ?? throw new UnauthorizedAccessException("The user is not connected to a session.");
 
+        var questionSelected = new List<QuestionTiny>();
         if (userSession.QuestionIds.Count != 0)
         {
             if (userSession.QuestionIds.All(q => questions.Any(x => x.Id == q)))
             {
-                return userSession.QuestionIds.Select(q => questions.First(x => x.Id == q).ToTiny()).ShuffleAnswers().ToList();
+                questionSelected = userSession.QuestionIds.Select(q => questions.First(x => x.Id == q).ToTiny()).ToList();
+
+                questionSelected.ForEach(q => q.Answers = q.Answers.Shuffle().ToList());
+
+                return questionSelected;
             }
 
             throw new NotFoundException("One or more questions in the session are not found.");
         }
 
-        var questionSelected = new List<QuestionTiny>();
 
         if (quiz.PersonalizedQuestions)
         {
@@ -81,8 +85,10 @@ public class QuestionService(IQuestionRepository questionRepository,
         else
         {
             // Need to be randomly for each user or by session ?
-            questionSelected = questions.OrderBy(x => Guid.NewGuid()).Take(quiz.TotalQuestions).Select(q => q.ToTiny()).ShuffleAnswers().ToList();
+            questionSelected = questions.OrderBy(x => Guid.NewGuid()).Take(quiz.TotalQuestions).Select(q => q.ToTiny()).ToList();
         }
+
+        questionSelected.ForEach(q => q.Answers = q.Answers.Shuffle().ToList());
 
         userSession.QuestionIds = questionSelected.Select(q => q.Id).ToList();
         userSession.Result = new UserSessionResult
