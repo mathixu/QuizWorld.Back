@@ -8,6 +8,7 @@ using QuizWorld.Infrastructure.Common.Options;
 using QuizWorld.Infrastructure.Interfaces;
 using System.Text.Json;
 using QuizWorld.Application.Common.Models;
+using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Infrastructure.Services;
 
@@ -75,22 +76,16 @@ public class QuestionGenerator(
         {
             try
             {
-                var input = RegenerateBuildInput(skill.Name, question, requirement);
+                var input = RegenerateBuildInput(skill, question, requirement);
 
                 contentGenerated = await _LLMService.GenerateContent(GenerateContentType.RegenerateQuestion, input, attachment?.FileName);
 
-                var generatedQuestions = DeserializeQuestions(contentGenerated);
+                var regeneratedQuestion = DeserializeRegenerateQuestion(contentGenerated)
+                    ?? throw new QuestionGenerationException("No question regenerated");
 
-                if (generatedQuestions == null || generatedQuestions.Count == 0)
-                {
-                    throw new QuestionGenerationException("No question regenerated");
-                }
+                await SaveAsync(skill.Id, question.QuizId, input, contentGenerated, GenerateContentType.RegenerateQuestion, false, attempt);
 
-                var regeneratedQuestion = generatedQuestions.First().ToQuestion(question.QuizId, skill);
-
-                await SaveRegenerateAsync(skill.Id, question.QuizId, input, contentGenerated, GenerateContentType.RegenerateQuestion, false, attempt);
-
-                return regeneratedQuestion;
+                return regeneratedQuestion.ToQuestion(question.QuizId, skill);
             }
             catch (Exception ex)
             {
@@ -128,6 +123,18 @@ public class QuestionGenerator(
         }
     }
 
+    private static GeneratedQuestion? DeserializeRegenerateQuestion(string contentGenerated)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<GeneratedQuestion>(contentGenerated.FormatFromLLM());
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
     private static string BuildInput(string name, int totalQuestions, string description)
     {
         var payload = new
@@ -140,39 +147,25 @@ public class QuestionGenerator(
         return JsonSerializer.Serialize(payload);
     }
 
-    private static string RegenerateBuildInput(string skillName, Question question, string requirement)
+    private static string RegenerateBuildInput(SkillTiny skill, Question question, string requirement)
     {
         var payload = new
         {
-            skill = skillName,
+            skillName = skill.Name,
+            skillDescription = skill.Description,
             requirement,
             text = question.Text,
             answers = question.Answers.Select(a => new { a.Text, a.IsCorrect }),
-            type = question.Type
-        };
-
+            combinaison = question.Combinaisons,
+            type = question.Type == QuestionType.SimpleChoice ? "simple" :
+                   question.Type == QuestionType.MultipleChoice ? "multiple" :
+                   question.Type == QuestionType.Combinaison ? "combinaison" : 
+                   "unknown"
+    };
         return JsonSerializer.Serialize(payload);
     }
 
     private async Task<bool> SaveAsync(Guid skillId, Guid quizId, string input, string contentGenerated, GenerateContentType contentType, bool hasError, int attempt)
-    {
-        var generatedContent = new GeneratedContent
-        {
-            SkillId = skillId,
-            QuizId = quizId,
-            Input = input,
-            Content = contentGenerated,
-            ContentFormatted = contentGenerated.FormatFromLLM(),
-            ContentType = contentType,
-            HasError = hasError,
-            Model = _options.Model,
-            Attempt = attempt
-        };
-
-        return await _generatedContentRepository.AddAsync(generatedContent);
-    }
-
-    private async Task<bool> SaveRegenerateAsync(Guid skillId, Guid quizId, string input, string contentGenerated, GenerateContentType contentType, bool hasError, int attempt)
     {
         var generatedContent = new GeneratedContent
         {

@@ -17,18 +17,35 @@ public static class SystemMessages
             L'utilisateur te fournira une requête au format JSON suivant:
             {
               ""skill"": ""Nom de la compétence"",
+              ""description"": ""Description de la compétence"",
               ""requirement"": ""Une exigence spécifique à prendre en compte pour la regénération"",
               ""text"": ""La question a regénérer"",
               ""answers"": [
                 {
-                  ""text"": ""Une réponse de la question"",
+                  ""id"": ""1"",
+                  ""text"": ""première réponse"",
                   ""isCorrect"": true
                 },
                 {
-                  ""text"": ""Une réponse de la question"",
+                  ""id"": ""2"",
+                  ""text"": ""deuxième réponse"",
+                  ""isCorrect"": false,
+                },
+                {
+                  ""id"": ""3"",
+                  ""text"": ""troisième réponse"",
+                  ""isCorrect"": false,
+                },
+                {
+                  ""id"": ""4"",
+                  ""text"": ""quatrième réponse"",
                   ""isCorrect"": false,
                 }
               ],
+              ""combinaison"": [
+                  [ 2, 4 ],
+                  [ 1, 3 ],
+                ],
               ""type"": ""simple"" // (or: multiple, combinaison)
             }
 
@@ -40,26 +57,42 @@ public static class SystemMessages
             - Multiple: plusieurs bonnes réponses pour une question
             - Combinaison: Correspond a des questions qui ont plusieurs combinaisons de réponses (par exemple, pour arrivé a 10, on peut faire 5+5 et 5x2, donc 2 combinaisons sont correcte)
 
-            Pour chaque question, il faut que tu génères de façon aléatoire entre 6 et 8 answers.
             La propriété ""isCorrect"" doit être a ""true"" uniquement si la réponse est bonne.
-
+            Le nombre de réponse à regénérer est le même que celui reçu.
             Tu dois regénérer une nouvelle question pertinente pour la compétence fournie différente de l'ancienne.
+            ""requirement"" est à prendre en compte uniquement s'il n'est pas null.
 
             Voici le modèle JSON attendu en réponse:
             {
-              ""text"": ""La question régénérée"",
+              ""text"": ""La question regénérée"",
               ""answers"": [
                 {
-                  ""text"": ""First answer"",
+                  ""id"": 1, // uniquement si le type est combinaison sinon ne pas ajouter la ligne
+                  ""text"": ""première réponse"",
                   ""isCorrect"": true
                 },
                 {
-                  ""text"": ""Second answer"",
+                  ""id"": 2, // uniquement si le type est combinaison sinon ne pas ajouter la ligne
+                  ""text"": ""deuxième réponse"",
+                  ""isCorrect"": false,
+                },
+                {
+                  ""id"": 3, // uniquement si le type est combinaison sinon ne pas ajouter la ligne
+                  ""text"": ""troisième réponse"",
+                  ""isCorrect"": false,
+                },
+                {
+                  ""id"": 4, // uniquement si le type est combinaison sinon ne pas ajouter la ligne
+                  ""text"": ""quatrième réponse"",
                   ""isCorrect"": false,
                 }
               ],
+              ""combinaison"": [
+                  [ 2, 4 ],
+                  [ 1, 3 ],
+                ], // uniquement si le type est combinaison
               ""type"": ""simple"" // (or: multiple, combinaison)
-             }"
+            }"
         },
         {
             GenerateContentType.QuestionsBySkills,
