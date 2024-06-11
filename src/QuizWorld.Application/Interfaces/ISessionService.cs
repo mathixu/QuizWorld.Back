@@ -31,10 +31,15 @@ public interface ISessionService
     Task<StartQuizResponse> StartQuiz(Guid quizId);
 
     /// <summary>Gets the current user session.</summary>
-    UserSession GetCurrentUserSession();
+    Task<UserSession> GetCurrentUserSession();
 
     /// <summary>
     /// Updates the status of a session.
     /// </summary>
     Task<Session> UpdateSessionStatus(string code, SessionStatus status);
+
+    /// <summary>
+    /// Gets the session result.
+    /// </summary>
+    Task<UserSessionResult?> GetSessionResult(string code);
 }

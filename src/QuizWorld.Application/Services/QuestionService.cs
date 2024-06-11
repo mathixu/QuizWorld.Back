@@ -16,12 +16,14 @@ public class QuestionService(IQuestionRepository questionRepository,
     IUserSessionRepository userSessionRepository, 
     IMapper mapper, 
     IQuestionGenerator questionGenerator,
-    IUserResponseRepository userResponseRepository
+    IUserResponseRepository userResponseRepository,
+    ICurrentSessionService currentSessionService
     ) : IQuestionService
 {
     private readonly IQuestionRepository _questionRepository = questionRepository;
     private readonly IQuizService _quizService = quizService;
     private readonly IUserSessionRepository _userSessionRepository = userSessionRepository;
+    private readonly ICurrentSessionService _currentSessionService = currentSessionService;
     private readonly IQuestionGenerator _questionGenerator = questionGenerator;
     private readonly IMapper _mapper = mapper;
     private readonly IQuestionStatsRepository _questionStatsRepository = questionStatsRepository;
@@ -76,12 +78,45 @@ public class QuestionService(IQuestionRepository questionRepository,
 
         var questions = await _questionRepository.GetQuestionsByQuizIdAsync(quizId);
 
+        var currentUserSession = _currentSessionService.GetUserSessionByUserId(userId)
+            ?? throw new UnauthorizedAccessException("The user is not connected to a session.");
+
+        var userSession = await _userSessionRepository.GetByIdAsync(currentUserSession.Id)
+            ?? throw new UnauthorizedAccessException("The user is not connected to a session.");
+
+        if (userSession.QuestionIds.Count != 0)
+        {
+            if (userSession.QuestionIds.All(q => questions.Any(x => x.Id == q)))
+            {
+                return userSession.QuestionIds.Select(q => questions.First(x => x.Id == q).ToTiny()).ShuffleAnswers().ToList();
+            }
+
+            throw new NotFoundException("One or more questions in the session are not found.");
+        }
+
+        var questionSelected = new List<QuestionTiny>();
+
         if (quiz.PersonalizedQuestions)
         {
             // TODO: Add algorithm to get custom questions adapted to the user
         }
+        else
+        {
+            // Need to be randomly for each user or by session ?
+            questionSelected = questions.OrderBy(x => Guid.NewGuid()).Take(quiz.TotalQuestions).Select(q => q.ToTiny()).ShuffleAnswers().ToList();
+        }
 
-        return questions.Take(quiz.TotalQuestions).Select(q => q.ToTiny()).ToList();
+        userSession.QuestionIds = questionSelected.Select(q => q.Id).ToList();
+        userSession.Result = new UserSessionResult
+        {
+            StartedAt = DateTime.UtcNow,
+            TotalQuestions = questionSelected.Count,
+            QuestionsAnswered = 0
+        };
+
+        await _userSessionRepository.UpdateAsync(userSession.Id, userSession);
+
+        return questionSelected;
     }
 
     /// <inheritdoc/>
@@ -163,7 +198,61 @@ public class QuestionService(IQuestionRepository questionRepository,
 
         await UpdateUserResponse(userSession.User, command.QuizId, question, responseIsCorrect);
 
+        await UpdateUserSession(userSession, question, responseIsCorrect);
+
         await UpdateQuestionStats(questionMinimal, responseIsCorrect);
+    }
+
+    private async Task UpdateUserSession(UserSession userSession, Question question, bool isCorrect)
+    {
+        if (userSession.Result is null)
+        {
+            throw new BadRequestException("The user session result is not initialized.");
+        }
+
+        userSession.Result.QuestionsAnswered++;
+        userSession.Result.Note = (userSession.Result.Note ?? 0) + (isCorrect ? 1 : 0);
+
+        userSession.Result.SkillWeights ??= [];
+
+        var skillWeight = userSession.Result.SkillWeights.FirstOrDefault(x => x.Skill.Id == question.Skill.Id);
+
+        if (skillWeight is null)
+        {
+            skillWeight = new SkillWeightExtended
+            {
+                Skill = question.Skill,
+                Attempts = 1,
+                Weight = isCorrect ? 100 : 0
+            };
+
+            userSession.Result.SkillWeights.Add(skillWeight);
+        }
+        else
+        {
+            UpdateSkillWeight(skillWeight, isCorrect);
+        }
+
+        if (userSession.Result.QuestionsAnswered == userSession.Result.TotalQuestions)
+        {
+            userSession.Result.EndedAt = DateTime.UtcNow;
+        }
+
+        await _userSessionRepository.UpdateAsync(userSession.Id, userSession);
+    }
+
+    private static void UpdateSkillWeight(SkillWeightExtended skillWeight, bool isCorrect) 
+    {
+        var currentSuccessRate = skillWeight.Weight / 100.0;
+        var totalAttempts = skillWeight.Attempts;
+
+        var previousSuccesses = (int)(currentSuccessRate * totalAttempts);
+
+        var newSuccesses = isCorrect ? previousSuccesses + 1 : previousSuccesses;
+
+        skillWeight.Attempts++;
+
+        skillWeight.Weight = (int)((double)newSuccesses / skillWeight.Attempts * 100);
     }
 
     private async Task UpdateUserResponse(UserTiny user, Guid quizId, Question question, bool isCorrect)

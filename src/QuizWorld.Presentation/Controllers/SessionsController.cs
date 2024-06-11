@@ -6,6 +6,7 @@ using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.MediatR.Sessions.Commands.CreateSession;
 using QuizWorld.Application.MediatR.Sessions.Commands.UpdateSessionStatus;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetSession;
+using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionResult;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 using QuizWorld.Presentation.WebSockets;
@@ -60,4 +61,10 @@ public class SessionsController(ISender sender, IHubContext<QuizSessionHub> hubC
 
         return HandleResult(response);
     }
+
+    [HttpGet("{code}/result")]
+    [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserSessionResult))]
+    public async Task<IActionResult> GetSessionResult(string code)
+        => await HandleCommand(new GetSessionResultQuery(code));
 }

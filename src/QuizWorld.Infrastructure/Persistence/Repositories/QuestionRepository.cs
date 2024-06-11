@@ -181,4 +181,19 @@ public class QuestionRepository : IQuestionRepository
             throw;
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<List<Question>> GetByIdsAsync(IEnumerable<Guid> questionIds)
+    {
+        try
+        {
+            var filter = Builders<Question>.Filter.In(q => q.Id, questionIds);
+            return await _mongoQuestionCollection.Find(filter).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get questions by ids from the database.");
+            return new List<Question>();
+        }
+    }
 }

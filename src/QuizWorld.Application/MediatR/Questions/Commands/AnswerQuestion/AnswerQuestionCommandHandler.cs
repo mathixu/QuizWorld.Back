@@ -12,7 +12,7 @@ public class AnswerQuestionCommandHandler(ISessionService sessionService, IQuest
 
     public async Task<QuizWorldResponse<Unit>> Handle(AnswerQuestionCommand request, CancellationToken cancellationToken)
     {
-        var currentUserSession = _sessionService.GetCurrentUserSession();
+        var currentUserSession = await _sessionService.GetCurrentUserSession();
 
         if (currentUserSession.Status != UserSessionStatus.Connected)
             return QuizWorldResponse<Unit>.Failure("You are not connected to a session.");

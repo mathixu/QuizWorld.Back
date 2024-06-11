@@ -56,6 +56,46 @@ public class QuestionMinimal : BaseEntity
 
 public static class QuestionExtensions
 {
+    /// <summary>
+    /// Shuffle the answers of the question.
+    /// </summary>
+    public static Question ShuffleAnswers(this Question question)
+    {
+        question.Answers = question.Answers.OrderBy(a => Guid.NewGuid()).ToList();
+
+        return question;
+    }
+
+    /// <summary>
+    /// Shuffle the answers of the questions.
+    /// </summary>
+    public static IEnumerable<Question> ShuffleAnswers(this IEnumerable<Question> questions)
+    {
+        foreach (var question in questions)
+        {
+            question.ShuffleAnswers();
+        }
+
+        return questions;
+    }
+
+    public static QuestionTiny ShuffleAnswers(this QuestionTiny question)
+    {
+        question.Answers = question.Answers?.OrderBy(a => Guid.NewGuid()).ToList();
+
+        return question;
+    }
+
+    public static IEnumerable<QuestionTiny> ShuffleAnswers(this IEnumerable<QuestionTiny> questions)
+    {
+        foreach (var question in questions)
+        {
+            question.ShuffleAnswers();
+        }
+
+        return questions;
+    }
+
     public static QuestionTiny ToTiny(this Question question)
     {
         return new QuestionTiny
