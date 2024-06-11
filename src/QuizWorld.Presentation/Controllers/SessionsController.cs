@@ -10,6 +10,7 @@ using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 using QuizWorld.Presentation.WebSockets;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.Json;
 
 namespace QuizWorld.Presentation.Controllers;
 
@@ -48,12 +49,12 @@ public class SessionsController(ISender sender, IHubContext<QuizSessionHub> hubC
             if (response.Data.Status == SessionStatus.Started)
             {
                 // Send a notification to the students that the session has started
-                await _hubContext.Clients.Group(code).SendAsync("ReceiveMessage", new {message = "session_started" });
+                await _hubContext.Clients.Group(code).SendAsync("ReceiveMessage", JsonSerializer.Serialize(new {message = "session_started" }));
             }
             else if (response.Data.Status == SessionStatus.Finished)
             {
                 // Send a notification to the students that the session has finished
-                await _hubContext.Clients.Group(code).SendAsync("ReceiveMessage", new {message = "session_finished" });
+                await _hubContext.Clients.Group(code).SendAsync("ReceiveMessage", JsonSerializer.Serialize(new {message = "session_finished" }));
             }
         }
 
