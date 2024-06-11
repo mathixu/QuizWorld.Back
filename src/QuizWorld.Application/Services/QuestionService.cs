@@ -9,13 +9,14 @@ using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Services;
 
-public class QuestionService(IQuestionRepository questionRepository, IQuizService quizService, IUserSessionRepository userSessionRepository, IMapper mapper, IQuestionGenerator questionGenerator) : IQuestionService
+public class QuestionService(ISkillRepository skillRepository, IQuestionRepository questionRepository, IQuizService quizService, IUserSessionRepository userSessionRepository, IMapper mapper, IQuestionGenerator questionGenerator) : IQuestionService
 {
     private readonly IQuestionRepository _questionRepository = questionRepository;
     private readonly IQuizService _quizService = quizService;
     private readonly IUserSessionRepository _userSessionRepository = userSessionRepository;
     private readonly IQuestionGenerator _questionGenerator = questionGenerator;
     private readonly IMapper _mapper = mapper;
+    private readonly ISkillRepository _skillRepository = skillRepository;
 
     /// <inheritdoc/>
     public async Task CreateQuestionsAsync(Quiz quiz)
@@ -34,6 +35,31 @@ public class QuestionService(IQuestionRepository questionRepository, IQuizServic
         }
 
         await _questionRepository.AddRangeAsync(questions);
+    }
+    
+    /// <inheritdoc/>
+    public async Task<Question> RegenerateQuestion(Guid quizId, Guid questionId, string requirement)
+    {
+        var question = await _questionRepository.GetByIdAsync(questionId) 
+            ?? throw new NotFoundException("Question not found");
+
+        var skill = await _skillRepository.GetById(question.SkillId)
+            ?? throw new NotFoundException("Question not found");
+
+        var quiz = await _quizService.GetByIdAsync(quizId) 
+            ?? throw new NotFoundException("Quiz not found");
+
+        if (!(question.SkillId == skill.Id && question.QuizId == quiz.Id))
+        {
+            throw new BadRequestException("The skillId or the quizId doesn't match with the questionId.");
+        }
+
+        var regeneratedQuestion = await _questionGenerator.RegenerateQuestion(skill, question, requirement, quiz.Attachment);
+        regeneratedQuestion.Id = questionId;
+
+        await _questionRepository.UpdateQuestionAsync(questionId, regeneratedQuestion);
+
+        return regeneratedQuestion;
     }
 
     /// <inheritdoc/>

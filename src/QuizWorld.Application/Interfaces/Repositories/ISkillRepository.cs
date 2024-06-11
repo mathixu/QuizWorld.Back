@@ -17,4 +17,11 @@ public interface ISkillRepository
 
     /// <summary>Search for skills by their name.</summary>
     Task<PaginatedList<Skill>> SearchSkillsAsync(SearchSkillsQuery query);
+
+    /// <summary>
+    /// Get a skill by id.
+    /// </summary>
+    /// <param name="id">the skill id.</param>
+    /// <returns>the object Skill.</returns>
+    Task<Skill> GetById(Guid id);
 }

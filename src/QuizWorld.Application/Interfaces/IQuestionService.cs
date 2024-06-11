@@ -38,4 +38,13 @@ public interface IQuestionService
     /// Updates the status of a question.
     /// </summary>
     Task<Question> UpdateQuestionStatus(Guid quizId, Guid questionId, Status status);
+
+    /// <summary>
+    /// Regenerate a new question with IA.
+    /// </summary>
+    /// <param name="quizId">the id of the quiz.</param>
+    /// <param name="questionId">the id of the question.</param>
+    /// <param name="requirement">the requirement for the regeneration.</param>
+    /// <returns>the new question.</returns>
+    Task<Question> RegenerateQuestion(Guid quizId, Guid questionId, string requirement);
 }

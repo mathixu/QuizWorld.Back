@@ -104,4 +104,20 @@ public class SkillRepository : ISkillRepository
             return new PaginatedList<Skill>(new List<Skill>(), 0, 1, 10);
         }
     }
+    
+    /// <inheritdoc/>
+    public async Task<Skill> GetById(Guid id)
+    {
+        try
+        {
+            var filter = Builders<Skill>.Filter.Eq(s => s.Id, id);
+
+            return await _mongoSkillCollection.Find(filter).FirstOrDefaultAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get skill by id from the database.");
+            return null;
+        }
+    }
 }

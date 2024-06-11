@@ -15,6 +15,7 @@ using QuizWorld.Domain.Entities;
 using Swashbuckle.AspNetCore.Annotations;
 using QuizWorld.Application.MediatR.Quizzes.Queries.GetQuizById;
 using QuizWorld.Application.MediatR.Quizzes.Commands.ValidateQuiz;
+using QuizWorld.Application.MediatR.Quizzes.Commands.RegenerateQuestion;
 
 namespace QuizWorld.Presentation.Controllers;
 
@@ -78,6 +79,16 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     [HttpPut("{quizId:guid}/questions/{questionId:guid}")]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Question))]
     public async Task<IActionResult> UpdateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] UpdateQuestionCommand command)
+    {
+        command.QuizId = quizId;
+        command.QuestionId = questionId;
+        return await HandleCommand(command);
+    }
+
+    /// <summary>Regenerate a question.</summary>
+    [HttpPut("{quizId:guid}/questions/{questionId:guid}")]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Question))]
+    public async Task<IActionResult> RegenerateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] RegenerateQuestionCommand command)
     {
         command.QuizId = quizId;
         command.QuestionId = questionId;
