@@ -1,12 +1,11 @@
-﻿using MediatR;
-using QuizWorld.Application.MediatR.Common;
+﻿using QuizWorld.Application.MediatR.Common;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 using System.Text.Json.Serialization;
 
 namespace QuizWorld.Application.MediatR.Sessions.Commands.UpdateSessionStatus;
 
-public class UpdateSessionStatusCommand : IQuizWorldRequest<SessionTiny>
+public class UpdateSessionStatusCommand : IQuizWorldRequest<Session>
 {
     /// <summary>
     /// Represents the session identifier.
