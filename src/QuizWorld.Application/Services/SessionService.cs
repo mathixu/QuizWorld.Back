@@ -2,7 +2,6 @@
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
-using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionStatus;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 
@@ -53,14 +52,9 @@ public class SessionService(IQuizService quizService,
 
 
     /// <inheritdoc />
-    public async Task<SessionStatusResponse> GetSessionStatus(string code)
+    public async Task<Session?> GetSessionByCode(string code)
     {
-        var session = await _sessionRepository.GetByCodeAsync(code);
-
-        if (session is null)
-            return new () { Status = SessionStatus.None };
-
-        return new() { Status = session.Status };
+        return await _sessionRepository.GetByCodeAsync(code);
     }
 
     /// <inheritdoc />
@@ -98,7 +92,7 @@ public class SessionService(IQuizService quizService,
     }
 
     /// <inheritdoc />
-    public async Task<Session> UpdateSessionStatus(string code, SessionStatus status)
+    public async Task<Domain.Entities.Session> UpdateSessionStatus(string code, SessionStatus status)
     {
         var session = await _sessionRepository.GetByCodeAsync(code)
             ?? throw new NotFoundException(nameof(Session), code);
