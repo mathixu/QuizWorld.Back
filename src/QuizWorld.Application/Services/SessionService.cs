@@ -2,7 +2,6 @@
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
-using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionStatus;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 
@@ -31,10 +30,17 @@ public class SessionService(IQuizService quizService,
 
         var quizz = await BuildQuizzes(quizId);
 
+        string code;
+        do
+        {
+            code = GenerateCode();
+        }
+        while (await _sessionRepository.GetByCodeAsync(code) != null);
+
         var session = new Session
         {
             Quiz = quizz,
-            Code = GenerateCode(),
+            Code = code,
             CreatedBy = currentUser,
             Status = SessionStatus.Awaiting
         };
@@ -46,14 +52,9 @@ public class SessionService(IQuizService quizService,
 
 
     /// <inheritdoc />
-    public async Task<SessionStatusResponse> GetSessionStatus(string code)
+    public async Task<Session?> GetSessionByCode(string code)
     {
-        var session = await _sessionRepository.GetByCodeAsync(code);
-
-        if (session is null)
-            return new () { Status = SessionStatus.None };
-
-        return new() { Status = session.Status };
+        return await _sessionRepository.GetByCodeAsync(code);
     }
 
     /// <inheritdoc />
@@ -88,6 +89,19 @@ public class SessionService(IQuizService quizService,
         }
 
         await _userSessionRepository.UpdateAsync(userSession);
+    }
+
+    /// <inheritdoc />
+    public async Task<Domain.Entities.Session> UpdateSessionStatus(string code, SessionStatus status)
+    {
+        var session = await _sessionRepository.GetByCodeAsync(code)
+            ?? throw new NotFoundException(nameof(Session), code);
+
+        await _sessionRepository.UpdateStatusAsync(session.Id, status);
+
+        session.Status = status;
+
+        return session;
     }
 
     /// <inheritdoc/>

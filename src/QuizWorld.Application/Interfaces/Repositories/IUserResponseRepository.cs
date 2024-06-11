@@ -5,17 +5,17 @@ namespace QuizWorld.Application.Interfaces.Repositories;
 public interface IUserResponseRepository
 {
     /// <summary>
-    /// Adds a user response to the repository.
+    /// Adds a user response to the db.
     /// </summary>
     Task<bool> AddAsync(UserResponse userResponse);
 
     /// <summary>
-    /// Gets a user response by session id
+    /// Gets the user response by the user id, quiz id, and question id.
     /// </summary>
-    Task<UserResponse?> GetUserResponseByUserSessionId(Guid userSessionId);
+    Task<UserResponse?> GetUserResponse(Guid userId, Guid quizId, Guid questionId);
 
     /// <summary>
-    /// Adds a response to the user response.
+    /// Updates the user response in the db.
     /// </summary>
-    Task<bool> AddResponseAsync(Guid userSessionId, Responses response);
+    Task<bool> UpdateAsync(Guid userResponseId, UserResponse userResponse);
 }

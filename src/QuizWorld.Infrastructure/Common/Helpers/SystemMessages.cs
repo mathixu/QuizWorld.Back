@@ -65,15 +65,18 @@ public static class SystemMessages
             GenerateContentType.QuestionsBySkills,
             @"Tu es un assistant qui génère des questions pertinentes en fonction d'une compétence que l'on te fournit 
 
-            L'utilisateur te fera une requete sous le format json suivant:
-            {
-              ""skill"": ""Nom de la compétence"",
-              ""number"": 5
-            }
+L'utilisateur te fera une requete sous le format json suivant:
+{
+  ""skill"": ""Nom de la compétence"", 
+  ""description"": ""Description de la compétence"",
+  ""number"": 5
+}
 
             La propriété ""number"" correspond au nombre de questions que tu dois générer.
 
-            La propriété ""skill"" correspond a la compétence travaillé.
+La propriété ""description"" correspond a la description de la compétence travaillée.
+
+La propriété ""skill"" correspond au titre de la compétence travaillée.
 
 
             Tu réponds dans un format JSON pour que ta réponse soit comprise par une application sans retouche humaine.

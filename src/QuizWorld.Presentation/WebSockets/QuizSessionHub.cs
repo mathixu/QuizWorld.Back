@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using QuizWorld.Application.Common.Exceptions;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Domain.Entities;
@@ -51,7 +50,7 @@ public class QuizSessionHub(ICurrentUserService currentUserService, ISessionServ
                 _currentSessionService.DisconnectOldUser(user.Id);
             }
 
-            var sessionStatus = await _sessionService.GetSessionStatus(code);
+            var sessionStatus = await _sessionService.GetSessionByCode(code);
 
             switch(sessionStatus.Status)
             {
@@ -72,15 +71,6 @@ public class QuizSessionHub(ICurrentUserService currentUserService, ISessionServ
             }
 
             var userSession = await _sessionService.AddUserSession(code, Context.ConnectionId, user);
-
-            /*if (_currentSessionService.AlreadyHaveTeacher(userSession, code))
-            {
-                await Clients.Caller.SendAsync("ReceiveMessage", "There is already a teacher in the session.");
-
-                await DisconnectUser(Context.ConnectionId);
-
-                return;
-            }*/
 
             _currentSessionService.AddUserSession(user, userSession);
 

@@ -11,6 +11,9 @@ public class Skill : BaseEntity
 {
     /// <summary>Represents the name of the skill.</summary>
     public string Name { get; set; } = default!;
+    
+    /// <summary>Represents the description of the skill.</summary>
+    public string Description { get; set; } = default!;
 
     /// <summary>Represents the normalized name of the skill.</summary>
     [JsonIgnore]
@@ -25,6 +28,9 @@ public class SkillTiny : BaseEntity
 {
     /// <summary>Represents the name of the skill.</summary>
     public string Name { get; set; } = default!;
+    
+    /// <summary>Represents the description of the skill.</summary>
+    public string Description { get; set; } = default!;
 }
 
 /// <summary>
@@ -40,7 +46,8 @@ public static class SkillExtensions
         return new SkillTiny
         {
             Id = skill.Id,
-            Name = skill.Name
+            Name = skill.Name,
+            Description = skill.Description
         };
     }
 }

@@ -1,4 +1,5 @@
-﻿using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
+﻿using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
+using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 
@@ -38,6 +39,11 @@ public interface IQuestionService
     /// Updates the status of a question.
     /// </summary>
     Task<Question> UpdateQuestionStatus(Guid quizId, Guid questionId, Status status);
+
+    /// <summary>
+    /// Processes the user response.
+    /// </summary>
+    Task ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command);
 
     /// <summary>
     /// Regenerate a new question with IA.

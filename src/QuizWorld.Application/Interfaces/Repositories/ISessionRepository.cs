@@ -1,4 +1,5 @@
 ﻿using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Interfaces.Repositories;
 
@@ -12,4 +13,9 @@ public interface ISessionRepository
 
     /// <summary>Get a session by its id.</summary>
     Task<Session?> GetByIdAsync(Guid sessionId);
+
+    /// <summary>
+    /// Update the status of a session.
+    /// </summary>
+    Task<bool> UpdateStatusAsync(Guid sessionId, SessionStatus status);
 }
