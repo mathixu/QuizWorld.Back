@@ -44,4 +44,13 @@ public interface IQuestionService
     /// Processes the user response.
     /// </summary>
     Task ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command);
+
+    /// <summary>
+    /// Regenerate a new question with IA.
+    /// </summary>
+    /// <param name="quizId">the id of the quiz.</param>
+    /// <param name="questionId">the id of the question.</param>
+    /// <param name="requirement">the requirement for the regeneration.</param>
+    /// <returns>the new question.</returns>
+    Task<Question> RegenerateQuestion(Guid quizId, Guid questionId, string requirement);
 }

@@ -10,7 +10,7 @@ using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Services;
 
-public class QuestionService(IQuestionRepository questionRepository, 
+public class QuestionService(IQuestionRepository questionRepository,
     IQuizService quizService, 
     IQuestionStatsRepository questionStatsRepository, 
     IUserSessionRepository userSessionRepository, 
@@ -44,6 +44,28 @@ public class QuestionService(IQuestionRepository questionRepository,
         }
 
         await _questionRepository.AddRangeAsync(questions);
+    }
+    
+    /// <inheritdoc/>
+    public async Task<Question> RegenerateQuestion(Guid quizId, Guid questionId, string requirement)
+    {
+        var question = await _questionRepository.GetByIdAsync(questionId) 
+            ?? throw new NotFoundException("Question not found");
+
+        var quiz = await _quizService.GetByIdAsync(quizId) 
+            ?? throw new NotFoundException("Quiz not found");
+
+        if (question.QuizId != quiz.Id)
+        {
+            throw new BadRequestException("The quizId doesn't match with the questionId.");
+        }
+
+        var regeneratedQuestion = await _questionGenerator.RegenerateQuestion(question.Skill, question, requirement, quiz.Attachment);
+        regeneratedQuestion.Id = questionId;
+
+        await _questionRepository.UpdateQuestionAsync(questionId, regeneratedQuestion);
+
+        return regeneratedQuestion;
     }
 
     /// <inheritdoc/>
