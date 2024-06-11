@@ -35,6 +35,11 @@ public interface ICurrentSessionService
     UserSession? GetUserSessionByUser(User user);
 
     /// <summary>
+    /// Gets a user session by user id.
+    /// </summary>
+    UserSession? GetUserSessionByUserId(Guid userId);
+
+    /// <summary>
     /// Session already has a teacher.
     /// </summary>
     bool AlreadyHaveTeacher(UserSession userSession, string code);

@@ -40,19 +40,14 @@ public class UserSessionRepository : IUserSessionRepository
     }
 
     /// <inheritdoc/>
-    public async Task<bool> UpdateAsync(UserSession userSession)
+    public async Task<bool> UpdateAsync(Guid userSessionId, UserSession userSession)
     {
         try
         {
-            var filter = Builders<UserSession>.Filter.Eq(s => s.Id, userSession.Id);
-            var update = Builders<UserSession>.Update
-                .Set(s => s.ConnectionId, userSession.ConnectionId)
-                .Set(s => s.User, userSession.User)
-                .Set(s => s.Session, userSession.Session)
-                .Set(s => s.Status, userSession.Status)
-                .Set(s => s.DisconnectedAt, userSession.DisconnectedAt);
+            var filter = Builders<UserSession>.Filter.Eq(s => s.Id, userSessionId);
 
-            await _mongoUserSessionCollection.UpdateOneAsync(filter, update);
+            await _mongoUserSessionCollection.ReplaceOneAsync(filter, userSession);
+
             return true;
         }
         catch (Exception ex)
@@ -86,6 +81,41 @@ public class UserSessionRepository : IUserSessionRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get user session by session id from the database.");
+            return null;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<UserSession?> GetByIdAsync(Guid id)
+    {
+        try
+        {
+            var userSession = await _mongoUserSessionCollection.Find(s => s.Id == id).FirstOrDefaultAsync();
+
+            return userSession;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get user session by id from the database.");
+            return null;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<UserSession?> GetLastBySessionCodeAndUserIdAsync(string code, Guid userId)
+    {
+        try
+        {
+            var userSession = await _mongoUserSessionCollection
+                .Find(s => s.Session.Code == code && s.User.Id == userId)
+                .SortByDescending(s => s.ConnectedAt)
+                .FirstOrDefaultAsync();
+
+            return userSession;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get last user session by session code and user id from the database.");
             return null;
         }
     }

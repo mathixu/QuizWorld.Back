@@ -88,7 +88,7 @@ public class SessionService(IQuizService quizService,
             userSession.DisconnectedAt = DateTime.UtcNow;
         }
 
-        await _userSessionRepository.UpdateAsync(userSession);
+        await _userSessionRepository.UpdateAsync(userSession.Id, userSession);
     }
 
     /// <inheritdoc />
@@ -110,7 +110,7 @@ public class SessionService(IQuizService quizService,
         var quiz = await _quizService.GetByIdAsync(quizId)
             ?? throw new NotFoundException(nameof(Quiz), quizId);
 
-        var userSession = GetCurrentUserSession();
+        var userSession = await GetCurrentUserSession();
 
         var session = await _sessionRepository.GetByIdAsync(userSession.Session.Id)
             ?? throw new NotFoundException(nameof(Session), userSession.Id);
@@ -136,7 +136,7 @@ public class SessionService(IQuizService quizService,
     }
 
     /// <inheritdoc/>
-    public UserSession GetCurrentUserSession()
+    public async Task<UserSession> GetCurrentUserSession()
     {
         var currentUser = _currentUserService.User
             ?? throw new BadRequestException("You are not logged in.");
@@ -144,7 +144,22 @@ public class SessionService(IQuizService quizService,
         var userSession = _currentSessionService.GetUserSessionByUser(currentUser)
             ?? throw new BadRequestException("You are not in a session.");
 
-        return userSession;
+        var realUserSession = await _userSessionRepository.GetByIdAsync(userSession.Id)
+            ?? throw new BadRequestException("The session was not found.");
+
+        return realUserSession;
+    }
+
+    /// <inheritdoc />
+    public async Task<UserSessionResult?> GetSessionResult(string code)
+    {
+        var user = _currentUserService.User
+            ?? throw new BadRequestException("You are not logged in.");
+
+        var userSession = await _userSessionRepository.GetLastBySessionCodeAndUserIdAsync(code, user.Id)
+            ?? throw new BadRequestException("You are not in this session.");
+
+        return userSession.Result;
     }
 
     private async Task<QuizTiny> BuildQuizzes(Guid quizId)

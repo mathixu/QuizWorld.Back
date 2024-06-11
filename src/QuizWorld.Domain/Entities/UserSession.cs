@@ -25,4 +25,14 @@ public class UserSession(UserTiny userTiny, SessionTiny session, string connecti
 
     /// <summary>Represents whether the user is a teacher of the session.</summary>
     public bool IsTeacher { get; set; } = isTeacher;
+
+    /// <summary>
+    /// Represents the identifiers of the questions to be answered by the user.
+    /// </summary>
+    public List<Guid> QuestionIds { get; set; } = [];
+
+    /// <summary>
+    /// Represents the result of the session.
+    /// </summary>
+    public UserSessionResult? Result { get; set; } = null;
 }

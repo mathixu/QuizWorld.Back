@@ -8,46 +8,61 @@ public class CurrentSessionService : ICurrentSessionService
     private readonly Dictionary<string, User> _connections = [];
     private readonly Dictionary<User, UserSession> _userSessions = [];
 
+    /// <inheritdoc/>
     public void ConnectUser(string connectionId, User user)
     {
         _connections.Add(connectionId, user);
     }
 
+    /// <inheritdoc/>
     public void DisconnectUser(string connectionId)
     {
         _connections.Remove(connectionId);
     }
 
+    /// <inheritdoc/>
     public User? GetUserByConnectionId(string connectionId)
     {
         return _connections.TryGetValue(connectionId, out User? user) ? user : null;
     }
 
+    /// <inheritdoc/>
     public void AddUserSession(User user, UserSession userSession)
     {
         _userSessions.Add(user, userSession);
     }
 
+    /// <inheritdoc/>
     public void RemoveUserSession(User user)
     {
         _userSessions.Remove(user);
     }
 
+    /// <inheritdoc/>
     public UserSession? GetUserSessionByUser(User user)
     {
-        return _userSessions.FirstOrDefault(x => x.Key.Id == user.Id).Value;
+        return GetUserSessionByUserId(user.Id);
     }
 
+    /// <inheritdoc/>
+    public UserSession? GetUserSessionByUserId(Guid userId)
+    {
+        return _userSessions.FirstOrDefault(x => x.Key.Id == userId).Value;
+    }
+
+    /// <inheritdoc/>
     public bool AlreadyHaveTeacher(UserSession userSession, string code)
     {
         return userSession.IsTeacher && _userSessions.Any(x => x.Value.Session.Code == code && x.Value.IsTeacher);
     }
 
+    /// <inheritdoc/>
     public bool AlreadyInSession(string connectionId, User user)
     {
         return _userSessions.Any(x => x.Value.ConnectionId == connectionId || x.Key.Id == user.Id);
     }
 
+    /// <inheritdoc/>
     public List<UserTiny> GetOnlineUsers(string code)
     {
         return _userSessions
@@ -56,6 +71,7 @@ public class CurrentSessionService : ICurrentSessionService
             .ToList();
     }
 
+    /// <inheritdoc/>
     public void DisconnectOldUser(Guid userId)
     {
         var user = _userSessions.FirstOrDefault(x => x.Key.Id == userId).Key;
