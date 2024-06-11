@@ -52,6 +52,7 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     /// <summary>Starts a quiz.</summary>
     [HttpPost("{quizId:guid}/start")]
     [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(StartQuizResponse))]
     public async Task<IActionResult> StartQuiz([FromRoute] Guid quizId)
         => await HandleCommand(new StartQuizCommand(quizId));
 
