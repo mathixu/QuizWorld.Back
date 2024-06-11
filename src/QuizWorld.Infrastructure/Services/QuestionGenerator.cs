@@ -65,7 +65,7 @@ public class QuestionGenerator(
         throw new QuestionGenerationException("Error generating questions");
     }    
 
-    public async Task<Question> RegenerateQuestion(Skill skill, Question question, string requirement, QuizFile? attachment)
+    public async Task<Question> RegenerateQuestion(SkillTiny skill, Question question, string requirement, QuizFile? attachment)
     {
         int maxAttempts = _options.MaxGenerationAttempts;
         int attempt = 0;
@@ -75,7 +75,7 @@ public class QuestionGenerator(
         {
             try
             {
-                var input = RegenerateBuildInput(skill.NameNormalized, question, requirement);
+                var input = RegenerateBuildInput(skill.Name, question, requirement);
 
                 contentGenerated = await _LLMService.GenerateContent(GenerateContentType.RegenerateQuestion, input, attachment?.FileName);
 
@@ -86,7 +86,7 @@ public class QuestionGenerator(
                     throw new QuestionGenerationException("No question regenerated");
                 }
 
-                var regeneratedQuestion = generatedQuestions.First().ToQuestion(question.QuizId, skill.Id);
+                var regeneratedQuestion = generatedQuestions.First().ToQuestion(question.QuizId, skill);
 
                 await SaveRegenerateAsync(skill.Id, question.QuizId, input, contentGenerated, GenerateContentType.RegenerateQuestion, false, attempt);
 
@@ -171,7 +171,6 @@ public class QuestionGenerator(
 
         return await _generatedContentRepository.AddAsync(generatedContent);
     }
-
 
     private async Task<bool> SaveRegenerateAsync(Guid skillId, Guid quizId, string input, string contentGenerated, GenerateContentType contentType, bool hasError, int attempt)
     {

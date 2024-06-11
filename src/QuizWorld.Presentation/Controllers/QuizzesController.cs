@@ -86,7 +86,7 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     }
 
     /// <summary>Regenerate a question.</summary>
-    [HttpPut("{quizId:guid}/questions/{questionId:guid}")]
+    [HttpPut("{quizId:guid}/questions/{questionId:guid}/regenerate")]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Question))]
     public async Task<IActionResult> RegenerateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] RegenerateQuestionCommand command)
     {

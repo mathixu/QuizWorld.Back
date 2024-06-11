@@ -23,5 +23,5 @@ public interface IQuestionGenerator
     /// <param name="requirement"></param>
     /// <param name="attachment"></param>
     /// <returns>the new question.</returns>
-    Task<Question> RegenerateQuestion(Skill skill, Question question, string requirement, QuizFile? attachment);
+    Task<Question> RegenerateQuestion(SkillTiny skill, Question question, string requirement, QuizFile? attachment);
 }
