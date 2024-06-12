@@ -123,6 +123,7 @@ public class QuizzesController(ISender sender, WebSocketService webSocketService
 
     [HttpGet("{quizId:guid}")]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Quiz))]
+    [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
     public async Task<IActionResult> GetQuizById([FromRoute] Guid quizId)
         => await HandleCommand(new GetQuizByIdQuery(quizId));
 }
