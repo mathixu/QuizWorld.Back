@@ -167,12 +167,4 @@ public static class QuestionExtensions
 
         return false;
     }
-    
-    /// <summary>
-    /// Get the Skill from the question.
-    /// </summary>
-    public static SkillTiny GetSkill(this Question question)
-    {
-        return question.Skill;
-    }
 }

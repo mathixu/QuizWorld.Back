@@ -1,4 +1,3 @@
-using AutoMapper;
 using QuizWorld.Application.Common.Exceptions;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
@@ -15,7 +14,6 @@ public class QuestionService(IQuestionRepository questionRepository,
     IQuizService quizService, 
     IQuestionStatsRepository questionStatsRepository, 
     IUserSessionRepository userSessionRepository, 
-    IMapper mapper,
     IQuestionGenerator questionGenerator,
     IUserResponseRepository userResponseRepository,
     ICurrentSessionService currentSessionService
@@ -26,7 +24,6 @@ public class QuestionService(IQuestionRepository questionRepository,
     private readonly IUserSessionRepository _userSessionRepository = userSessionRepository;
     private readonly ICurrentSessionService _currentSessionService = currentSessionService;
     private readonly IQuestionGenerator _questionGenerator = questionGenerator;
-    private readonly IMapper _mapper = mapper;
     private readonly IQuestionStatsRepository _questionStatsRepository = questionStatsRepository;
     private readonly IUserResponseRepository _userResponseRepository = userResponseRepository;
 
