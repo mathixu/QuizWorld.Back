@@ -9,5 +9,8 @@ public class CreateSkillCommandValidator : AbstractValidator<CreateSkillCommand>
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("The name of the skill is required.");
+        RuleFor(x => x.Description)
+            .NotEmpty()
+            .WithMessage("The description of the skill is required.");
     }
 }

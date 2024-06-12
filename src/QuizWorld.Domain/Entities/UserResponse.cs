@@ -7,24 +7,33 @@ public class UserResponse : BaseAuditableEntity
     /// <summary>Represents the user of the user response.</summary>
     public UserTiny User { get; set; } = default!;
 
-    /// <summary>Represents the user session id of the user response.</summary>
-    public Guid UserSessionId { get; set; }
+    /// <summary>
+    /// Represents the quizId of the user response.
+    /// </summary>
+    public Guid QuizId { get; set; }
 
-    /// <summary>Represents responses</summary>
-    public List<Responses> Responses { get; set; } = [];
-}
+    /// <summary>
+    /// Represents the questionId of the user response.
+    /// </summary>
+    public Guid SkillId { get; set; }
 
-public class Responses
-{
-    /// <summary>Represents the question of the user response.</summary>
+    /// <summary>
+    /// Represents the question of the user response.
+    /// </summary>
     public QuestionMinimal Question { get; set; } = default!;
 
-    /// <summary>Represents the answers of the user response.</summary>
-    public List<AnswerTiny> Answers { get; set; } = [];
+    /// <summary>
+    /// Represents the number of attempts of the question.
+    /// </summary>
+    public int Attempts { get; set; }
 
-    /// <summary>Represents if the user response is correct.</summary>
-    public bool IsCorrect { get; set; } = false;
+    /// <summary>
+    /// Represents the success rate of the question.
+    /// </summary>
+    public double SuccessRate { get; set; }
 
-    /// <summary>Represents the quiz id of the user response./// </summary>
-    public Guid QuizId { get; set; }
+    /// <summary>
+    /// Represents whether the last response is correct.
+    /// </summary>
+    public bool LastResponseIsCorrect { get; set; }
 }

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
-using QuizWorld.Application.MediatR.Questions.Commands.ValidateQuestion;
 using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
 using QuizWorld.Application.MediatR.Questions.Queries.GetQuestionsByQuizId;
 using QuizWorld.Application.MediatR.Quizzes.Commands.AddAttachmentToQuiz;
@@ -15,6 +14,9 @@ using QuizWorld.Domain.Entities;
 using Swashbuckle.AspNetCore.Annotations;
 using QuizWorld.Application.MediatR.Quizzes.Queries.GetQuizById;
 using QuizWorld.Application.MediatR.Quizzes.Commands.ValidateQuiz;
+using QuizWorld.Application.MediatR.Quizzes.Commands.RegenerateQuestion;
+using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestionStatus;
+using QuizWorld.Presentation.WebSockets;
 
 namespace QuizWorld.Presentation.Controllers;
 
@@ -22,8 +24,10 @@ namespace QuizWorld.Presentation.Controllers;
 /// Represents a controller for quizzes.
 /// </summary>
 [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
-public class QuizzesController(ISender sender) : BaseApiController(sender)
+public class QuizzesController(ISender sender, WebSocketService webSocketService) : BaseApiController(sender)
 {
+    private readonly WebSocketService _webSocketService = webSocketService;
+
     /// <summary>Creates a new quiz.</summary>
     [HttpPost]
     [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(Quiz))]
@@ -51,8 +55,18 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     /// <summary>Starts a quiz.</summary>
     [HttpPost("{quizId:guid}/start")]
     [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(StartQuizResponse))]
     public async Task<IActionResult> StartQuiz([FromRoute] Guid quizId)
-        => await HandleCommand(new StartQuizCommand(quizId));
+    {
+        var result = await _sender.Send(new StartQuizCommand(quizId));
+
+        if (result.IsSuccessful)
+        {
+            await _webSocketService.HandleAction(WebSocketAction.UserStartedQuiz);
+        }
+
+        return HandleResult(result);
+    }
 
     /// <summary>Answers a question.</summary>
     [HttpPost("{quizId:guid}/questions/{questionId:guid}/answer")]
@@ -62,7 +76,14 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
         command.QuizId = quizId;
         command.QuestionId = questionId;
 
-        return await HandleCommand(command);
+        var result = await _sender.Send(command);
+
+        if (result.IsSuccessful)
+        {
+            await _webSocketService.HandleAction(result.Data.Action);
+        }
+
+        return HandleResult(result);
     }
 
     [HttpPut("{quizId:guid}/questions/{questionId:guid}/status")]
@@ -78,6 +99,16 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     [HttpPut("{quizId:guid}/questions/{questionId:guid}")]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Question))]
     public async Task<IActionResult> UpdateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] UpdateQuestionCommand command)
+    {
+        command.QuizId = quizId;
+        command.QuestionId = questionId;
+        return await HandleCommand(command);
+    }
+
+    /// <summary>Regenerate a question.</summary>
+    [HttpPut("{quizId:guid}/questions/{questionId:guid}/regenerate")]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Question))]
+    public async Task<IActionResult> RegenerateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] RegenerateQuestionCommand command)
     {
         command.QuizId = quizId;
         command.QuestionId = questionId;

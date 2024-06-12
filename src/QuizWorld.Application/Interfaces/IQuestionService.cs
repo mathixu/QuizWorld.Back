@@ -1,4 +1,6 @@
-﻿using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
+﻿using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
+using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 
@@ -38,4 +40,18 @@ public interface IQuestionService
     /// Updates the status of a question.
     /// </summary>
     Task<Question> UpdateQuestionStatus(Guid quizId, Guid questionId, Status status);
+
+    /// <summary>
+    /// Processes the user response.
+    /// </summary>
+    Task<WebSocketAction> ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command);
+
+    /// <summary>
+    /// Regenerate a new question with IA.
+    /// </summary>
+    /// <param name="quizId">the id of the quiz.</param>
+    /// <param name="questionId">the id of the question.</param>
+    /// <param name="requirement">the requirement for the regeneration.</param>
+    /// <returns>the new question.</returns>
+    Task<Question> RegenerateQuestion(Guid quizId, Guid questionId, string requirement);
 }

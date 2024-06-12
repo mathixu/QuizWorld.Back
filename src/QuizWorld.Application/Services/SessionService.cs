@@ -2,7 +2,6 @@
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
-using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionStatus;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 
@@ -31,10 +30,17 @@ public class SessionService(IQuizService quizService,
 
         var quizz = await BuildQuizzes(quizId);
 
+        string code;
+        do
+        {
+            code = GenerateCode();
+        }
+        while (await _sessionRepository.GetByCodeAsync(code) != null);
+
         var session = new Session
         {
             Quiz = quizz,
-            Code = GenerateCode(),
+            Code = code,
             CreatedBy = currentUser,
             Status = SessionStatus.Awaiting
         };
@@ -46,14 +52,9 @@ public class SessionService(IQuizService quizService,
 
 
     /// <inheritdoc />
-    public async Task<SessionStatusResponse> GetSessionStatus(string code)
+    public async Task<Session?> GetSessionByCode(string code)
     {
-        var session = await _sessionRepository.GetByCodeAsync(code);
-
-        if (session is null)
-            return new () { Status = SessionStatus.None };
-
-        return new() { Status = session.Status };
+        return await _sessionRepository.GetByCodeAsync(code);
     }
 
     /// <inheritdoc />
@@ -87,7 +88,20 @@ public class SessionService(IQuizService quizService,
             userSession.DisconnectedAt = DateTime.UtcNow;
         }
 
-        await _userSessionRepository.UpdateAsync(userSession);
+        await _userSessionRepository.UpdateAsync(userSession.Id, userSession);
+    }
+
+    /// <inheritdoc />
+    public async Task<Domain.Entities.Session> UpdateSessionStatus(string code, SessionStatus status)
+    {
+        var session = await _sessionRepository.GetByCodeAsync(code)
+            ?? throw new NotFoundException(nameof(Session), code);
+
+        await _sessionRepository.UpdateStatusAsync(session.Id, status);
+
+        session.Status = status;
+
+        return session;
     }
 
     /// <inheritdoc/>
@@ -96,7 +110,7 @@ public class SessionService(IQuizService quizService,
         var quiz = await _quizService.GetByIdAsync(quizId)
             ?? throw new NotFoundException(nameof(Quiz), quizId);
 
-        var userSession = GetCurrentUserSession();
+        var userSession = await GetCurrentUserSession();
 
         var session = await _sessionRepository.GetByIdAsync(userSession.Session.Id)
             ?? throw new NotFoundException(nameof(Session), userSession.Id);
@@ -122,7 +136,7 @@ public class SessionService(IQuizService quizService,
     }
 
     /// <inheritdoc/>
-    public UserSession GetCurrentUserSession()
+    public async Task<UserSession> GetCurrentUserSession()
     {
         var currentUser = _currentUserService.User
             ?? throw new BadRequestException("You are not logged in.");
@@ -130,7 +144,22 @@ public class SessionService(IQuizService quizService,
         var userSession = _currentSessionService.GetUserSessionByUser(currentUser)
             ?? throw new BadRequestException("You are not in a session.");
 
-        return userSession;
+        var realUserSession = await _userSessionRepository.GetByIdAsync(userSession.Id)
+            ?? throw new BadRequestException("The session was not found.");
+
+        return realUserSession;
+    }
+
+    /// <inheritdoc />
+    public async Task<UserSessionResult?> GetSessionResult(string code)
+    {
+        var user = _currentUserService.User
+            ?? throw new BadRequestException("You are not logged in.");
+
+        var userSession = await _userSessionRepository.GetLastBySessionCodeAndUserIdAsync(code, user.Id)
+            ?? throw new BadRequestException("You are not in this session.");
+
+        return userSession.Result;
     }
 
     private async Task<QuizTiny> BuildQuizzes(Guid quizId)

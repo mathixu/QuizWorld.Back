@@ -26,8 +26,8 @@ public class Question : BaseAuditableEntity
     /// <summary>Represents the quizId of the question.</summary>
     public Guid QuizId { get; set; }
 
-    /// <summary>Represents the skill Id of the question.</summary>
-    public Guid SkillId { get; set; }
+    /// <summary>Represents the skill of the question.</summary>
+    public SkillTiny Skill { get; set; } = default!;
 }
 
 public class QuestionTiny : BaseEntity
@@ -35,20 +35,19 @@ public class QuestionTiny : BaseEntity
     /// <summary>Represents the text of the question.</summary>
     public string Text { get; set; } = default!;
 
-    /// <summary>Represents the type of the question.</summary>
-    public QuestionType Type { get; set; }
-
     /// <summary>Represents the answers of the question.</summary>
-    public List<AnswerTiny>? Answers { get; set; } = default!;
-
-    /// <summary>Represents the combinaisons of answers. (if type was QuestionType.Combinaison)</summary>
-    public List<List<Guid>>? Combinaisons { get; set; } = default!;
+    public List<AnswerTiny> Answers { get; set; } = default!;
 
     /// <summary>Represents the quizId of the question.</summary>
     public Guid QuizId { get; set; }
 
     /// <summary>Represents the skillId of the question.</summary>
     public Guid SkillId { get; set; }
+
+    /// <summary>
+    /// Represents the type of the question.
+    /// </summary>
+    public QuestionType? Type { get; set; } = null;
 }
 
 public class QuestionMinimal : BaseEntity
@@ -62,17 +61,16 @@ public class QuestionMinimal : BaseEntity
 
 public static class QuestionExtensions
 {
-    public static QuestionTiny ToTiny(this Question question)
+    public static QuestionTiny ToTiny(this Question question, bool displayType = false)
     {
         return new QuestionTiny
         {
             Id = question.Id,
             Text = question.Text,
-            Type = question.Type,
-            Answers = question.Answers?.Select(a => a.ToTiny()).ToList(),
-            Combinaisons = question.Combinaisons,
+            Answers = question.Answers.Select(a => a.ToTiny()).ToList(),
             QuizId = question.QuizId,
-            SkillId = question.SkillId
+            SkillId = question.Skill.Id,
+            Type = displayType ? question.Type : null
         };
     }
 

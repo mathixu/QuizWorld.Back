@@ -3,7 +3,7 @@ using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 using System.Text.Json.Serialization;
 
-namespace QuizWorld.Application.MediatR.Questions.Commands.ValidateQuestion;
+namespace QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestionStatus;
 
 /// <summary>
 /// Represents the validate question command.

@@ -8,6 +8,7 @@ using QuizWorld.Infrastructure.Common.Options;
 using QuizWorld.Infrastructure.Interfaces;
 using System.Text.Json;
 using QuizWorld.Application.Common.Models;
+using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Infrastructure.Services;
 
@@ -31,21 +32,23 @@ public class QuestionGenerator(
         {
             try
             {
-                var input = BuildInput(skill.Name, totalQuestions);
+                var input = BuildInput(skill.Name, totalQuestions, skill.Description);
 
+                var startedAt = DateTime.UtcNow;
                 contentGenerated = await _LLMService.GenerateContent(GenerateContentType.QuestionsBySkills, input, file?.FileName);
+                var endedAt = DateTime.UtcNow;
+
+                var generationTimeInMs = (endedAt - startedAt).TotalMilliseconds;
 
                 var generatedQuestions = DeserializeQuestions(contentGenerated);
 
-                await SaveAsync(skill.Id, quizId, input, contentGenerated, GenerateContentType.QuestionsBySkills, generatedQuestions is null, attempt);
+                await SaveAsync(skill.Id, quizId, input, contentGenerated, GenerateContentType.QuestionsBySkills, generatedQuestions is null, attempt, generationTimeInMs);
 
                 return generatedQuestions?.ToQuestions(quizId, skill).ToList() ?? [];
             }
             catch (Exception ex)
             {
                 attempt++;
-
-                await Task.Delay(15000);
 
                 if (attempt >= maxAttempts) 
                 {
@@ -59,28 +62,63 @@ public class QuestionGenerator(
 
                     throw new QuestionGenerationException(JsonSerializer.Serialize(objectResponse));
                 }
+
+                await Task.Delay(15000);
             }
         }
 
         throw new QuestionGenerationException("Error generating questions");
-    }
+    }    
 
-    private async Task<bool> SaveAsync(Guid skillId, Guid quizId, string input, string contentGenerated, GenerateContentType contentType, bool hasError, int attempt)
+    public async Task<Question> RegenerateQuestion(SkillTiny skill, Question question, string requirement, QuizFile? attachment)
     {
-        var generatedContent = new GeneratedContent
-        {
-            SkillId = skillId,
-            QuizId = quizId,
-            Input = input,
-            Content = contentGenerated,
-            ContentFormatted = contentGenerated.FormatFromLLM(),
-            ContentType = contentType,
-            HasError = hasError,
-            Model = _options.Model,
-            Attempt = attempt
-        };
+        int maxAttempts = _options.MaxGenerationAttempts;
+        int attempt = 0;
+        string contentGenerated = string.Empty;
 
-        return await _generatedContentRepository.AddAsync(generatedContent);
+        while (attempt < maxAttempts)
+        {
+            try
+            {
+                var input = RegenerateBuildInput(skill, question, requirement);
+
+                var startedAt = DateTime.UtcNow;
+                contentGenerated = await _LLMService.GenerateContent(GenerateContentType.RegenerateQuestion, input, attachment?.FileName);
+                var endedAt = DateTime.UtcNow;
+
+                var generationTimeInMs = (endedAt - startedAt).TotalMilliseconds;
+
+                var regeneratedQuestion = DeserializeRegenerateQuestion(contentGenerated);
+
+                await SaveAsync(skill.Id, question.QuizId, input, contentGenerated, GenerateContentType.RegenerateQuestion, regeneratedQuestion is null, attempt, generationTimeInMs);
+
+                if (regeneratedQuestion is null)
+                    throw new QuestionGenerationException("Error regenerating question");
+
+                return regeneratedQuestion.ToQuestion(question.QuizId, skill);
+            }
+            catch (Exception ex)
+            {
+                attempt++;
+
+                if (attempt >= maxAttempts)
+                {
+                    var objectResponse = new
+                    {
+                        Message = "Error regenerating question",
+                        Ex = ex.Message,
+                        ContentGenerated = contentGenerated,
+                        Attempt = attempt
+                    };
+
+                    throw new QuestionGenerationException(JsonSerializer.Serialize(objectResponse));
+                }
+            }
+
+            await Task.Delay(15000);
+        }
+
+        throw new QuestionGenerationException("Error regenerating question");
     }
 
     private static List<GeneratedQuestion>? DeserializeQuestions(string contentGenerated)
@@ -95,14 +133,64 @@ public class QuestionGenerator(
         }
     }
 
-    private static string BuildInput(string name, int totalQuestions)
+    private static GeneratedQuestion? DeserializeRegenerateQuestion(string contentGenerated)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<GeneratedQuestion>(contentGenerated.FormatFromLLM());
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
+    private static string BuildInput(string name, int totalQuestions, string description)
     {
         var payload = new
         {
             skill = name,
             number = totalQuestions,
+            description
         };
 
         return JsonSerializer.Serialize(payload);
+    }
+
+    private static string RegenerateBuildInput(SkillTiny skill, Question question, string requirement)
+    {
+        var payload = new
+        {
+            skillName = skill.Name,
+            skillDescription = skill.Description,
+            requirement,
+            text = question.Text,
+            answers = question.Answers.Select(a => new { a.Text, a.IsCorrect }),
+            combinaison = question.Combinaisons,
+            type = question.Type == QuestionType.SimpleChoice ? "simple" :
+                   question.Type == QuestionType.MultipleChoice ? "multiple" :
+                   question.Type == QuestionType.Combinaison ? "combinaison" : 
+                   "unknown"
+    };
+        return JsonSerializer.Serialize(payload);
+    }
+
+    private async Task<bool> SaveAsync(Guid skillId, Guid quizId, string input, string contentGenerated, GenerateContentType contentType, bool hasError, int attempt, double generationTime)
+    {
+        var generatedContent = new GeneratedContent
+        {
+            SkillId = skillId,
+            QuizId = quizId,
+            Input = input,
+            Content = contentGenerated,
+            ContentFormatted = contentGenerated.FormatFromLLM(),
+            ContentType = contentType,
+            HasError = hasError,
+            Model = _options.Model,
+            Attempt = attempt,
+            GenerationTime = generationTime
+        };
+
+        return await _generatedContentRepository.AddAsync(generatedContent);
     }
 }

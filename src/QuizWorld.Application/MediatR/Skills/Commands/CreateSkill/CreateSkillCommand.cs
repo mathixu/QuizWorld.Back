@@ -7,4 +7,4 @@ namespace QuizWorld.Application.MediatR.Skills.Commands.CreateSkill;
 /// Represents a command to create a skill.
 /// </summary>
 /// <param name="Name">Represents the name of the skill.</param>
-public record CreateSkillCommand(string Name) : IQuizWorldRequest<Skill>;
+public record CreateSkillCommand(string Name, string Description) : IQuizWorldRequest<Skill>;

@@ -38,4 +38,9 @@ public interface IQuestionRepository
     /// </summary>
     /// <param name="quizId"></param>
     Task DeleteInvalidQuestionsByQuizIdAsync(Guid quizId);
+
+    /// <summary>
+    /// Get questions by ids.
+    /// </summary>
+    Task<List<Question>> GetByIdsAsync(IEnumerable<Guid> questionIds);
 }

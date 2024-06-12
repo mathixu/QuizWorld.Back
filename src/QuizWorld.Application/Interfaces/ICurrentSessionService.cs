@@ -1,4 +1,5 @@
 ﻿using QuizWorld.Domain.Entities;
+using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Interfaces;
 
@@ -35,9 +36,19 @@ public interface ICurrentSessionService
     UserSession? GetUserSessionByUser(User user);
 
     /// <summary>
+    /// Gets a user session by user id.
+    /// </summary>
+    UserSession? GetUserSessionByUserId(Guid userId);
+
+    /// <summary>
     /// Session already has a teacher.
     /// </summary>
     bool AlreadyHaveTeacher(UserSession userSession, string code);
+
+    /// <summary>
+    /// Gets a teacher by session id.
+    /// </summary>
+    UserSession? GetTeacherBySessionId(Guid sessionId);
 
     /// <summary>
     /// User is already in a session.
@@ -52,5 +63,10 @@ public interface ICurrentSessionService
     /// <summary>
     /// Gets online users for a session.
     /// </summary>
-    List<UserTiny> GetOnlineUsers(string code);
+    List<UserTinyWithStatus> GetOnlineUsers(string code);
+
+    /// <summary>
+    /// Changes the status of a user.
+    /// </summary>
+    void ChangeUserStatus(Guid userId, UserStatus status);
 }
