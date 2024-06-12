@@ -27,4 +27,9 @@ public enum GenerateContentType
     /// Generate questions.
     /// </summary>
     QuestionsBySkills = 1,
+
+    /// <summary>
+    /// Regenerate question.
+    /// </summary>
+    RegenerateQuestion = 2,
 }
