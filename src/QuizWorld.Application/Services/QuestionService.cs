@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using QuizWorld.Application.Common.Exceptions;
 using QuizWorld.Application.Common.Helpers;
+using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
@@ -187,7 +188,7 @@ public class QuestionService(IQuestionRepository questionRepository,
     }
     
     /// <inheritdoc/>
-    public async Task ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command)
+    public async Task<WebSocketAction> ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command)
     {
         var question = await GetQuestionById(command.QuestionId)
             ?? throw new NotFoundException(nameof(Question), command.QuestionId);
@@ -204,12 +205,19 @@ public class QuestionService(IQuestionRepository questionRepository,
 
         await UpdateUserResponse(userSession.User, command.QuizId, question, responseIsCorrect);
 
-        await UpdateUserSession(userSession, question, responseIsCorrect);
+        var result = await UpdateUserSession(userSession, question, responseIsCorrect);
 
         await UpdateQuestionStats(questionMinimal, responseIsCorrect);
+        
+        if (result.QuestionsAnswered == 1)
+               return WebSocketAction.UserStartedQuiz;
+        else if (result.QuestionsAnswered == result.TotalQuestions)
+            return WebSocketAction.UserFinishedQuiz;
+
+        return WebSocketAction.None;
     }
 
-    private async Task UpdateUserSession(UserSession userSession, Question question, bool isCorrect)
+    private async Task<UserSessionResult> UpdateUserSession(UserSession userSession, Question question, bool isCorrect)
     {
         if (userSession.Result is null)
         {
@@ -245,6 +253,8 @@ public class QuestionService(IQuestionRepository questionRepository,
         }
 
         await _userSessionRepository.UpdateAsync(userSession.Id, userSession);
+
+        return userSession.Result;
     }
 
     private static void UpdateSkillWeight(SkillWeightExtended skillWeight, bool isCorrect) 

@@ -1,4 +1,5 @@
-﻿using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
+﻿using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
 using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestion;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
@@ -43,7 +44,7 @@ public interface IQuestionService
     /// <summary>
     /// Processes the user response.
     /// </summary>
-    Task ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command);
+    Task<WebSocketAction> ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command);
 
     /// <summary>
     /// Regenerate a new question with IA.

@@ -5,20 +5,22 @@ using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
 
-public class AnswerQuestionCommandHandler(ISessionService sessionService, IQuestionService questionService) : IRequestHandler<AnswerQuestionCommand, QuizWorldResponse<Unit>>
+public class AnswerQuestionCommandHandler(ISessionService sessionService, IQuestionService questionService) : IRequestHandler<AnswerQuestionCommand, QuizWorldResponse<AnswerQuestionResponse>>
 {
     private readonly ISessionService _sessionService = sessionService;
     private readonly IQuestionService _questionService = questionService;
 
-    public async Task<QuizWorldResponse<Unit>> Handle(AnswerQuestionCommand request, CancellationToken cancellationToken)
+    public async Task<QuizWorldResponse<AnswerQuestionResponse>> Handle(AnswerQuestionCommand request, CancellationToken cancellationToken)
     {
         var currentUserSession = await _sessionService.GetCurrentUserSession();
 
         if (currentUserSession.Status != UserSessionStatus.Connected)
-            return QuizWorldResponse<Unit>.Failure("You are not connected to a session.");
+            return QuizWorldResponse<AnswerQuestionResponse>.Failure("You are not connected to a session.");
 
-        await _questionService.ProcessUserResponse(currentUserSession, request);
+        var action = await _questionService.ProcessUserResponse(currentUserSession, request);
 
-        return QuizWorldResponse<Unit>.Success(Unit.Value, 204);
+        var response = new AnswerQuestionResponse(currentUserSession.Session.Id, action);
+
+        return QuizWorldResponse<AnswerQuestionResponse>.Success(response, 204);
     }
 }

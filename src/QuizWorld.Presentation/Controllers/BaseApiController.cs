@@ -49,4 +49,15 @@ public abstract class BaseApiController(ISender sender) : ControllerBase
         
         return HandleResult(response);
     }
+
+    /// <summary>
+    /// Handles the common response to return the appropriate response.
+    /// </summary>
+    protected async Task<IActionResult> HandleCommonResponse<TResponse>(int statusCode, TResponse? response, string? errorCode)
+    {
+        if (string.IsNullOrEmpty(errorCode))
+            return StatusCode(statusCode, response);
+
+        return StatusCode(statusCode, new { message = errorCode });
+    }
 }

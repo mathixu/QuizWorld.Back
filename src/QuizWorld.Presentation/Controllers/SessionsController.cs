@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using QuizWorld.Application.Common.Helpers;
+using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Sessions.Commands.CreateSession;
 using QuizWorld.Application.MediatR.Sessions.Commands.UpdateSessionStatus;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetSession;
@@ -15,9 +16,9 @@ using System.Text.Json;
 
 namespace QuizWorld.Presentation.Controllers;
 
-public class SessionsController(ISender sender, IHubContext<QuizSessionHub> hubContext) : BaseApiController(sender)
+public class SessionsController(ISender sender, WebSocketService webSocketService) : BaseApiController(sender)
 {
-    private readonly IHubContext<QuizSessionHub> _hubContext = hubContext;
+    private readonly WebSocketService _webSocketService = webSocketService;
 
     /// <summary>Creates a new session.</summary>
     [HttpPost]
@@ -47,21 +48,17 @@ public class SessionsController(ISender sender, IHubContext<QuizSessionHub> hubC
 
         if (response.IsSuccessful)
         {
-            if (response.Data.Status == SessionStatus.Started)
-            {
-                // Send a notification to the students that the session has started
-                await _hubContext.Clients.Group(code).SendAsync("ReceiveMessage", JsonSerializer.Serialize(new {message = "session_started" }));
-            }
-            else if (response.Data.Status == SessionStatus.Finished)
-            {
-                // Send a notification to the students that the session has finished
-                await _hubContext.Clients.Group(code).SendAsync("ReceiveMessage", JsonSerializer.Serialize(new {message = "session_finished" }));
-            }
+            var action = response.Data.Status == SessionStatus.Started ? WebSocketAction.StartSession 
+                                    : response.Data.Status == SessionStatus.Finished ? WebSocketAction.StopSession 
+                                    : WebSocketAction.None;
+
+            await webSocketService.HandleAction(action);
         }
 
         return HandleResult(response);
     }
 
+    /// <summary>Gets the result of a session.</summary>
     [HttpGet("{code}/result")]
     [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserSessionResult))]
