@@ -48,5 +48,10 @@ public class GeneratedContent : BaseAuditableEntity
     /// <summary>
     /// The attempt number of the generation.
     /// </summary>
-    public int Attempt { get; set; } 
+    public int Attempt { get; set; }
+
+    /// <summary>
+    /// The generation time in milliseconds.
+    /// </summary>
+    public double GenerationTime { get; set; }
 }

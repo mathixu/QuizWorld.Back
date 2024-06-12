@@ -33,11 +33,15 @@ public class QuestionGenerator(
             {
                 var input = BuildInput(skill.Name, totalQuestions, skill.Description);
 
+                var startedAt = DateTime.UtcNow;
                 contentGenerated = await _LLMService.GenerateContent(GenerateContentType.QuestionsBySkills, input, file?.FileName);
+                var endedAt = DateTime.UtcNow;
+
+                var generationTimeInMs = (endedAt - startedAt).TotalMilliseconds;
 
                 var generatedQuestions = DeserializeQuestions(contentGenerated);
 
-                await SaveAsync(skill.Id, quizId, input, contentGenerated, GenerateContentType.QuestionsBySkills, generatedQuestions is null, attempt);
+                await SaveAsync(skill.Id, quizId, input, contentGenerated, GenerateContentType.QuestionsBySkills, generatedQuestions is null, attempt, generationTimeInMs);
 
                 return generatedQuestions?.ToQuestions(quizId, skill).ToList() ?? [];
             }
@@ -65,7 +69,7 @@ public class QuestionGenerator(
         throw new QuestionGenerationException("Error generating questions");
     }
 
-    private async Task<bool> SaveAsync(Guid skillId, Guid quizId, string input, string contentGenerated, GenerateContentType contentType, bool hasError, int attempt)
+    private async Task<bool> SaveAsync(Guid skillId, Guid quizId, string input, string contentGenerated, GenerateContentType contentType, bool hasError, int attempt, double generationTime)
     {
         var generatedContent = new GeneratedContent
         {
@@ -77,7 +81,8 @@ public class QuestionGenerator(
             ContentType = contentType,
             HasError = hasError,
             Model = _options.Model,
-            Attempt = attempt
+            Attempt = attempt,
+            GenerationTime = generationTime
         };
 
         return await _generatedContentRepository.AddAsync(generatedContent);
