@@ -23,6 +23,11 @@ public static class StringHelper
     /// <returns>The formatted string.</returns>
     public static string FormatFromLLM(this string text)
     {
-        return Regex.Unescape(text).Replace("```json", "").Replace("```", "");
+        text = text.Replace("\n", "").Replace("\r", "");
+        text = text.Replace("```json", "").Replace("```", "");
+
+        return text;
     }
+
+
 }
