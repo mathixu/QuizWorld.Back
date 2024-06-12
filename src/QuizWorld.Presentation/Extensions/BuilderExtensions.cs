@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using QuizWorld.Application;
 using QuizWorld.Infrastructure;
 using QuizWorld.Presentation.OptionsSetup;
+using QuizWorld.Presentation.WebSockets;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Constants = QuizWorld.Application.Common.Helpers.Constants;
@@ -31,6 +32,8 @@ public static class BuilderExtensions
 
         builder.ConfigureSwagger();
         builder.ConfigureOptions();
+
+        builder.Services.AddScoped<WebSocketService>();
 
         builder.ConfigureCors();
 

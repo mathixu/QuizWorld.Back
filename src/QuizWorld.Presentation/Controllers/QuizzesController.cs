@@ -16,6 +16,7 @@ using QuizWorld.Application.MediatR.Quizzes.Queries.GetQuizById;
 using QuizWorld.Application.MediatR.Quizzes.Commands.ValidateQuiz;
 using QuizWorld.Application.MediatR.Quizzes.Commands.RegenerateQuestion;
 using QuizWorld.Application.MediatR.Questions.Commands.UpdateQuestionStatus;
+using QuizWorld.Presentation.WebSockets;
 
 namespace QuizWorld.Presentation.Controllers;
 
@@ -23,8 +24,10 @@ namespace QuizWorld.Presentation.Controllers;
 /// Represents a controller for quizzes.
 /// </summary>
 [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
-public class QuizzesController(ISender sender) : BaseApiController(sender)
+public class QuizzesController(ISender sender, WebSocketService webSocketService) : BaseApiController(sender)
 {
+    private readonly WebSocketService _webSocketService = webSocketService;
+
     /// <summary>Creates a new quiz.</summary>
     [HttpPost]
     [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(Quiz))]
@@ -54,7 +57,16 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
     [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(StartQuizResponse))]
     public async Task<IActionResult> StartQuiz([FromRoute] Guid quizId)
-        => await HandleCommand(new StartQuizCommand(quizId));
+    {
+        var result = await _sender.Send(new StartQuizCommand(quizId));
+
+        if (result.IsSuccessful)
+        {
+            await _webSocketService.HandleAction(WebSocketAction.UserStartedQuiz);
+        }
+
+        return HandleResult(result);
+    }
 
     /// <summary>Answers a question.</summary>
     [HttpPost("{quizId:guid}/questions/{questionId:guid}/answer")]
@@ -64,7 +76,14 @@ public class QuizzesController(ISender sender) : BaseApiController(sender)
         command.QuizId = quizId;
         command.QuestionId = questionId;
 
-        return await HandleCommand(command);
+        var result = await _sender.Send(command);
+
+        if (result.IsSuccessful)
+        {
+            await _webSocketService.HandleAction(result.Data.Action);
+        }
+
+        return HandleResult(result);
     }
 
     [HttpPut("{quizId:guid}/questions/{questionId:guid}/status")]
