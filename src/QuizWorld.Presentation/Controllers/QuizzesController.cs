@@ -23,31 +23,34 @@ namespace QuizWorld.Presentation.Controllers;
 /// <summary>
 /// Represents a controller for quizzes.
 /// </summary>
-[Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
 public class QuizzesController(ISender sender, WebSocketService webSocketService) : BaseApiController(sender)
 {
     private readonly WebSocketService _webSocketService = webSocketService;
 
     /// <summary>Creates a new quiz.</summary>
     [HttpPost]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
     [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(Quiz))]
     public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizCommand command)
         => await HandleCommand(command);
 
     /// <summary>Attaches a file to a quiz.</summary>
     [HttpPost("{quizId:guid}/attachment")]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Quiz))]
     public async Task<IActionResult> AddAttachmentToQuiz([FromRoute] Guid quizId, [FromForm] IFormFileCollection attachment) // TODO: Change to IFormFile when Swagger supports it
         => await HandleCommand(new AddAttachmentToQuizCommand(quizId, attachment.First())); 
 
     /// <summary>Search for quizzes by their name.</summary>
     [HttpGet]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<QuizTiny>))]
     public async Task<IActionResult> SearchQuizzes([FromQuery] SearchQuizzesQuery query)
         => await HandleCommand(query);
 
     /// <summary>Gets the questions of a quiz.</summary>
     [HttpGet("{quizId:guid}/questions")]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<Question>))]
     public async Task<IActionResult> GetQuestionsByQuizId([FromRoute] Guid quizId, [FromQuery] PaginationQuery query)
         => await HandleCommand(new GetQuestionsByQuizIdQuery(quizId, query.Page, query.PageSize));
@@ -87,6 +90,7 @@ public class QuizzesController(ISender sender, WebSocketService webSocketService
     }
 
     [HttpPut("{quizId:guid}/questions/{questionId:guid}/status")]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
     public async Task<IActionResult> ChangeQuestionStatus([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] UpdateQuestionStatusCommand command)
     {
         command.QuizId = quizId;
@@ -98,6 +102,7 @@ public class QuizzesController(ISender sender, WebSocketService webSocketService
     /// <summary>Edit a question or answer.</summary>
     [HttpPut("{quizId:guid}/questions/{questionId:guid}")]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Question))]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
     public async Task<IActionResult> UpdateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] UpdateQuestionCommand command)
     {
         command.QuizId = quizId;
@@ -108,6 +113,7 @@ public class QuizzesController(ISender sender, WebSocketService webSocketService
     /// <summary>Regenerate a question.</summary>
     [HttpPut("{quizId:guid}/questions/{questionId:guid}/regenerate")]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Question))]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
     public async Task<IActionResult> RegenerateQuestion([FromRoute] Guid quizId, [FromRoute] Guid questionId, [FromBody] RegenerateQuestionCommand command)
     {
         command.QuizId = quizId;
@@ -118,6 +124,7 @@ public class QuizzesController(ISender sender, WebSocketService webSocketService
     /// <summary>Validate a quiz.</summary>
     [HttpPost("validate")]
     [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(Quiz))]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
     public async Task<IActionResult> ValidateQuiz([FromBody] ValidateQuizCommand command)
         => await HandleCommand(command);
 
