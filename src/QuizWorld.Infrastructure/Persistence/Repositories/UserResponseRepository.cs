@@ -78,4 +78,21 @@ public class UserResponseRepository : IUserResponseRepository
             return false;
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<List<UserResponse>> GetUserQuizResponses(Guid userId, Guid quizId)
+    {
+        try
+        {
+            var filter = Builders<UserResponse>.Filter.Eq(x => x.User.Id, userId) &
+                         Builders<UserResponse>.Filter.Eq(x => x.QuizId, quizId);
+
+            return await _mongoUserResponseCollection.Find(filter).ToListAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to get user responses from the database.");
+            return new List<UserResponse>();
+        }
+    }
 }

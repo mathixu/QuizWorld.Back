@@ -21,6 +21,9 @@ public class Skill : BaseEntity
     
     /// <summary>Represents the source of the skill.</summary>
     public SkillSource Source { get; set; }
+    
+    /// <summary>Represents the minimal percentage to master a question</summary>
+    public double MasteryThreshold { get; set; }
 }
 
 /// <summary>Represents a skill entity with minimal information.</summary>
@@ -31,6 +34,9 @@ public class SkillTiny : BaseEntity
     
     /// <summary>Represents the description of the skill.</summary>
     public string Description { get; set; } = default!;
+    
+    /// <summary>Represents the minimal percentage to master a question</summary>
+    public double MasteryThreshold { get; set; }
 }
 
 /// <summary>
@@ -47,7 +53,8 @@ public static class SkillExtensions
         {
             Id = skill.Id,
             Name = skill.Name,
-            Description = skill.Description
+            Description = skill.Description,
+            MasteryThreshold = skill.MasteryThreshold
         };
     }
 }
