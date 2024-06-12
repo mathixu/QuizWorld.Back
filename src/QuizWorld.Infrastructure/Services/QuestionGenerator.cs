@@ -82,12 +82,18 @@ public class QuestionGenerator(
             {
                 var input = RegenerateBuildInput(skill, question, requirement);
 
+                var startedAt = DateTime.UtcNow;
                 contentGenerated = await _LLMService.GenerateContent(GenerateContentType.RegenerateQuestion, input, attachment?.FileName);
+                var endedAt = DateTime.UtcNow;
 
-                var regeneratedQuestion = DeserializeRegenerateQuestion(contentGenerated)
-                    ?? throw new QuestionGenerationException("No question regenerated");
+                var generationTimeInMs = (endedAt - startedAt).TotalMilliseconds;
 
-                await SaveAsync(skill.Id, question.QuizId, input, contentGenerated, GenerateContentType.RegenerateQuestion, false, attempt);
+                var regeneratedQuestion = DeserializeRegenerateQuestion(contentGenerated);
+
+                await SaveAsync(skill.Id, question.QuizId, input, contentGenerated, GenerateContentType.RegenerateQuestion, regeneratedQuestion is null, attempt, generationTimeInMs);
+
+                if (regeneratedQuestion is null)
+                    throw new QuestionGenerationException("Error regenerating question");
 
                 return regeneratedQuestion.ToQuestion(question.QuizId, skill);
             }
