@@ -43,6 +43,11 @@ public class QuestionTiny : BaseEntity
 
     /// <summary>Represents the skillId of the question.</summary>
     public Guid SkillId { get; set; }
+
+    /// <summary>
+    /// Represents the type of the question.
+    /// </summary>
+    public QuestionType? Type { get; set; } = null;
 }
 
 public class QuestionMinimal : BaseEntity
@@ -56,15 +61,16 @@ public class QuestionMinimal : BaseEntity
 
 public static class QuestionExtensions
 {
-    public static QuestionTiny ToTiny(this Question question)
+    public static QuestionTiny ToTiny(this Question question, bool displayType = false)
     {
         return new QuestionTiny
         {
             Id = question.Id,
             Text = question.Text,
-            Answers = question.Answers?.Select(a => a.ToTiny()).ToList(),
+            Answers = question.Answers.Select(a => a.ToTiny()).ToList(),
             QuizId = question.QuizId,
-            SkillId = question.Skill.Id
+            SkillId = question.Skill.Id,
+            Type = displayType ? question.Type : null
         };
     }
 

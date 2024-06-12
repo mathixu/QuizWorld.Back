@@ -90,7 +90,7 @@ public class QuestionService(IQuestionRepository questionRepository,
         {
             if (userSession.QuestionIds.All(q => questions.Any(x => x.Id == q)))
             {
-                questionSelected = userSession.QuestionIds.Select(q => questions.First(x => x.Id == q).ToTiny()).ToList();
+                questionSelected = userSession.QuestionIds.Select(q => questions.First(x => x.Id == q).ToTiny(quiz.DisplayMultipleChoice)).ToList();
 
                 questionSelected.ForEach(q => q.Answers = q.Answers.Shuffle().ToList());
 
@@ -108,7 +108,7 @@ public class QuestionService(IQuestionRepository questionRepository,
         else
         {
             // Need to be randomly for each user or by session ?
-            questionSelected = questions.OrderBy(x => Guid.NewGuid()).Take(quiz.TotalQuestions).Select(q => q.ToTiny()).ToList();
+            questionSelected = questions.OrderBy(x => Guid.NewGuid()).Take(quiz.TotalQuestions).Select(q => q.ToTiny(quiz.DisplayMultipleChoice)).ToList();
         }
 
         questionSelected.ForEach(q => q.Answers = q.Answers.Shuffle().ToList());
@@ -208,10 +208,8 @@ public class QuestionService(IQuestionRepository questionRepository,
         var result = await UpdateUserSession(userSession, question, responseIsCorrect);
 
         await UpdateQuestionStats(questionMinimal, responseIsCorrect);
-        
-        if (result.QuestionsAnswered == 1)
-               return WebSocketAction.UserStartedQuiz;
-        else if (result.QuestionsAnswered == result.TotalQuestions)
+
+        if (result.QuestionsAnswered == result.TotalQuestions)
             return WebSocketAction.UserFinishedQuiz;
 
         return WebSocketAction.None;
