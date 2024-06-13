@@ -97,8 +97,6 @@ public class QuestionService(IQuestionRepository questionRepository,
             throw new NotFoundException("One or more questions in the session are not found.");
         }
 
-        
-        
         if (quiz.PersonalizedQuestions)
         {
             var userResponses = await _userResponseRepository.GetUserQuizResponses(userId, quizId);
@@ -126,7 +124,7 @@ public class QuestionService(IQuestionRepository questionRepository,
                     weight += 60 * randomNumber;
                 }
                     
-                if (userResponse is not null && userResponse.SuccessRate < question.Skill.MasteryThreshold)
+                if (userResponse is not null && userResponse.SuccessRate < (question.Skill.MasteryThreshold / 100))
                 {
                     double randomNumber = (random.NextDouble() % 0.4) + 0.8;
 
@@ -297,13 +295,13 @@ public class QuestionService(IQuestionRepository questionRepository,
         var currentSuccessRate = skillWeight.Weight / 100.0;
         var totalAttempts = skillWeight.Attempts;
 
-        var previousSuccesses = (int)(currentSuccessRate * totalAttempts);
-
+        var previousSuccesses = Math.Round(currentSuccessRate * totalAttempts);
+            
         var newSuccesses = isCorrect ? previousSuccesses + 1 : previousSuccesses;
 
         skillWeight.Attempts++;
 
-        skillWeight.Weight = (int)((double)newSuccesses / skillWeight.Attempts * 100);
+        skillWeight.Weight = (int)Math.Round(newSuccesses / skillWeight.Attempts * 100);
     }
 
     private async Task UpdateUserResponse(UserTiny user, Guid quizId, Question question, bool isCorrect)
