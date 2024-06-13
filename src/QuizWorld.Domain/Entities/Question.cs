@@ -1,4 +1,4 @@
-﻿using QuizWorld.Domain.Common;
+using QuizWorld.Domain.Common;
 using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Domain.Entities;
