@@ -12,5 +12,9 @@ public class CreateSkillCommandValidator : AbstractValidator<CreateSkillCommand>
         RuleFor(x => x.Description)
             .NotEmpty()
             .WithMessage("The description of the skill is required.");
+
+        RuleFor(x => x.MasteryThreshold)
+            .InclusiveBetween(0, 100)
+            .WithMessage("The mastery threshold must be between 0 and 100.");
     }
 }

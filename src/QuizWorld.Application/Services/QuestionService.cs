@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using QuizWorld.Application.Common.Exceptions;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
@@ -15,7 +14,6 @@ public class QuestionService(IQuestionRepository questionRepository,
     IQuizService quizService, 
     IQuestionStatsRepository questionStatsRepository, 
     IUserSessionRepository userSessionRepository, 
-    IMapper mapper, 
     IQuestionGenerator questionGenerator,
     IUserResponseRepository userResponseRepository,
     ICurrentSessionService currentSessionService
@@ -26,7 +24,6 @@ public class QuestionService(IQuestionRepository questionRepository,
     private readonly IUserSessionRepository _userSessionRepository = userSessionRepository;
     private readonly ICurrentSessionService _currentSessionService = currentSessionService;
     private readonly IQuestionGenerator _questionGenerator = questionGenerator;
-    private readonly IMapper _mapper = mapper;
     private readonly IQuestionStatsRepository _questionStatsRepository = questionStatsRepository;
     private readonly IUserResponseRepository _userResponseRepository = userResponseRepository;
 
@@ -76,7 +73,7 @@ public class QuestionService(IQuestionRepository questionRepository,
     {
         var quiz = await _quizService.GetByIdAsync(quizId)
             ?? throw new NotFoundException(nameof(Quiz), quizId);
-
+        
         var questions = await _questionRepository.GetQuestionsByQuizIdAsync(quizId);
 
         var currentUserSession = _currentSessionService.GetUserSessionByUserId(userId)
@@ -100,14 +97,52 @@ public class QuestionService(IQuestionRepository questionRepository,
             throw new NotFoundException("One or more questions in the session are not found.");
         }
 
-
         if (quiz.PersonalizedQuestions)
         {
-            // TODO: Add algorithm to get custom questions adapted to the user
+            var userResponses = await _userResponseRepository.GetUserQuizResponses(userId, quizId);
+            
+            Dictionary<Question, double> questionWeights = new();
+
+            var questionsOld = questions.OrderBy(x => userResponses.FirstOrDefault(y => y.Question.Id == x.Id)?.UpdatedAt ?? DateTime.MinValue).ToList();
+            
+            Random random = new Random();
+
+            foreach (Question question in questions)
+            {
+                var userResponse = userResponses.FirstOrDefault(x => x.Question.Id == question.Id);
+                var weight = 0.0;
+
+                if (userResponse is null)
+                {
+                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
+                    weight += 100 * randomNumber;
+                }
+                if (questionsOld.IndexOf(question) < questionsOld.Count / 10)
+                {
+                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
+
+                    weight += 60 * randomNumber;
+                }
+                    
+                if (userResponse is not null && userResponse.SuccessRate < (question.Skill.MasteryThreshold / 100))
+                {
+                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
+
+                    weight += 40 * randomNumber;
+                }
+                
+                if (userResponse is not null && !userResponse.LastResponseIsCorrect)
+                {
+                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
+                    weight += 35 * randomNumber;
+                }
+                
+                questionWeights.Add(question, weight);
+            }
+            questionSelected = questionWeights.OrderByDescending(x => x.Value).Take(quiz.TotalQuestions).Select(x => x.Key.ToTiny(quiz.DisplayMultipleChoice)).ToList();
         }
         else
         {
-            // Need to be randomly for each user or by session ?
             questionSelected = questions.OrderBy(x => Guid.NewGuid()).Take(quiz.TotalQuestions).Select(q => q.ToTiny(quiz.DisplayMultipleChoice)).ToList();
         }
 
@@ -260,13 +295,13 @@ public class QuestionService(IQuestionRepository questionRepository,
         var currentSuccessRate = skillWeight.Weight / 100.0;
         var totalAttempts = skillWeight.Attempts;
 
-        var previousSuccesses = (int)(currentSuccessRate * totalAttempts);
-
+        var previousSuccesses = Math.Round(currentSuccessRate * totalAttempts);
+            
         var newSuccesses = isCorrect ? previousSuccesses + 1 : previousSuccesses;
 
         skillWeight.Attempts++;
 
-        skillWeight.Weight = (int)((double)newSuccesses / skillWeight.Attempts * 100);
+        skillWeight.Weight = (int)Math.Round(newSuccesses / skillWeight.Attempts * 100);
     }
 
     private async Task UpdateUserResponse(UserTiny user, Guid quizId, Question question, bool isCorrect)

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using MediatR;
-using QuizWorld.Application.Common.Exceptions;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Domain.Entities;

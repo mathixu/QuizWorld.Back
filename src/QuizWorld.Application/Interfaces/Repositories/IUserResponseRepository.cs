@@ -18,4 +18,9 @@ public interface IUserResponseRepository
     /// Updates the user response in the db.
     /// </summary>
     Task<bool> UpdateAsync(Guid userResponseId, UserResponse userResponse);
+    
+    /// <summary>
+    /// Gets all the user responses by the user id and quiz id.
+    /// </summary>
+    Task<List<UserResponse>> GetUserQuizResponses(Guid userId, Guid quizId);
 }
