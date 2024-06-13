@@ -116,24 +116,26 @@ public class QuestionService(IQuestionRepository questionRepository,
 
                 if (userResponse is null)
                 {
-                    double randomNumber = random.NextDouble() * (1.2 - 0.8);
+                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
                     weight += 100 * randomNumber;
                 }
                 if (questionsOld.IndexOf(question) < questionsOld.Count / 10)
                 {
-                    double randomNumber = random.NextDouble() * (1.2 - 0.8);
+                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
+
                     weight += 60 * randomNumber;
                 }
                     
                 if (userResponse is not null && userResponse.SuccessRate < question.Skill.MasteryThreshold)
                 {
-                    double randomNumber = random.NextDouble() * (1.2 - 0.8);
+                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
+
                     weight += 40 * randomNumber;
                 }
                 
                 if (userResponse is not null && !userResponse.LastResponseIsCorrect)
                 {
-                    double randomNumber = random.NextDouble() * (1.2 - 0.8);
+                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
                     weight += 35 * randomNumber;
                 }
                 
