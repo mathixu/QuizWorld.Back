@@ -79,14 +79,7 @@ public class QuizzesController(ISender sender, WebSocketService webSocketService
         command.QuizId = quizId;
         command.QuestionId = questionId;
 
-        var result = await _sender.Send(command);
-
-        if (result.IsSuccessful)
-        {
-            await _webSocketService.HandleAction(result.Data.Action);
-        }
-
-        return HandleResult(result);
+        return await HandleCommand(command);
     }
 
     [HttpPut("{quizId:guid}/questions/{questionId:guid}/status")]

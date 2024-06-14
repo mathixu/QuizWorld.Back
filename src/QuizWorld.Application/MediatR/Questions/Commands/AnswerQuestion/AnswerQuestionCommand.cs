@@ -1,10 +1,10 @@
-﻿using QuizWorld.Application.Common.Models;
+﻿using MediatR;
 using QuizWorld.Application.MediatR.Common;
 using System.Text.Json.Serialization;
 
 namespace QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
 
-public class AnswerQuestionCommand : IQuizWorldRequest<AnswerQuestionResponse>
+public class AnswerQuestionCommand : IQuizWorldRequest<Unit>
 {
     /// <summary>
     /// Represents the id of the quiz.
@@ -23,5 +23,3 @@ public class AnswerQuestionCommand : IQuizWorldRequest<AnswerQuestionResponse>
     /// </summary>
     public List<Guid> AnswerIds { get; set; } = [];
 }
-
-public record AnswerQuestionResponse(Guid SessionId, WebSocketAction Action);
