@@ -1,6 +1,5 @@
 using QuizWorld.Application.Common.Exceptions;
 using QuizWorld.Application.Common.Helpers;
-using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Application.MediatR.Questions.Commands.AnswerQuestion;
