@@ -44,7 +44,7 @@ public interface IQuestionService
     /// <summary>
     /// Processes the user response.
     /// </summary>
-    Task<WebSocketAction> ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command);
+    Task ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command);
 
     /// <summary>
     /// Regenerate a new question with IA.

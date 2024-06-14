@@ -146,11 +146,19 @@ public class QuestionRepository : IQuestionRepository
         }
     }
 
-    public async Task<List<Question>> GetQuestionsByQuizIdAsync(Guid quizId)
+    /// <inheritdoc/>
+    public async Task<List<Question>> GetQuestionsByQuizIdAsync(Guid quizId, Status? status = null)
     {
         try
         {
+
             var filter = Builders<Question>.Filter.Eq(q => q.QuizId, quizId);
+
+            if (status.HasValue)
+            {
+                filter = Builders<Question>.Filter.And(filter, Builders<Question>.Filter.Eq(q => q.Status, status));
+            }
+
             return await _mongoQuestionCollection.Find(filter).ToListAsync();
         }
         catch (Exception ex)
