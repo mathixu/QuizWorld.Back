@@ -15,9 +15,9 @@ public class AnswerQuestionCommandHandler(ISessionService sessionService, IQuest
         var currentUserSession = await _sessionService.GetCurrentUserSession();
 
         if (currentUserSession.Status != UserSessionStatus.Connected)
-            return QuizWorldResponse<AnswerQuestionResponse>.Failure("You are not connected to a session.");
+            return QuizWorldResponse<Unit>.Failure("You are not connected to a session.");
 
-        _questionService.ProcessUserResponse(currentUserSession, request);
+        await _questionService.ProcessUserResponse(currentUserSession, request);
 
         return QuizWorldResponse<Unit>.Success(Unit.Value, 204);
     }
