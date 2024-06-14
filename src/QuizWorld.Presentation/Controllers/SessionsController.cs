@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Sessions.Commands.CreateSession;
@@ -12,7 +11,6 @@ using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 using QuizWorld.Presentation.WebSockets;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Text.Json;
 
 namespace QuizWorld.Presentation.Controllers;
 
@@ -63,5 +61,14 @@ public class SessionsController(ISender sender, WebSocketService webSocketServic
     [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserSessionResult))]
     public async Task<IActionResult> GetSessionResult(string code)
-        => await HandleCommand(new GetSessionResultQuery(code));
+    {
+        var result = await _sender.Send(new GetSessionResultQuery(code));
+
+        if (result.IsSuccessful)
+        {
+            await _webSocketService.HandleAction(WebSocketAction.UserFinishedQuiz);
+        }
+
+        return HandleResult(result);
+    }
 }

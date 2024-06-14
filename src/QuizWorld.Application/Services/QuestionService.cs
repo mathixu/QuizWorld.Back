@@ -74,7 +74,7 @@ public class QuestionService(IQuestionRepository questionRepository,
         var quiz = await _quizService.GetByIdAsync(quizId)
             ?? throw new NotFoundException(nameof(Quiz), quizId);
         
-        var questions = await _questionRepository.GetQuestionsByQuizIdAsync(quizId);
+        var questions = await _questionRepository.GetQuestionsByQuizIdAsync(quizId, Status.Valid);
 
         var currentUserSession = _currentSessionService.GetUserSessionByUserId(userId)
             ?? throw new UnauthorizedAccessException("The user is not connected to a session.");
@@ -223,7 +223,7 @@ public class QuestionService(IQuestionRepository questionRepository,
     }
     
     /// <inheritdoc/>
-    public async Task<WebSocketAction> ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command)
+    public async Task ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command)
     {
         var question = await GetQuestionById(command.QuestionId)
             ?? throw new NotFoundException(nameof(Question), command.QuestionId);
@@ -243,11 +243,6 @@ public class QuestionService(IQuestionRepository questionRepository,
         var result = await UpdateUserSession(userSession, question, responseIsCorrect);
 
         await UpdateQuestionStats(questionMinimal, responseIsCorrect);
-
-        if (result.QuestionsAnswered == result.TotalQuestions)
-            return WebSocketAction.UserFinishedQuiz;
-
-        return WebSocketAction.None;
     }
 
     private async Task<UserSessionResult> UpdateUserSession(UserSession userSession, Question question, bool isCorrect)

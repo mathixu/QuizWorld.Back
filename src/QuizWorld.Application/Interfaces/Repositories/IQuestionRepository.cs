@@ -18,7 +18,7 @@ public interface IQuestionRepository
     /// <summary>Get paginated list of questions by quiz id.</summary>
     Task<PaginatedList<Question>> GetQuestionsByQuizIdAsync(Guid quizId, int page, int pageSize);
     /// <summary>Get all questions by quiz id.</summary>
-    Task<List<Question>> GetQuestionsByQuizIdAsync(Guid quizId);
+    Task<List<Question>> GetQuestionsByQuizIdAsync(Guid quizId, Status? status = null);
 
     /// <summary>Update the status of a question.</summary>
     /// <param name="questionId">The id of the question to update.</param>
