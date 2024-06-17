@@ -156,15 +156,6 @@ public static class QuestionExtensions
     /// </summary>
     public static bool HasAnswer(this Question question, Guid answerId)
     {
-        if (question.Type == QuestionType.SimpleChoice || question.Type == QuestionType.MultipleChoice)
-        {
-            return question.Answers?.Any(a => a.Id == answerId) ?? false;
-        }
-        else if (question.Type == QuestionType.Combinaison)
-        {
-            return question.Combinaisons?.Any(c => c.Any(a => a == answerId)) ?? false;
-        }
-
-        return false;
+        return question.Answers.Any(a => a.Id == answerId);
     }
 }

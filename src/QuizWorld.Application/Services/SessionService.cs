@@ -12,7 +12,8 @@ public class SessionService(IQuizService quizService,
     ISessionRepository sessionRepository,
     IUserSessionRepository userSessionRepository,
     ICurrentSessionService currentSessionService,
-    IQuestionService questionService
+    IQuestionService questionService,
+    IUserHistoryRepository userHistoryRepository
     ) : ISessionService
 {
     private readonly ISessionRepository _sessionRepository = sessionRepository;
@@ -21,6 +22,7 @@ public class SessionService(IQuizService quizService,
     private readonly IUserSessionRepository _userSessionRepository = userSessionRepository;
     private readonly ICurrentSessionService _currentSessionService = currentSessionService;
     private readonly IQuestionService _questionService = questionService;
+    private readonly IUserHistoryRepository _userHistoryRepository = userHistoryRepository;
 
     /// <inheritdoc />
     public async Task<Session> CreateSession(Guid quizId)
@@ -92,7 +94,7 @@ public class SessionService(IQuizService quizService,
     }
 
     /// <inheritdoc />
-    public async Task<Domain.Entities.Session> UpdateSessionStatus(string code, SessionStatus status)
+    public async Task<Session> UpdateSessionStatus(string code, SessionStatus status)
     {
         var session = await _sessionRepository.GetByCodeAsync(code)
             ?? throw new NotFoundException(nameof(Session), code);
@@ -124,6 +126,8 @@ public class SessionService(IQuizService quizService,
         var currentUser = _currentUserService.User
             ?? throw new BadRequestException("You are not logged in.");
 
+        await AddNewUserHistory(quiz, currentUser, session.Id);
+
         var questions = await _questionService.GetCustomQuestions(quizId, currentUser.Id);
 
         var startQuizResponse = new StartQuizResponse
@@ -133,6 +137,19 @@ public class SessionService(IQuizService quizService,
         };
 
         return startQuizResponse;
+    }
+
+    private async Task AddNewUserHistory(Quiz quiz, User user, Guid sessionId)
+    {
+        var userHistory = new UserHistory
+        {
+            Quiz = quiz.ToTiny(),
+            Date = DateTime.UtcNow,
+            User = user.ToTiny(),
+            SessionId = sessionId
+        };
+
+        await _userHistoryRepository.AddAsync(userHistory);
     }
 
     /// <inheritdoc/>
