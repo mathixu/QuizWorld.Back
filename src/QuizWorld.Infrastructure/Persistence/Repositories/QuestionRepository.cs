@@ -51,7 +51,7 @@ public class QuestionRepository : IQuestionRepository
         {
             var filter = Builders<Question>.Filter.Eq(q => q.QuizId, quizId);
             var questions = await _mongoQuestionCollection.Find(filter)
-                .SortByDescending(q => q.CreatedAt)
+                .SortByDescending(q => q.Id)
                 .Skip((page - 1) * pageSize)
                 .Limit(pageSize)
                 .ToListAsync();

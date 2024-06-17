@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 
-namespace QuizWorld.Application.MediatR.Users.Queries.SearchUsers;
+namespace QuizWorld.Application.MediatR.Users.Queries.SearchHistory;
 
-public class SearchUsersQueryValidator : AbstractValidator<SearchUsersQuery>
+public class SearchHistoryQueryValidator : AbstractValidator<SearchHistoryQuery>
 {
-    public SearchUsersQueryValidator()
+    public SearchHistoryQueryValidator()
     {
         RuleFor(x => x.Page)
             .GreaterThan(0)

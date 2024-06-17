@@ -15,7 +15,8 @@ public class QuestionService(IQuestionRepository questionRepository,
     IUserSessionRepository userSessionRepository, 
     IQuestionGenerator questionGenerator,
     IUserResponseRepository userResponseRepository,
-    ICurrentSessionService currentSessionService
+    ICurrentSessionService currentSessionService,
+    IUserHistoryRepository userHistoryRepository
     ) : IQuestionService
 {
     private readonly IQuestionRepository _questionRepository = questionRepository;
@@ -25,6 +26,7 @@ public class QuestionService(IQuestionRepository questionRepository,
     private readonly IQuestionGenerator _questionGenerator = questionGenerator;
     private readonly IQuestionStatsRepository _questionStatsRepository = questionStatsRepository;
     private readonly IUserResponseRepository _userResponseRepository = userResponseRepository;
+    private readonly IUserHistoryRepository _userHistoryRepository = userHistoryRepository;
 
     /// <inheritdoc/>
     public async Task CreateQuestionsAsync(Quiz quiz)
@@ -277,6 +279,8 @@ public class QuestionService(IQuestionRepository questionRepository,
         if (userSession.Result.QuestionsAnswered == userSession.Result.TotalQuestions)
         {
             userSession.Result.EndedAt = DateTime.UtcNow;
+
+            await _userHistoryRepository.AddUserResultAsync(userSession.User.Id, userSession.Session.Id, userSession.Result);
         }
 
         await _userSessionRepository.UpdateAsync(userSession.Id, userSession);
