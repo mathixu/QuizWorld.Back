@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Users.Queries.GetCurrentUser;
 using QuizWorld.Application.MediatR.Users.Queries.SearchHistory;
@@ -29,6 +31,7 @@ public class UsersController(ISender sender) : BaseApiController(sender)
         => await HandleCommand(query);
 
     [HttpGet("{userId:guid}/history")]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<UserHistory>))]
     public async Task<IActionResult> SearchHistoryByUserId([FromRoute] Guid userId, [FromQuery] SearchHistoryQuery query)
     {
