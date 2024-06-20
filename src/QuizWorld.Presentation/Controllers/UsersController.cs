@@ -27,4 +27,12 @@ public class UsersController(ISender sender) : BaseApiController(sender)
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<UserHistory>))]
     public async Task<IActionResult> SearchHistory([FromQuery] SearchHistoryQuery query)
         => await HandleCommand(query);
+
+    [HttpGet("{userId:guid}/history")]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<UserHistory>))]
+    public async Task<IActionResult> SearchHistoryByUserId([FromRoute] Guid userId, [FromQuery] SearchHistoryQuery query)
+    {
+        query.UserId = userId;
+        return await HandleCommand(query);
+    }
 }

@@ -13,10 +13,10 @@ public class SearchHistoryQueryHandler(IUserHistoryRepository userHistoryReposit
 
     public async Task<QuizWorldResponse<PaginatedList<UserHistory>>> Handle(SearchHistoryQuery request, CancellationToken cancellationToken)
     {
-        var currentUserId = _currentUserService.UserId
-            ?? throw new UnauthorizedAccessException("You're not authenticated.");
+        var userId = request.UserId ?? _currentUserService.UserId
+                ?? throw new UnauthorizedAccessException("You're not authenticated.");
 
-        var histories = await _userHistoryRepository.SearchHistoriesAsync(currentUserId, request);
+        var histories = await _userHistoryRepository.SearchHistoriesAsync(userId, request);
 
         return QuizWorldResponse<PaginatedList<UserHistory>>.Success(histories);
     }
