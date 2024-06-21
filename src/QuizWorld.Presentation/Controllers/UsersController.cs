@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Users.Queries.GetCurrentUser;
+using QuizWorld.Application.MediatR.Users.Queries.GetUserById;
 using QuizWorld.Application.MediatR.Users.Queries.SearchHistory;
 using QuizWorld.Application.MediatR.Users.Queries.SearchUsers;
 using QuizWorld.Domain.Entities;
@@ -38,4 +39,11 @@ public class UsersController(ISender sender) : BaseApiController(sender)
         query.UserId = userId;
         return await HandleCommand(query);
     }
+
+    [HttpGet("{userId:guid}")]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserTiny))]
+    public async Task<IActionResult> GetUserById([FromRoute] Guid userId)
+            => await HandleCommand(new GetUserByIdQuery(userId));
+
 }

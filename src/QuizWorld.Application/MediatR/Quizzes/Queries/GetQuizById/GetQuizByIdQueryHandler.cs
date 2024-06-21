@@ -2,7 +2,6 @@
 using QuizWorld.Application.Common.Exceptions;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces;
-using QuizWorld.Application.Services;
 using QuizWorld.Domain.Entities;
 
 namespace QuizWorld.Application.MediatR.Quizzes.Queries.GetQuizById;
