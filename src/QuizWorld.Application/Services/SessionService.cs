@@ -151,8 +151,6 @@ public class SessionService(IQuizService quizService,
         var session = await _sessionRepository.GetByIdAsync(sessionId)
             ?? throw new NotFoundException(nameof(Session), sessionId);
 
-        var questions = await _questionRepository.GetQuestionsByQuizIdAsync(session.Quiz.Id);
-
         var user = await _userRepository.GetByIdAsync(userId)
             ?? throw new NotFoundException(nameof(User), userId);
 
