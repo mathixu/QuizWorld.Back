@@ -42,7 +42,7 @@ public class UsersController(ISender sender) : BaseApiController(sender)
 
     [HttpGet("{userId:guid}")]
     [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
-    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserTiny))]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(User))]
     public async Task<IActionResult> GetUserById([FromRoute] Guid userId)
             => await HandleCommand(new GetUserByIdQuery(userId));
 

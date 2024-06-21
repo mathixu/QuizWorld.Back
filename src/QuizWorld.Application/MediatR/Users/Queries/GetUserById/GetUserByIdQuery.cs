@@ -8,4 +8,4 @@ using System.Threading.Tasks;
 
 namespace QuizWorld.Application.MediatR.Users.Queries.GetUserById;
 
-public record GetUserByIdQuery(Guid UserId) : IQuizWorldRequest<UserTiny>;
+public record GetUserByIdQuery(Guid UserId) : IQuizWorldRequest<User>;
