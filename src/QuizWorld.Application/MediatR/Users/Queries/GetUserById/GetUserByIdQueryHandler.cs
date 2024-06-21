@@ -15,7 +15,7 @@ public class GetUserByIdQueryHandler(IUserRepository userRepository) : IRequestH
     public async Task<QuizWorldResponse<User>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(request.UserId)
-            ?? throw new NotFoundException(nameof(Quiz), request.UserId);
+            ?? throw new NotFoundException(nameof(User), request.UserId);
 
         return QuizWorldResponse<User>.Success(user);
     }
