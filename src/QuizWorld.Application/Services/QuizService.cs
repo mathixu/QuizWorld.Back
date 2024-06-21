@@ -19,7 +19,8 @@ public class QuizService(IQuizRepository quizRepository,
     IStorageService storageService,
     IUserRepository userRepository,
     ICurrentSessionService currentSessionService,
-    IQuestionRepository questionRepository
+    IQuestionRepository questionRepository,
+    IUserResponseRepository userResponseRepository
     ) : IQuizService
 {
     private readonly IQuizRepository _quizRepository = quizRepository;
@@ -30,6 +31,7 @@ public class QuizService(IQuizRepository quizRepository,
     private readonly IUserRepository _userRepository = userRepository;
     private readonly ICurrentSessionService _currentSessionService = currentSessionService;
     private readonly IQuestionRepository _questionRepository = questionRepository;
+    private readonly IUserResponseRepository _userResponseRepository = userResponseRepository;
 
     /// <inheritdoc/>
     public async Task<Quiz> CreateQuizAsync(CreateQuizCommand command)
