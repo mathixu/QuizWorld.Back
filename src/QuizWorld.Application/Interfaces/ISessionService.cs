@@ -42,4 +42,6 @@ public interface ISessionService
     /// Gets the session result.
     /// </summary>
     Task<UserSessionResult?> GetSessionResult(string code);
+
+    Task<List<UserAnswer>> GetUserQuizResult(Guid sessionId, Guid userId);
 }

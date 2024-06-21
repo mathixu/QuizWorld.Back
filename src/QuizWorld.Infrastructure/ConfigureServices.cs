@@ -25,6 +25,7 @@ public static class ConfigureServices
         services.AddScoped<IGeneratedContentRepository, GeneratedContentRepository>();
         services.AddScoped<IQuestionStatsRepository, QuestionStatsRepository>();
         services.AddScoped<IUserHistoryRepository, UserHistoryRepository>();
+        services.AddScoped<IUserAnswerRepository, UserAnswerRepository>();
 
 
         services.AddScoped<IQuestionGenerator, QuestionGenerator>();

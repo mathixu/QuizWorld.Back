@@ -13,7 +13,10 @@ public class SessionService(IQuizService quizService,
     IUserSessionRepository userSessionRepository,
     ICurrentSessionService currentSessionService,
     IQuestionService questionService,
-    IUserHistoryRepository userHistoryRepository
+    IUserHistoryRepository userHistoryRepository,
+    IUserRepository userRepository,
+    IUserAnswerRepository userAnswerRepository,
+    IQuestionRepository questionRepository
     ) : ISessionService
 {
     private readonly ISessionRepository _sessionRepository = sessionRepository;
@@ -23,6 +26,9 @@ public class SessionService(IQuizService quizService,
     private readonly ICurrentSessionService _currentSessionService = currentSessionService;
     private readonly IQuestionService _questionService = questionService;
     private readonly IUserHistoryRepository _userHistoryRepository = userHistoryRepository;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IUserAnswerRepository _userAnswerRepository = userAnswerRepository;
+    private readonly IQuestionRepository _questionRepository = questionRepository;
 
     /// <inheritdoc />
     public async Task<Session> CreateSession(Guid quizId)
@@ -189,5 +195,18 @@ public class SessionService(IQuizService quizService,
     private static string GenerateCode()
     {
         return Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
+    }
+
+    public async Task<List<UserAnswer>> GetUserQuizResult(Guid sessionId, Guid userId)
+    {
+        var session = await _sessionRepository.GetByIdAsync(sessionId)
+            ?? throw new NotFoundException(nameof(Session), sessionId);
+
+        var questions = await _questionRepository.GetQuestionsByQuizIdAsync(session.Quiz.Id);
+
+        var user = await _userRepository.GetByIdAsync(userId)
+            ?? throw new NotFoundException(nameof(User), userId);
+
+        return await _userAnswerRepository.GetUserAnswers(sessionId, userId);
     }
 }
