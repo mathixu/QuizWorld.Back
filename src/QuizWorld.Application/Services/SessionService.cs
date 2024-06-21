@@ -145,6 +145,20 @@ public class SessionService(IQuizService quizService,
         return startQuizResponse;
     }
 
+    /// <inheritdoc />
+    public async Task<List<UserAnswer>> GetSessionUserAnswers(Guid sessionId, Guid userId)
+    {
+        var session = await _sessionRepository.GetByIdAsync(sessionId)
+            ?? throw new NotFoundException(nameof(Session), sessionId);
+
+        var questions = await _questionRepository.GetQuestionsByQuizIdAsync(session.Quiz.Id);
+
+        var user = await _userRepository.GetByIdAsync(userId)
+            ?? throw new NotFoundException(nameof(User), userId);
+
+        return await _userAnswerRepository.GetUserAnswers(sessionId, userId);
+    }
+
     private async Task AddNewUserHistory(Quiz quiz, User user, Guid sessionId)
     {
         var userHistory = new UserHistory
@@ -195,18 +209,5 @@ public class SessionService(IQuizService quizService,
     private static string GenerateCode()
     {
         return Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
-    }
-
-    public async Task<List<UserAnswer>> GetUserQuizResult(Guid sessionId, Guid userId)
-    {
-        var session = await _sessionRepository.GetByIdAsync(sessionId)
-            ?? throw new NotFoundException(nameof(Session), sessionId);
-
-        var questions = await _questionRepository.GetQuestionsByQuizIdAsync(session.Quiz.Id);
-
-        var user = await _userRepository.GetByIdAsync(userId)
-            ?? throw new NotFoundException(nameof(User), userId);
-
-        return await _userAnswerRepository.GetUserAnswers(sessionId, userId);
     }
 }

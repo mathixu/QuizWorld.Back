@@ -77,7 +77,7 @@ public class SessionsController(ISender sender, WebSocketService webSocketServic
     [HttpGet("{sessionId:guid}/users/{userId:guid}/answers")]
     [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(List<UserAnswer>))]
-    public async Task<IActionResult> GetSessionResultDetails([FromRoute] Guid sessionId, [FromRoute]Guid userId)
+    public async Task<IActionResult> GetSessionUserAnswers([FromRoute] Guid sessionId, [FromRoute]Guid userId)
             => await HandleCommand(new GetSessionResultDetailsQuery(sessionId, userId));
 
 }

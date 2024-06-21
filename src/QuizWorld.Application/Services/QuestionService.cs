@@ -243,21 +243,21 @@ public class QuestionService(IQuestionRepository questionRepository,
 
         await UpdateUserResponse(userSession.User, command.QuizId, question, responseIsCorrect);
 
-        await SaveUserAnswers(userSession.Session.Id, command.QuizId, userSession.User.Id, question.Id, command.AnswerIds, responseIsCorrect);
+        await SaveUserAnswers(userSession, command.QuizId, question.Id, command.AnswerIds, responseIsCorrect);
 
         var result = await UpdateUserSession(userSession, question, responseIsCorrect);
 
         await UpdateQuestionStats(questionMinimal, responseIsCorrect);
     }
 
-    private async Task SaveUserAnswers(Guid sessionId, Guid quizId, Guid userId, Guid questionId, List<Guid> answerIds, bool isCorrect)
+    private async Task SaveUserAnswers(UserSession userSession, Guid quizId, Guid questionId, List<Guid> answerIds, bool isCorrect)
     {
         var userAnswer = new UserAnswer
         {
             Id = Guid.NewGuid(),
-            SessionId = sessionId,
+            SessionId = userSession.Session.Id,
             QuizId = quizId,
-            UserId = userId,
+            UserId = userSession.User.Id,
             QuestionId = questionId,
             AnswerIds = answerIds,
             IsCorrect = isCorrect
