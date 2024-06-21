@@ -15,8 +15,7 @@ public class SessionService(IQuizService quizService,
     IQuestionService questionService,
     IUserHistoryRepository userHistoryRepository,
     IUserRepository userRepository,
-    IUserAnswerRepository userAnswerRepository,
-    IQuestionRepository questionRepository
+    IUserAnswerRepository userAnswerRepository
     ) : ISessionService
 {
     private readonly ISessionRepository _sessionRepository = sessionRepository;
@@ -28,7 +27,6 @@ public class SessionService(IQuizService quizService,
     private readonly IUserHistoryRepository _userHistoryRepository = userHistoryRepository;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserAnswerRepository _userAnswerRepository = userAnswerRepository;
-    private readonly IQuestionRepository _questionRepository = questionRepository;
 
     /// <inheritdoc />
     public async Task<Session> CreateSession(Guid quizId)
