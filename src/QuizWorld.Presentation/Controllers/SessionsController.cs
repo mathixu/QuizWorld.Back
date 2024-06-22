@@ -36,7 +36,7 @@ public class SessionsController(ISender sender, WebSocketService webSocketServic
 
     /// <summary>Gets the status of a session.</summary>
     [HttpGet("{sessionId:guid}")]
-    [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
+    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Session))]
     public async Task<IActionResult> GetSessionById([FromRoute] Guid sessionId)
         => await HandleCommand(new GetSessionByIdQuery(sessionId));
