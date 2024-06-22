@@ -7,6 +7,7 @@ using QuizWorld.Application.MediatR.Sessions.Commands.CreateSession;
 using QuizWorld.Application.MediatR.Sessions.Commands.UpdateSessionStatus;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetQuizResultDetails;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetSession;
+using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionById;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionResult;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
@@ -32,6 +33,13 @@ public class SessionsController(ISender sender, WebSocketService webSocketServic
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Session))]
     public async Task<IActionResult> GetSession([FromQuery] string code)
         => await HandleCommand(new GetSessionQuery(code));
+
+    /// <summary>Gets the status of a session.</summary>
+    [HttpGet("{sessionId:guid}")]
+    [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Session))]
+    public async Task<IActionResult> GetSessionById([FromRoute] Guid sessionId)
+        => await HandleCommand(new GetSessionByIdQuery(sessionId));
 
     /// <summary>
     /// Updates the status of a session.
