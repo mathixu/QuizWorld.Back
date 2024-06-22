@@ -11,7 +11,7 @@ public class GetSessionResultDetailsQueryHandler(ISessionService sessionService)
 
     public async Task<QuizWorldResponse<List<UserAnswer>>> Handle(GetSessionResultDetailsQuery request, CancellationToken cancellationToken)
     {
-        var userAnswers = await _sessionService.GetUserQuizResult(request.SessionId, request.UserId);
+        var userAnswers = await _sessionService.GetSessionUserAnswers(request.SessionId, request.UserId);
 
         return QuizWorldResponse<List<UserAnswer>>.Success(userAnswers);
     }

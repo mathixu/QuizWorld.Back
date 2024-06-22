@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
-using QuizWorld.Application.MediatR.Quizzes.Queries.GetQuizById;
 using QuizWorld.Application.MediatR.Sessions.Commands.CreateSession;
 using QuizWorld.Application.MediatR.Sessions.Commands.UpdateSessionStatus;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetQuizResultDetails;
