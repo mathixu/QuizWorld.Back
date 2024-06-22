@@ -10,13 +10,14 @@ using QuizWorld.Domain.Enums;
 namespace QuizWorld.Application.Services;
 
 public class QuestionService(IQuestionRepository questionRepository,
-    IQuizService quizService, 
-    IQuestionStatsRepository questionStatsRepository, 
-    IUserSessionRepository userSessionRepository, 
+    IQuizService quizService,
+    IQuestionStatsRepository questionStatsRepository,
+    IUserSessionRepository userSessionRepository,
     IQuestionGenerator questionGenerator,
     IUserResponseRepository userResponseRepository,
     ICurrentSessionService currentSessionService,
-    IUserHistoryRepository userHistoryRepository
+    IUserHistoryRepository userHistoryRepository,
+    IUserAnswerRepository userAnswerRepository
     ) : IQuestionService
 {
     private readonly IQuestionRepository _questionRepository = questionRepository;
@@ -27,6 +28,7 @@ public class QuestionService(IQuestionRepository questionRepository,
     private readonly IQuestionStatsRepository _questionStatsRepository = questionStatsRepository;
     private readonly IUserResponseRepository _userResponseRepository = userResponseRepository;
     private readonly IUserHistoryRepository _userHistoryRepository = userHistoryRepository;
+    private readonly IUserAnswerRepository _userAnswerRepository = userAnswerRepository;
 
     /// <inheritdoc/>
     public async Task CreateQuestionsAsync(Quiz quiz)
@@ -46,14 +48,14 @@ public class QuestionService(IQuestionRepository questionRepository,
 
         await _questionRepository.AddRangeAsync(questions);
     }
-    
+
     /// <inheritdoc/>
     public async Task<Question> RegenerateQuestion(Guid quizId, Guid questionId, string requirement)
     {
-        var question = await _questionRepository.GetByIdAsync(questionId) 
+        var question = await _questionRepository.GetByIdAsync(questionId)
             ?? throw new NotFoundException("Question not found");
 
-        var quiz = await _quizService.GetByIdAsync(quizId) 
+        var quiz = await _quizService.GetByIdAsync(quizId)
             ?? throw new NotFoundException("Quiz not found");
 
         if (question.QuizId != quiz.Id)
@@ -74,7 +76,7 @@ public class QuestionService(IQuestionRepository questionRepository,
     {
         var quiz = await _quizService.GetByIdAsync(quizId)
             ?? throw new NotFoundException(nameof(Quiz), quizId);
-        
+
         var questions = await _questionRepository.GetQuestionsByQuizIdAsync(quizId, Status.Valid);
 
         var currentUserSession = _currentSessionService.GetUserSessionByUserId(userId)
@@ -101,11 +103,11 @@ public class QuestionService(IQuestionRepository questionRepository,
         if (quiz.PersonalizedQuestions)
         {
             var userResponses = await _userResponseRepository.GetUserQuizResponses(userId, quizId);
-            
+
             Dictionary<Question, double> questionWeights = new();
 
             var questionsOld = questions.OrderBy(x => userResponses.FirstOrDefault(y => y.Question.Id == x.Id)?.UpdatedAt ?? DateTime.MinValue).ToList();
-            
+
             Random random = new Random();
 
             foreach (Question question in questions)
@@ -124,20 +126,20 @@ public class QuestionService(IQuestionRepository questionRepository,
 
                     weight += 60 * randomNumber;
                 }
-                    
+
                 if (userResponse is not null && userResponse.SuccessRate < (question.Skill.MasteryThreshold / 100))
                 {
                     double randomNumber = (random.NextDouble() % 0.4) + 0.8;
 
                     weight += 40 * randomNumber;
                 }
-                
+
                 if (userResponse is not null && !userResponse.LastResponseIsCorrect)
                 {
                     double randomNumber = (random.NextDouble() % 0.4) + 0.8;
                     weight += 35 * randomNumber;
                 }
-                
+
                 questionWeights.Add(question, weight);
             }
             questionSelected = questionWeights.OrderByDescending(x => x.Value).Take(quiz.TotalQuestions).Select(x => x.Key.ToTiny(quiz.DisplayMultipleChoice)).ToList();
@@ -222,7 +224,7 @@ public class QuestionService(IQuestionRepository questionRepository,
 
         return question;
     }
-    
+
     /// <inheritdoc/>
     public async Task ProcessUserResponse(UserSession userSession, AnswerQuestionCommand command)
     {
@@ -241,9 +243,27 @@ public class QuestionService(IQuestionRepository questionRepository,
 
         await UpdateUserResponse(userSession.User, command.QuizId, question, responseIsCorrect);
 
+        await SaveUserAnswers(userSession, command.QuizId, question.Id, command.AnswerIds, responseIsCorrect);
+
         var result = await UpdateUserSession(userSession, question, responseIsCorrect);
 
         await UpdateQuestionStats(questionMinimal, responseIsCorrect);
+    }
+
+    private async Task SaveUserAnswers(UserSession userSession, Guid quizId, Guid questionId, List<Guid> answerIds, bool isCorrect)
+    {
+        var userAnswer = new UserAnswer
+        {
+            Id = Guid.NewGuid(),
+            SessionId = userSession.Session.Id,
+            QuizId = quizId,
+            UserId = userSession.User.Id,
+            QuestionId = questionId,
+            AnswerIds = answerIds,
+            IsCorrect = isCorrect
+        };
+
+        await _userAnswerRepository.AddAsync(userAnswer);
     }
 
     private async Task<UserSessionResult> UpdateUserSession(UserSession userSession, Question question, bool isCorrect)
@@ -288,13 +308,13 @@ public class QuestionService(IQuestionRepository questionRepository,
         return userSession.Result;
     }
 
-    private static void UpdateSkillWeight(SkillWeightExtended skillWeight, bool isCorrect) 
+    private static void UpdateSkillWeight(SkillWeightExtended skillWeight, bool isCorrect)
     {
         var currentSuccessRate = skillWeight.Weight / 100.0;
         var totalAttempts = skillWeight.Attempts;
 
         var previousSuccesses = Math.Round(currentSuccessRate * totalAttempts);
-            
+
         var newSuccesses = isCorrect ? previousSuccesses + 1 : previousSuccesses;
 
         skillWeight.Attempts++;
@@ -343,7 +363,7 @@ public class QuestionService(IQuestionRepository questionRepository,
             await _questionStatsRepository.UpdateAsync(question.Id, questionStats);
 
             return;
-        } 
+        }
 
         questionStats = new QuestionStats
         {

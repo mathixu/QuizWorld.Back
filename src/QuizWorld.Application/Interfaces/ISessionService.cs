@@ -42,4 +42,12 @@ public interface ISessionService
     /// Gets the session result.
     /// </summary>
     Task<UserSessionResult?> GetSessionResult(string code);
+
+    /// <summary>
+    /// Get the list of UserAnswer of a session.
+    /// </summary>
+    /// <param name="sessionId">the id of the session.</param>
+    /// <param name="userId">the id of the user.</param>
+    /// <returns>a list of UserAnswer</returns>
+    Task<List<UserAnswer>> GetSessionUserAnswers(Guid sessionId, Guid userId);
 }

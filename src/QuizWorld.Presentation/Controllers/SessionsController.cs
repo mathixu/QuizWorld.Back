@@ -5,6 +5,7 @@ using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.MediatR.Sessions.Commands.CreateSession;
 using QuizWorld.Application.MediatR.Sessions.Commands.UpdateSessionStatus;
+using QuizWorld.Application.MediatR.Sessions.Queries.GetQuizResultDetails;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetSession;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionResult;
 using QuizWorld.Domain.Entities;
@@ -46,8 +47,8 @@ public class SessionsController(ISender sender, WebSocketService webSocketServic
 
         if (response.IsSuccessful)
         {
-            var action = response.Data.Status == SessionStatus.Started ? WebSocketAction.StartSession 
-                                    : response.Data.Status == SessionStatus.Finished ? WebSocketAction.StopSession 
+            var action = response.Data.Status == SessionStatus.Started ? WebSocketAction.StartSession
+                                    : response.Data.Status == SessionStatus.Finished ? WebSocketAction.StopSession
                                     : WebSocketAction.None;
 
             await webSocketService.HandleAction(action);
@@ -71,4 +72,11 @@ public class SessionsController(ISender sender, WebSocketService webSocketServic
 
         return HandleResult(result);
     }
+
+    [HttpGet("{sessionId:guid}/users/{userId:guid}/answers")]
+    [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(List<UserAnswer>))]
+    public async Task<IActionResult> GetSessionUserAnswers([FromRoute] Guid sessionId, [FromRoute]Guid userId)
+            => await HandleCommand(new GetSessionResultDetailsQuery(sessionId, userId));
+
 }
