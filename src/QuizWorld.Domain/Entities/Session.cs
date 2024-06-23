@@ -25,6 +25,11 @@ public class Session : BaseAuditableEntity
 
     /// <summary>Represents the ending time of the session.</summary>
     public DateTime? EndingAt { get; set; } = default!;
+
+    /// <summary>
+    /// Represents the type of the session (Multiplayer, Singleplayer).
+    /// </summary>
+    public SessionType Type { get; set; } 
 }
 
 public class SessionTiny : BaseEntity
