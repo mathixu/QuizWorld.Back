@@ -18,4 +18,9 @@ public interface ISessionRepository
     /// Update the status of a session.
     /// </summary>
     Task<bool> UpdateStatusAsync(Guid sessionId, SessionStatus status);
+
+    /// <summary>
+    /// Update the session.
+    /// </summary>
+    Task<bool> UpdateSessionAsync(Guid sessionId, Session session);
 }

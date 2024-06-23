@@ -23,7 +23,7 @@ public class SessionsController(ISender sender, WebSocketService webSocketServic
     /// <summary>Creates a new session.</summary>
     [HttpPost]
     [SwaggerResponse(StatusCodes.Status201Created, Type = typeof(Session))]
-    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
+    [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
     public async Task<IActionResult> CreateSession([FromBody] CreateSessionCommand command)
         => await HandleCommand(command);
 

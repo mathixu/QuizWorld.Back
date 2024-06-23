@@ -50,9 +50,9 @@ public class QuizSessionHub(ICurrentUserService currentUserService, ISessionServ
                 _currentSessionService.DisconnectOldUser(user.Id);
             }
 
-            var sessionStatus = await _sessionService.GetSessionByCode(code);
+            var session = await _sessionService.GetSessionByCode(code);
 
-            switch(sessionStatus.Status)
+            switch(session.Status)
             {
                 case SessionStatus.None:
                     await Clients.Caller.SendAsync("ReceiveMessage", "The session does not exist.");
@@ -68,6 +68,13 @@ public class QuizSessionHub(ICurrentUserService currentUserService, ISessionServ
                     await Clients.Caller.SendAsync("ReceiveMessage", "The session has already finished.");
                     await DisconnectUser(Context.ConnectionId);
                     return;
+            }
+
+            if (session.Type == SessionType.Singleplayer && session.CreatedBy.Id != user.Id)
+            {
+                await Clients.Caller.SendAsync("ReceiveMessage", "The session is singleplayer and you are not the creator.");
+                await DisconnectUser(Context.ConnectionId);
+                return;
             }
 
             var userSession = await _sessionService.AddUserSession(code, Context.ConnectionId, user);

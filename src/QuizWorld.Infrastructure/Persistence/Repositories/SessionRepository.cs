@@ -93,4 +93,22 @@ public class SessionRepository : ISessionRepository
             return false;
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<bool> UpdateSessionAsync(Guid sessionId, Session session)
+    {
+        try
+        {
+            var filter = Builders<Session>.Filter.Eq(s => s.Id, sessionId);
+
+            await _mongoSessionCollection.ReplaceOneAsync(filter, session);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update session in the database.");
+            return false;
+        }
+    }
 }
