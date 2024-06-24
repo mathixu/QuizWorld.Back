@@ -1,4 +1,5 @@
 ﻿using QuizWorld.Application.Common.Exceptions;
+using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
@@ -103,6 +104,9 @@ public class SessionService(IQuizService quizService,
     {
         var session = await _sessionRepository.GetByCodeAsync(code)
             ?? throw new NotFoundException(nameof(Session), code);
+
+        if (!_currentUserService.HasMinRole(Constants.MIN_TEACHER_ROLE) || session.CreatedBy.Id != _currentUserService.UserId)
+            throw new UnauthorizedAccessException();
 
         if (status == SessionStatus.Started && session.Status != SessionStatus.Awaiting)
             throw new BadRequestException("The session has already started.");
