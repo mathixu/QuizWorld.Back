@@ -10,6 +10,7 @@ using QuizWorld.Application.MediatR.Sessions.Queries.GetSession;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionById;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionHistory;
 using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionResult;
+using QuizWorld.Application.MediatR.Sessions.Queries.GetUserHistories;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 using QuizWorld.Presentation.WebSockets;
@@ -93,4 +94,14 @@ public class SessionsController(ISender sender, WebSocketService webSocketServic
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<SessionLight>))]
     public async Task<IActionResult> GetSessionHistory([FromQuery] GetSessionHistoryQuery query)
         => await HandleCommand(query);
+
+    [HttpGet("{sessionId:guid}/history")]
+    [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(PaginatedList<UserHistory>))]
+    public async Task<IActionResult> GetUserHistoriesBySession([FromRoute] Guid sessionId, [FromQuery] GetUserHistoriesQuery query)
+    {
+        query.SessionId = sessionId;
+
+        return await HandleCommand(query);
+    }
 }

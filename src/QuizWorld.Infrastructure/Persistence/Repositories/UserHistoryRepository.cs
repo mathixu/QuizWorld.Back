@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces.Repositories;
+using QuizWorld.Application.MediatR.Sessions.Queries.GetUserHistories;
 using QuizWorld.Application.MediatR.Users.Queries.SearchHistory;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Infrastructure.Common.Options;
@@ -82,6 +83,34 @@ public class UserHistoryRepository : IUserHistoryRepository
             var total = await _mongoUserHistoryCollection.CountDocumentsAsync(filter);
             var histories = await _mongoUserHistoryCollection.Find(filter)
                 .SortByDescending(s => s.Date)
+                .Skip((query.Page - 1) * query.PageSize)
+                .Limit(query.PageSize)
+                .ToListAsync();
+
+            return new PaginatedList<UserHistory>(histories, total, query.Page, query.PageSize);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to search for user histories in the database.");
+            return new PaginatedList<UserHistory>(new List<UserHistory>(), 0, 1, 10);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<PaginatedList<UserHistory>> SearchUsersAsync(GetUserHistoriesQuery query)
+    {
+        try
+        {
+            var filter = Builders<UserHistory>.Filter.Eq(f => f.SessionId, query.SessionId);
+
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                filter &= Builders<UserHistory>.Filter.Regex(s => s.User.FullName, new BsonRegularExpression(query.Search.ToNormalizedFormat(), "i"));
+            }
+
+            var total = await _mongoUserHistoryCollection.CountDocumentsAsync(filter);
+            var histories = await _mongoUserHistoryCollection.Find(filter)
+                .SortBy(s => s.User.FullName)
                 .Skip((query.Page - 1) * query.PageSize)
                 .Limit(query.PageSize)
                 .ToListAsync();
