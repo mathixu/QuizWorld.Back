@@ -47,4 +47,9 @@ public interface ICurrentUserService
     /// <param name="claimsPrincipal">The claims principal.</param>
     /// <returns>The user.</returns>
     User? ExtractUser(ClaimsPrincipal claimsPrincipal);
+
+    /// <summary>
+    /// Checks if the current user has the given role.
+    /// </summary>
+    bool HasMinRole(string role);
 }

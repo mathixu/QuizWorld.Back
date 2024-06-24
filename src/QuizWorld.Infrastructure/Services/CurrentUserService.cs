@@ -109,4 +109,12 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
             Roles = roles
         };
     }
+
+    /// <inheritdoc />
+    public bool HasMinRole(string role)
+    {
+        var roles = role.Split(",");
+
+        return UserRoles?.Any(x => roles.Contains(x)) ?? false;
+    }
 }

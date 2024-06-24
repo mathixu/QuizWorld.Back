@@ -17,10 +17,7 @@ public class CreateSessionCommandValidator : AbstractValidator<CreateSessionComm
             .IsInEnum()
             .WithMessage("Session type is invalid.");
 
-        var currentUserRoles = currentUserService.UserRoles
-            ?? throw new UnauthorizedAccessException();
-
-        if (!currentUserRoles.Contains(Constants.TEACHER_ROLE) && !currentUserRoles.Contains(Constants.ADMIN_ROLE))
+        if (!currentUserService.HasMinRole(Constants.MIN_TEACHER_ROLE))
         {
             RuleFor(x => x.Type)
                 .Equal(SessionType.Singleplayer)

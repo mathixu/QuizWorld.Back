@@ -45,7 +45,7 @@ public class SessionsController(ISender sender, WebSocketService webSocketServic
     /// Updates the status of a session.
     /// </summary>
     [HttpPut("{code}/status")]
-    [Authorize(Roles = Constants.MIN_TEACHER_ROLE)]
+    [Authorize(Roles = Constants.MIN_STUDENT_ROLE)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(Session))]
     public async Task<IActionResult> UpdateSessionStatus([FromRoute] string code, [FromBody] UpdateSessionStatusCommand command)
     {
