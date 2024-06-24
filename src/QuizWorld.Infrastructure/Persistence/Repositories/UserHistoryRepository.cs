@@ -72,11 +72,11 @@ public class UserHistoryRepository : IUserHistoryRepository
     {
         try
         {
-            var filter = Builders<UserHistory>.Filter.Empty;
+            var filter = Builders<UserHistory>.Filter.Eq(f => f.User.Id, userId);
 
             if (!string.IsNullOrWhiteSpace(query.Search))
             {
-                filter = Builders<UserHistory>.Filter.Regex(    s => s.Quiz.Name, new BsonRegularExpression(query.Search.ToNormalizedFormat(), "i"));
+                filter &= Builders<UserHistory>.Filter.Regex(s => s.Quiz.Name, new BsonRegularExpression(query.Search.ToNormalizedFormat(), "i"));
             }
 
             var total = await _mongoUserHistoryCollection.CountDocumentsAsync(filter);

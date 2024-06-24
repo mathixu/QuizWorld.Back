@@ -8,8 +8,9 @@ public interface ISessionService
 {
     /// <summary>Creates a session with the given quiz ids.</summary>
     /// <param name="quizId">Represents the id of the quizz.</param>
+    /// <param name="sessionType">Represents the type of session.</param>
     /// <returns>Returns the created session.</returns>
-    Task<Session> CreateSession(Guid quizId);
+    Task<Session> CreateSession(Guid quizId, SessionType sessionType);
 
     /// <summary>Gets the session.</summary>
     /// <param name="code">The code of the session.</param>

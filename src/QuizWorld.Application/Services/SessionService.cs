@@ -1,4 +1,5 @@
 ﻿using QuizWorld.Application.Common.Exceptions;
+using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
@@ -29,7 +30,7 @@ public class SessionService(IQuizService quizService,
     private readonly IUserAnswerRepository _userAnswerRepository = userAnswerRepository;
 
     /// <inheritdoc />
-    public async Task<Session> CreateSession(Guid quizId)
+    public async Task<Session> CreateSession(Guid quizId, SessionType sessionType)
     {
         var currentUser = _currentUserService.UserTiny 
             ?? throw new UnauthorizedAccessException();
@@ -39,7 +40,7 @@ public class SessionService(IQuizService quizService,
         string code;
         do
         {
-            code = GenerateCode();
+            code = GenerateCode(sessionType == SessionType.Multiplayer ? 6 : 12);
         }
         while (await _sessionRepository.GetByCodeAsync(code) != null);
 
@@ -48,7 +49,8 @@ public class SessionService(IQuizService quizService,
             Quiz = quizz,
             Code = code,
             CreatedBy = currentUser,
-            Status = SessionStatus.Awaiting
+            Status = SessionStatus.Awaiting,
+            Type = sessionType
         };
 
         await _sessionRepository.AddAsync(session);
@@ -103,7 +105,23 @@ public class SessionService(IQuizService quizService,
         var session = await _sessionRepository.GetByCodeAsync(code)
             ?? throw new NotFoundException(nameof(Session), code);
 
-        await _sessionRepository.UpdateStatusAsync(session.Id, status);
+        if (!_currentUserService.HasMinRole(Constants.MIN_TEACHER_ROLE) || session.CreatedBy.Id != _currentUserService.UserId)
+            throw new UnauthorizedAccessException();
+
+        if (status == SessionStatus.Started && session.Status != SessionStatus.Awaiting)
+            throw new BadRequestException("The session has already started.");
+
+        if (status == SessionStatus.Finished && session.Status != SessionStatus.Started)
+            throw new BadRequestException("The session has not started yet.");
+
+        if (status == SessionStatus.Started)
+            session.StartingAt = DateTime.UtcNow;
+        else if (status == SessionStatus.Finished)
+            session.EndingAt = DateTime.UtcNow;
+
+        session.Status = status;
+
+        await _sessionRepository.UpdateSessionAsync(session.Id, session);
 
         session.Status = status;
 
@@ -202,8 +220,12 @@ public class SessionService(IQuizService quizService,
         return quizz == null ? throw new BadRequestException("One or more quizzes were not found.") : quizz.ToTiny();
     }
 
-    private static string GenerateCode()
+    private static string GenerateCode(int length)
     {
-        return Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        var random = new Random();
+
+        return new string(Enumerable.Repeat(chars, length)
+                       .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 }
