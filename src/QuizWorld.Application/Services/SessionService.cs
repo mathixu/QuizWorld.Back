@@ -1,8 +1,10 @@
 ﻿using QuizWorld.Application.Common.Exceptions;
 using QuizWorld.Application.Common.Helpers;
+using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces;
 using QuizWorld.Application.Interfaces.Repositories;
 using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
+using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionHistory;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 
@@ -227,5 +229,11 @@ public class SessionService(IQuizService quizService,
 
         return new string(Enumerable.Repeat(chars, length)
                        .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+
+    /// <inheritdoc />
+    public async Task<PaginatedList<Session>> GetSessionHistory(Guid userId, GetSessionHistoryQuery query)
+    {
+        return await _sessionRepository.GetSessionHistoryAsync(userId, query);
     }
 }
