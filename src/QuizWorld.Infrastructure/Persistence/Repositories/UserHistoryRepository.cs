@@ -73,7 +73,10 @@ public class UserHistoryRepository : IUserHistoryRepository
     {
         try
         {
-            var filter = Builders<UserHistory>.Filter.Eq(f => f.User.Id, userId);
+            var filter = Builders<UserHistory>.Filter.And(
+                Builders<UserHistory>.Filter.Eq(f => f.User.Id, userId),
+                Builders<UserHistory>.Filter.Ne(f => f.Result, null)
+            );
 
             if (!string.IsNullOrWhiteSpace(query.Search))
             {
