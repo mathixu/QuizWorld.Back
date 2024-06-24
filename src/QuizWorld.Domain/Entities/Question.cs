@@ -106,9 +106,6 @@ public static class QuestionExtensions
             if (question.Combinaisons == null || question.Combinaisons.Count == 0)
                 return false;
 
-            if (question.Combinaisons.Count != answerIds?.Count)
-                return false;
-
             var userAnswersIdSet = new HashSet<Guid>(answerIds);
 
             foreach (var correctCombinaison in question.Combinaisons)
