@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using QuizWorld.Application.Common.Models;
 using QuizWorld.Application.Interfaces.Repositories;
+using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionHistory;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 using QuizWorld.Infrastructure.Common.Options;
@@ -109,6 +112,41 @@ public class SessionRepository : ISessionRepository
         {
             _logger.LogError(ex, "Failed to update session in the database.");
             return false;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<PaginatedList<Session>> GetSessionHistoryAsync(Guid userId, GetSessionHistoryQuery query)
+    {
+        try
+        {
+            var filter = Builders<Session>.Filter.And(
+                Builders<Session>.Filter.Eq(s => s.CreatedBy.Id, userId),
+                Builders<Session>.Filter.Eq(s => s.Type, SessionType.Multiplayer)
+            );
+
+            if (!string.IsNullOrEmpty(query.Search))
+            {
+                filter &= Builders<Session>.Filter.Or(
+                    Builders<Session>.Filter.Regex(s => s.Code, new BsonRegularExpression(query.Search, "i")),
+                    Builders<Session>.Filter.Regex(s => s.Quiz.Name, new BsonRegularExpression(query.Search, "i"))
+                );
+            }
+
+            var total = await _mongoSessionCollection.CountDocumentsAsync(filter);
+
+            var sessions = await _mongoSessionCollection.Find(filter)
+                .SortByDescending(s => s.CreatedAt)
+                .Skip((query.Page - 1) * query.PageSize)
+                .Limit(query.PageSize)
+                .ToListAsync();
+
+            return new PaginatedList<Session>(sessions, total, query.Page, query.PageSize);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get session history from the database.");
+            return new PaginatedList<Session>(new List<Session>(), 0, 1, 10);
         }
     }
 }

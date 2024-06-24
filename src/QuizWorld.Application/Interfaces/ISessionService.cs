@@ -1,4 +1,6 @@
-﻿using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
+﻿using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.MediatR.Quizzes.Commands.StartQuiz;
+using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionHistory;
 using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 
@@ -51,4 +53,9 @@ public interface ISessionService
     /// <param name="userId">the id of the user.</param>
     /// <returns>a list of UserAnswer</returns>
     Task<List<UserAnswer>> GetSessionUserAnswers(Guid sessionId, Guid userId);
+
+    /// <summary>
+    /// Get the list of UserAnswer of a session.
+    /// </summary>
+    Task<PaginatedList<Session>> GetSessionHistory(Guid userId, GetSessionHistoryQuery query);
 }
