@@ -27,6 +27,7 @@ jobs:
         with:
           args: --save-report
           cache-default-branch-only: true
+          cache-dir: /tmp/qodana-cache
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
