@@ -1,4 +1,5 @@
 ﻿using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.MediatR.Sessions.Queries.GetUserHistories;
 using QuizWorld.Application.MediatR.Users.Queries.SearchHistory;
 using QuizWorld.Domain.Entities;
 
@@ -20,4 +21,9 @@ public interface IUserHistoryRepository
     /// Get User history
     /// </summary>
     Task<PaginatedList<UserHistory>> SearchHistoriesAsync(Guid userId, SearchHistoryQuery query);
+
+    /// <summary>
+    /// Get user histories
+    /// </summary>
+    Task<PaginatedList<UserHistory>> SearchUsersAsync(GetUserHistoriesQuery query);
 }

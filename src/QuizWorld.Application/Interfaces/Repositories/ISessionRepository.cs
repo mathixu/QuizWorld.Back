@@ -1,4 +1,6 @@
-﻿using QuizWorld.Domain.Entities;
+﻿using QuizWorld.Application.Common.Models;
+using QuizWorld.Application.MediatR.Sessions.Queries.GetSessionHistory;
+using QuizWorld.Domain.Entities;
 using QuizWorld.Domain.Enums;
 
 namespace QuizWorld.Application.Interfaces.Repositories;
@@ -23,4 +25,9 @@ public interface ISessionRepository
     /// Update the session.
     /// </summary>
     Task<bool> UpdateSessionAsync(Guid sessionId, Session session);
+
+    /// <summary>
+    /// Get the list of sessions.
+    /// </summary>
+    Task<PaginatedList<Session>> GetSessionHistoryAsync(Guid userId, GetSessionHistoryQuery query);
 }
