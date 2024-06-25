@@ -23,7 +23,7 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: Qodana Scan
-        uses: JetBrains/qodana-action@v2024.1.6
+        uses: JetBrains/qodana-action@v2024.1.3
         with:
           args: --save-report
 
