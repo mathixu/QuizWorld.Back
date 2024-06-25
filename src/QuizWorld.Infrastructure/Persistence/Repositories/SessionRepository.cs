@@ -43,7 +43,6 @@ public class SessionRepository : ISessionRepository
         }
     }
 
-    // TODO: Add code as Index
     /// <inheritdoc/>
     public async Task<Session?> GetByCodeAsync(string code)
     {

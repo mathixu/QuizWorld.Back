@@ -60,7 +60,6 @@ public class SkillRepository : ISkillRepository
         }
     }
 
-    // TODO: Add name as Index
     /// <inheritdoc/>
     public async Task<Skill?> GetSkillByName(string name)
     {
