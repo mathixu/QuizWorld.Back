@@ -1,6 +1,5 @@
 ﻿using Azure;
 using Azure.AI.OpenAI;
-using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Options;
 using QuizWorld.Infrastructure.Common.Helpers;
 using QuizWorld.Infrastructure.Common.Options;
@@ -12,17 +11,14 @@ public class OpenAIChatCompletion : ILLMService
 {
     private readonly LLMOptions _options;
     private readonly OpenAIClient _client;
-    private readonly TelemetryClient _telemetryClient;
 
-    public OpenAIChatCompletion(IOptions<LLMOptions> options, TelemetryClient telemetryClient)
+    public OpenAIChatCompletion(IOptions<LLMOptions> options)
     {
         _options = options.Value;
 
         _client = _options.IsAzureOpenAI
             ? new OpenAIClient( new Uri(_options.AzureResourceUrl!), new AzureKeyCredential(_options.AzureApiKey!))
             : new OpenAIClient(_options.OpenAIApiKey!);
-
-        _telemetryClient = telemetryClient;
     }
 
     /// <inheritdoc />
