@@ -28,29 +28,20 @@ public class OpenAIChatCompletion : ILLMService
     /// <inheritdoc />
     public async Task<string> GenerateContent(GenerateContentType contentType, string input, string? fileUrl = null)
     { 
-        try
+        var chatCompletionsOptions = new ChatCompletionsOptions()
         {
-            var chatCompletionsOptions = new ChatCompletionsOptions()
-            {
-                DeploymentName = _options.Model,
-                Messages = {
-                    new ChatRequestSystemMessage(SystemMessages.Messages[contentType]),
-                    new ChatRequestUserMessage(input)
-                },
-                Temperature = 1,
-            };
+            DeploymentName = _options.Model,
+            Messages = {
+                new ChatRequestSystemMessage(SystemMessages.Messages[contentType]),
+                new ChatRequestUserMessage(input)
+            },
+            Temperature = 1,
+        };
 
-            var response = await _client.GetChatCompletionsAsync(chatCompletionsOptions);
+        var response = await _client.GetChatCompletionsAsync(chatCompletionsOptions);
 
-            var responseMessage = response.Value.Choices[0].Message;
+        var responseMessage = response.Value.Choices[0].Message;
 
-            return responseMessage.Content;
-        }
-        catch (Exception ex)
-        {
-            _telemetryClient.TrackException(ex);
-
-            throw;
-        }
+        return responseMessage.Content;
     }
 }
