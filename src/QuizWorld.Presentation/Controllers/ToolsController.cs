@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuizWorld.Application.Common.Helpers;
 using QuizWorld.Application.Interfaces;
+using QuizWorld.Application.MediatR.Tools.Commands.AlgorithmSimulation;
 using QuizWorld.Domain.Entities;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
@@ -40,6 +41,21 @@ public class ToolsController(ISender sender, IQuestionGenerator questionGenerato
         {
             return BadRequest(ex.Message);
         }
+    }
+
+    /// <summary>
+    /// Simulates the algorithm for personalize questions.
+    /// </summary>
+    [HttpPost("algorithm-simulation")]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(AlgorithmSimulationResponse))]
+    public async Task<IActionResult> AlgorithmSimulation([FromBody] AlgorithmSimulationCommand command)
+    {
+        var response = await _sender.Send(command);
+
+        if (response.IsSuccessful)
+            return Ok(response.Data.Lisible);
+
+        return BadRequest(response);
     }
 }
 

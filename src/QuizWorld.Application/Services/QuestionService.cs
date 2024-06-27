@@ -104,45 +104,9 @@ public class QuestionService(IQuestionRepository questionRepository,
         {
             var userResponses = await _userResponseRepository.GetUserQuizResponses(userId, quizId);
 
-            Dictionary<Question, double> questionWeights = new();
+            var questionsWeights = SortQuestions(quiz, userResponses, questions);
 
-            var questionsOld = questions.OrderBy(x => userResponses.FirstOrDefault(y => y.Question.Id == x.Id)?.UpdatedAt ?? DateTime.MinValue).ToList();
-
-            Random random = new Random();
-
-            foreach (Question question in questions)
-            {
-                var userResponse = userResponses.FirstOrDefault(x => x.Question.Id == question.Id);
-                var weight = 0.0;
-
-                if (userResponse is null)
-                {
-                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
-                    weight += 100 * randomNumber;
-                }
-                if (questionsOld.IndexOf(question) < questionsOld.Count / 10)
-                {
-                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
-
-                    weight += 60 * randomNumber;
-                }
-
-                if (userResponse is not null && userResponse.SuccessRate < (question.Skill.MasteryThreshold / 100))
-                {
-                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
-
-                    weight += 40 * randomNumber;
-                }
-
-                if (userResponse is not null && !userResponse.LastResponseIsCorrect)
-                {
-                    double randomNumber = (random.NextDouble() % 0.4) + 0.8;
-                    weight += 35 * randomNumber;
-                }
-
-                questionWeights.Add(question, weight);
-            }
-            questionSelected = questionWeights.OrderByDescending(x => x.Value).Take(quiz.TotalQuestions).Select(x => x.Key.ToTiny(quiz.DisplayMultipleChoice)).ToList();
+            questionSelected = questionsWeights.OrderByDescending(x => x.Value).Take(quiz.TotalQuestions).Select(x => x.Key.ToTiny(quiz.DisplayMultipleChoice)).ToList();
         }
         else
         {
@@ -373,5 +337,52 @@ public class QuestionService(IQuestionRepository questionRepository,
         };
 
         await _questionStatsRepository.AddAsync(questionStats);
+    }
+
+    /// <summary>
+    /// Sort questions based on the user responses and the questions.
+    /// </summary>
+    public static Dictionary<Question, double> SortQuestions(Quiz quiz, List<UserResponse> userResponses, List<Question> questions)
+    {
+        Dictionary<Question, double> questionWeights = [];
+
+        var questionsOld = questions.OrderBy(x => userResponses.FirstOrDefault(y => y.Question.Id == x.Id)?.UpdatedAt ?? DateTime.MinValue).ToList();
+
+        var random = new Random();
+
+        foreach (Question question in questions)
+        {
+            var userResponse = userResponses.FirstOrDefault(x => x.Question.Id == question.Id);
+            var weight = 0.0;
+
+            if (userResponse is null)
+            {
+                double randomNumber = (random.NextDouble() % 0.4) + 0.8;
+                weight += 100 * randomNumber;
+            }
+            if (questionsOld.IndexOf(question) < questionsOld.Count / 10)
+            {
+                double randomNumber = (random.NextDouble() % 0.4) + 0.8;
+
+                weight += 60 * randomNumber;
+            }
+
+            if (userResponse is not null && userResponse.SuccessRate < (question.Skill.MasteryThreshold / 100))
+            {
+                double randomNumber = (random.NextDouble() % 0.4) + 0.8;
+
+                weight += 40 * randomNumber;
+            }
+
+            if (userResponse is not null && !userResponse.LastResponseIsCorrect)
+            {
+                double randomNumber = (random.NextDouble() % 0.4) + 0.8;
+                weight += 35 * randomNumber;
+            }
+
+            questionWeights.Add(question, weight);
+        }
+
+        return questionWeights;
     }
 }
