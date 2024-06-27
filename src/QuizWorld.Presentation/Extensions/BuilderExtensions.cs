@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver.Core.Configuration;
 using QuizWorld.Application;
 using QuizWorld.Infrastructure;
 using QuizWorld.Presentation.OptionsSetup;
@@ -41,10 +42,27 @@ public static class BuilderExtensions
 
         builder.Configuration.AddAzureKeyVault(new Uri(Environment.GetEnvironmentVariable(Constants.ENV_VARIABLE_KEY_KEY_VAULT_URL)), new DefaultAzureCredential());
 
+        builder.ConfigureApplicationInsights();
+
         builder.Services.AddApplicationServices(builder.Configuration);
         builder.Services.AddInfrastructureServices(builder.Configuration);
 
         builder.ConfigureAuthentication();
+
+        return builder;
+    }
+
+    private static WebApplicationBuilder ConfigureApplicationInsights(this WebApplicationBuilder builder)
+    {
+        var connectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+
+        if (string.IsNullOrEmpty(connectionString))
+            throw new InvalidOperationException("Application Insights Instrumentation Key is missing");
+
+        builder.Services.AddApplicationInsightsTelemetry(options =>
+        {
+            options.ConnectionString = connectionString;
+        });
 
         return builder;
     }

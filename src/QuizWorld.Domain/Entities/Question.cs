@@ -123,32 +123,6 @@ public static class QuestionExtensions
     }
 
     /// <summary>
-    /// Extract the answers from the question.
-    /// </summary>
-    public static List<AnswerTiny> ExtractAnswers(this Question question, List<Guid> answerIds)
-    {
-        if (question.Type == QuestionType.SimpleChoice || question.Type == QuestionType.MultipleChoice)
-        {
-            return question.Answers?.Where(a => answerIds.Contains(a.Id)).Select(a => a.ToTiny()).ToList() ?? [];
-        }
-        else if (question.Type == QuestionType.Combinaison)
-        {
-            // For each answer in List<List<Answer>> Combinaisons, if the answer is in the answerIds list, add it to the answers list
-            var answers = new List<AnswerTiny>();
-
-            foreach (var combinaison in question.Combinaisons ?? [])
-            {
-                // TODO
-                //answers.AddRange(combinaison.Where(a => answerIds.Contains(a));
-            }
-
-            return answers;
-        }
-
-        return [];
-    }
-
-    /// <summary>
     /// Check if the question has the answer.
     /// </summary>
     public static bool HasAnswer(this Question question, Guid answerId)
