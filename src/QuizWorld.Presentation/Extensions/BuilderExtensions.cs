@@ -42,7 +42,7 @@ public static class BuilderExtensions
 
         builder.Configuration.AddAzureKeyVault(new Uri(Environment.GetEnvironmentVariable(Constants.ENV_VARIABLE_KEY_KEY_VAULT_URL)), new DefaultAzureCredential());
 
-        builder.ConfigureApplicationInsights();
+        //builder.ConfigureApplicationInsights();
 
         builder.Services.AddApplicationServices(builder.Configuration);
         builder.Services.AddInfrastructureServices(builder.Configuration);
